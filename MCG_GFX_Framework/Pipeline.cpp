@@ -82,6 +82,9 @@ Rasterizer::Rasterizer(Surface* _surface)
 	m_world = glm::mat4();
 	m_view = glm::mat4();
 	m_projection = glm::mat4();
+
+	m_culling = Culling::Backface;
+	m_windingOrder = WindingOrder::Clockwise;
 }
 
 Rasterizer::~Rasterizer()
@@ -99,8 +102,22 @@ bool Rasterizer::transform(const Vertex & a, const Vertex & b, const Vertex & c,
 	target_b = transform(b.m_position);
 	target_c = transform(c.m_position);
 
+	switch (m_culling)
+	{
+		case Culling::None: return true;
+		case Culling::Backface:
+		{
+			if (m_windingOrder == WindingOrder::Clockwise)
+			{
+				return glm::dot(glm::cross((glm::vec3(viewC) - glm::vec3(viewA)), (glm::vec3(viewB) - glm::vec3(viewA))), glm::vec3(viewA)) >= 0.0f;
+			}
+			else
+			{
+				return glm::dot(glm::cross((glm::vec3(viewB) - glm::vec3(viewA)), (glm::vec3(viewC) - glm::vec3(viewA))), glm::vec3(viewA)) >= 0.0f;
+			}
+		}
+	}
 	//backface culling
-	return glm::dot(glm::cross((glm::vec3(viewB) - glm::vec3(viewA)), (glm::vec3(viewC) - glm::vec3(viewA))), glm::vec3(viewA)) >= 0.0f;
 }
 
 
@@ -345,6 +362,10 @@ void Rasterizer::drawTriangle(Vertex& a, Vertex& b, Vertex &c)
 		std::vector<glm::vec2> points = findPoints(tA, tB, tC);
 
 		for(glm::vec2 point : points) {
+			if (point.x < 0 || point.y < 0 || point.x >= m_surface->getWidth() || point.y >= m_surface->getHeight())
+			{
+				continue;
+			}
 		//for (int x = minX; x <= maxX; x++)
 		//{
 			//for (int y = minY; y <= maxY; y++)
