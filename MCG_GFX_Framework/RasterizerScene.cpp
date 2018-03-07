@@ -7,6 +7,16 @@
 
 #include <cmath>
 
+std::vector<Vertex> vertices = {
+	{ 0, 0, 0, 0, 1 },
+	{ 0, 1, 0, 0, 0 },
+	{ 1, 1, 0, 1, 0 },
+
+{ 1, 1, 0, 1, 0 },
+	{ 0, 0, 0, 0, 1 },
+{ 0, 0, 0, 0, 1 },
+};
+
 RasterizerScene::RasterizerScene()
 {
 	m_renderer = new Rasterizer(getSurface());
