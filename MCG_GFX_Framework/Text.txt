@@ -1,0 +1,112 @@
+
+void FillLine(int x1, int y1, int x2, int y2)
+{
+	if (x1 > x2)
+	{
+		int tX = x1;
+		x1 = x2;
+		x2 = tX;
+	}
+
+	for (int pixelX = x1; pixelX <= x2; pixelX++)
+	{
+		MCG::DrawPixel({ pixelX, y1 }, { 255, 255, 0 });
+	}
+}
+
+void FillBottomFlat(glm::vec2 a, glm::vec2 b, glm::vec2 c, glm::vec3 colA, glm::vec3 colB, glm::vec3 colC)
+{
+	glm::vec2 edge1 = { b.x - a.x, b.y - a.y };
+	glm::vec2 edge2 = { c.x - a.x, c.y - a.y };
+
+	float edgeA = (b.x - a.x) / (b.y - a.y);
+	float edgeB = (c.x - a.x) / (c.y - a.y);
+
+	float curxA = a.x;
+	float curxB = a.x;
+
+	for (int scanLineY = a.y; scanLineY < b.y; scanLineY++)
+	{
+		for (int pixel = min(curxA, curxB); pixel < max(curxA, curxB); pixel++)
+		{
+			glm::vec2 v = { pixel - a.x, scanLineY - a.y };
+			float b = crossProduct(edge1, edge2);
+
+			float s = crossProduct(v, edge2) / b;
+			float t = crossProduct(edge1, v) / b;
+			glm::vec3 phitColour = s * colA + t * colB + (1 - s - t) * colC;
+
+			MCG::DrawPixel({ pixel, scanLineY }, phitColour);
+		}
+
+		curxA += edgeA;
+		curxB += edgeB;
+	}
+}
+
+void FillTopFlat(glm::vec2 a, glm::vec2 b, glm::vec2 c, glm::vec3 colA, glm::vec3 colB, glm::vec3 colC)
+{
+	glm::vec2 edge1 = { b.x - a.x, b.y - a.y };
+	glm::vec2 edge2 = { c.x - a.x, c.y - a.y };
+
+	float edgeA = (c.x - a.x) / (c.y - a.y);
+	float edgeB = (c.x - b.x) / (c.y - b.y);
+
+	float curxA = c.x;
+	float curxB = c.x;
+
+	for (int scanLineY = c.y; scanLineY > a.y; scanLineY--)
+	{
+		for (int pixel = min(curxA, curxB); pixel < max(curxA, curxB); pixel++)
+		{
+			glm::vec2 v = { pixel - a.x, scanLineY - a.y };
+			float b = crossProduct(edge1, edge2);
+
+			float s = crossProduct(v, edge2) / b;
+			float t = crossProduct(edge1, v) / b;
+			glm::vec3 phitColour = s * colA + t * colB + (1 - s - t) * colC;
+
+			MCG::DrawPixel({ pixel, scanLineY }, phitColour);
+		}
+
+		curxA -= edgeA;
+		curxB -= edgeB;
+	}
+}
+
+bool sortByY(const glm::vec2 a, const glm::vec2 b)
+{
+	return a.y < b.y;
+}
+
+bool sortByZ(const glm::vec3 a, const glm::vec3 b) {
+	return a.z < b.z;
+}
+
+void DrawTriangle(glm::vec2 a, glm::vec2 b, glm::vec2 c, glm::vec3 colA, glm::vec3 colB, glm::vec3 colC)
+{
+	std::vector<glm::vec2> vertices = { a, b, c };
+	std::sort(vertices.begin(), vertices.end(), sortByY);
+
+	if (b.y == c.y)
+	{
+		FillBottomFlat(a, b, c, colA, colB, colC);
+	}
+	else if (a.y == b.y)
+	{
+		FillTopFlat(a, b, c, colA, colB, colC);
+	}
+	else
+	{
+		glm::vec2 d = { (a.x + ((float)(b.y - a.y) / (float)(c.y - a.y)) * (c.x - a.x)), b.y };
+
+		FillBottomFlat(a, b, d, colA, colB, colC);
+		FillTopFlat(b, d, c, colA, colB, colC);
+	}
+}
+
+inline
+float edgeFunction(const glm::vec3 &a, const glm::vec3 &b, const glm::vec3 &c)
+{
+	return (c.x - a.x) * (b.y - a.y) - (c.y - a.y) * (b.x - a.x);
+}
