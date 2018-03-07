@@ -43,6 +43,16 @@ public:
 	void clear();
 	void draw();
 
+	inline int getWidth()
+	{
+		return m_viewport.width;
+	}
+
+	inline int getHeight()
+	{
+		return m_viewport.height;
+	}
+
 	inline float getDepthAt(int _x, int _y)
 	{
 		return m_depthBuffer->Get(_x, _y);
