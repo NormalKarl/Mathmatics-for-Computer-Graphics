@@ -9,6 +9,7 @@
 #include "Scene.h"
 #include "RasterizerScene.h"
 #include "RaytracerScene.h"
+#include "MandlebrotScene.h"
 
 #include <SDL/SDL.h>
 
@@ -22,10 +23,12 @@ int main(int argc, char *argv[])
 
 	RasterizerScene* rasterizerScene = new RasterizerScene();
 	RaytracerScene* raytracerScene = new RaytracerScene();
+	MandlebrotScene* mandlebrotScene = new MandlebrotScene();
 
 	sceneManager->addScene(rasterizerScene);
 	sceneManager->addScene(raytracerScene);
-	sceneManager->goToScene(1);
+	sceneManager->addScene(mandlebrotScene);
+	sceneManager->goToScene(2);
 
 	if (!MCG::Init({ SCREEN_WIDTH, SCREEN_HEIGHT }))
 		return -1;

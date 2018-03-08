@@ -8,7 +8,7 @@
 
 Raytracer::Raytracer(Surface* _surface) : m_surface(_surface)
 {
-	glm::proj;
+//	glm::proj;
 }
 
 
@@ -34,9 +34,9 @@ Ray Raytracer::createRay(int _pixelX, int _pixelY)
 void intersect(Ray _ray, Sphere _sphere) {
 	glm::vec3 pos = _sphere.m_position - _ray.origin;
 
-	float dot = glm::dot(pos, _ray.direction);
+	float d = glm::dot(pos, _ray.direction);
 
-	float glm::sqrt((dot * dot) - (pos * pos));
+	//float glm::sqrt(glm::dot((d * d) - (pos * pos)));
 }
 
 void Raytracer::trace() {
