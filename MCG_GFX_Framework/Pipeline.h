@@ -85,6 +85,17 @@ public:
 
 class Rasterizer
 {
+public:
+	enum class Culling {
+		None,
+		Backface
+	};
+
+	enum class WindingOrder {
+		Clockwise,
+		CounterClockwise
+	};
+
 private:
 	Surface* m_surface;
 	Texture* m_textures[16];
@@ -98,6 +109,9 @@ private:
 	void drawLineLow(float x0, float y0, float x1, float y1);
 	void drawLineHigh(float x0, float y0, float x1, float y1);
 	void drawLine(float x0, float y0, float x1, float y1);
+
+	Culling m_culling;
+	WindingOrder m_windingOrder;
 public:
 	Rasterizer() {}
 	Rasterizer(Surface* _surface);
@@ -114,6 +128,11 @@ public:
 	void bindTexture(Texture* texture, int index = 0);
 
 	glm::mat4 getMVP();
+
+	inline void setCulling(Culling _culling, WindingOrder _windingOrder) {
+		m_culling = _culling;
+		m_windingOrder = _windingOrder;
+	}
 
 	inline glm::mat4 getModel()
 	{

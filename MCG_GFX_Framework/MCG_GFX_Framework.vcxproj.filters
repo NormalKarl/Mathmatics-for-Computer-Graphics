@@ -54,6 +54,9 @@
     <ClCompile Include="stb_image.cpp">
       <Filter>Source Files\Libraries</Filter>
     </ClCompile>
+    <ClCompile Include="RaytracerScene.cpp">
+      <Filter>Source Files\Scenes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Pipeline.h">
@@ -81,6 +84,9 @@
       <Filter>Header Files\Libraries</Filter>
     </ClInclude>
     <ClInclude Include="Buffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="RaytracerScene.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

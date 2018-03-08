@@ -20,6 +20,7 @@ public:
 	Raytracer(Surface* _surface);
 	~Raytracer();
 	Ray createRay(int _pixelX, int _pixelY);
+	void trace();
 };
 
 
@@ -28,8 +29,5 @@ class Camera {
 
 };
 
-class Tracer {
-
-};
 
 

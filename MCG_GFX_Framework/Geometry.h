@@ -76,3 +76,9 @@ public:
 	void setColour(glm::vec4 colour);
 	void setTexture(Texture* texture);
 };
+
+class Sphere {
+public:
+	glm::vec3 m_position;
+	float m_radius;
+};

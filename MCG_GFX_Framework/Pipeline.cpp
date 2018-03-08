@@ -83,8 +83,8 @@ Rasterizer::Rasterizer(Surface* _surface)
 	m_view = glm::mat4();
 	m_projection = glm::mat4();
 
-	m_culling = Culling::Backface;
-	m_windingOrder = WindingOrder::Clockwise;
+	m_culling = Rasterizer::Culling::Backface;
+	m_windingOrder = Rasterizer::WindingOrder::Clockwise;
 }
 
 Rasterizer::~Rasterizer()

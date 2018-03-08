@@ -8,6 +8,7 @@
 #include "stb_image.h"
 #include "Scene.h"
 #include "RasterizerScene.h"
+#include "RaytracerScene.h"
 
 #include <SDL/SDL.h>
 
@@ -20,9 +21,11 @@ int main(int argc, char *argv[])
 	SceneManager* sceneManager = new SceneManager(surface);
 
 	RasterizerScene* rasterizerScene = new RasterizerScene();
+	RaytracerScene* raytracerScene = new RaytracerScene();
 
 	sceneManager->addScene(rasterizerScene);
-	sceneManager->goToScene(rasterizerScene);
+	sceneManager->addScene(raytracerScene);
+	sceneManager->goToScene(1);
 
 	if (!MCG::Init({ SCREEN_WIDTH, SCREEN_HEIGHT }))
 		return -1;
