@@ -13,6 +13,8 @@ MandlebrotScene::~MandlebrotScene()
 
 #define MAX_ITERATIONS 1000
 
+
+
 void MandlebrotScene::draw()
 {
 	//Mandlebrot range.
@@ -23,8 +25,8 @@ void MandlebrotScene::draw()
 	{
 		for (int py = 0; py < getSurface()->getHeight(); py++)
 		{
-			double x0 = mX[0] + (((double)px / (double)getSurface()->getWidth()) * (mX[0] - mX[1]));
-			double y0 = mY[0] + (((double)py / (double)getSurface()->getHeight()) * (mY[0] - mY[1]));
+			double x0 = mX[0] + (((double)px / (double)getSurface()->getWidth()) * (mX[1] - mX[0]));
+			double y0 = mY[0] + (((double)py / (double)getSurface()->getHeight()) * (mY[1] - mY[0]));
 			double x = 0.0f;
 			double y = 0.0f;
 
