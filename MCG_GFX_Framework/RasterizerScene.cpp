@@ -7,20 +7,43 @@
 
 #include <cmath>
 
-std::vector<Vertex> vertices = {
-	{ 0, 0, 0, 0, 1 },
-	{ 0, 1, 0, 0, 0 },
-	{ 1, 1, 0, 1, 0 },
-
-{ 1, 1, 0, 1, 0 },
-	{ 0, 0, 0, 0, 1 },
-{ 0, 0, 0, 0, 1 },
-};
+std::vector<Vertex> vertices;
 
 RasterizerScene::RasterizerScene()
 {
 	m_renderer = new Rasterizer(getSurface());
+	m_renderer->setCulling(Rasterizer::Culling::None, Rasterizer::WindingOrder::Clockwise);
 	m_img = new Texture("tex2.png");
+
+	Texture heightMap = Texture("heightmap.png");
+	heightMap.filter = Filter::Point;
+
+	for (int x = 1; x < heightMap.width - 1; x++)
+	{
+		for (int y = 1; y < heightMap.height - 1; y++)
+		{
+			glm::vec4 pixel = heightMap.getPixelAt(x, y);
+			glm::vec4 pixelRight = heightMap.getPixelAt(x + 1, y);
+			glm::vec4 pixelDown = heightMap.getPixelAt(x, y + 1);
+			glm::vec4 pixelRightDown = heightMap.getPixelAt(x + 1, y + 1);
+
+			Vertex a = { (float)x, pixel.g * 10.0f, (float)y, pixel.g, pixel.g, pixel.g, 1.0f };
+			Vertex b = { (float)x + 1, pixelRight.g * 10.0f, (float)y, pixel.g, pixel.g, pixel.g, 1.0f };
+			Vertex c = { (float)x, pixelDown.g * 10.0f, (float)y + 1, pixel.g, pixel.g, pixel.g, 1.0f };
+
+
+			Vertex d = { (float)x + 1, pixelRight.g * 10.0f, (float)y, pixel.g, pixel.g, pixel.g, 1.0f };
+			Vertex e = { (float)x + 1, pixelRightDown.g * 10.0f, (float)y + 1, pixel.g, pixel.g, pixel.g, 1.0f };
+			Vertex f = { (float)x, pixelDown.g * 10.0f, (float)y + 1, pixel.g, pixel.g, pixel.g, 1.0f };
+
+			vertices.push_back(a);
+			vertices.push_back(b);
+			vertices.push_back(c);
+			vertices.push_back(d);
+			vertices.push_back(e);
+			vertices.push_back(f);
+		}
+	}
 }
 
 
@@ -73,8 +96,15 @@ void RasterizerScene::draw()
 
 	m_renderer->perspective(glm::radians(75.0f), aspect, 0.1f, 100.0f);
 	m_renderer->lookAt(glm::cos(angle) * dist, glm::cos(angleY) * 5.0f, glm::sin(angle) * dist, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+	m_renderer->setModel(glm::scale(glm::mat4(), glm::vec3(0.1f, 0.1f, 0.1f)));
+	m_renderer->bindTexture(NULL);
+
+	for (int i = 0; i < vertices.size() / 3; i++)
+	{
+		m_renderer->drawTriangle(vertices[i * 3 + 0], vertices[i * 3 + 1], vertices[i * 3 + 2]);
+	}
 	
-	Vertex a = { 0.5, 0.5f, -0.5f, 1.0f, 1.0f };
+	/*Vertex a = { 0.5, 0.5f, -0.5f, 1.0f, 1.0f };
 	Vertex b = { -0.5, 0.5f, -0.5f, 0.0f, 1.0f };
 	Vertex c = { -0.5, -0.5, -0.5f, 0.0f, 0.0f };
 
@@ -111,5 +141,5 @@ void RasterizerScene::draw()
 
 	m_renderer->setModel(glm::rotate(glm::mat4(), glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f)));
 	m_renderer->drawTriangle(h, i, j);
-	m_renderer->drawTriangle(k, l, m);
+	m_renderer->drawTriangle(k, l, m);*/
 }

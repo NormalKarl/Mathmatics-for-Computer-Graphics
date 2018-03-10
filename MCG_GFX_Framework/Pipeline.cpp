@@ -419,6 +419,11 @@ void Rasterizer::drawTriangle(Vertex& a, Vertex& b, Vertex &c)
 	}
 }
 
+void transform(std::vector<glm::vec4> points)
+{
+
+}
+
 glm::vec4 Rasterizer::transform(glm::vec3 _position)
 {
 	//Convert the vertex position to clip space
