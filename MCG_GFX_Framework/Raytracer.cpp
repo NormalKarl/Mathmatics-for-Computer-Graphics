@@ -24,20 +24,26 @@ Ray Raytracer::createRay(int _pixelX, int _pixelY)
 	Ray ray;
 
 	float fov = 75.0f;
-	float xNDC = ((float)_pixelX / m_surface->getWidth()) * 2.0f - 1.0f;
-	float yNDC = ((float)_pixelY / m_surface->getHeight()) * 2.0f - 1.0f;
+	float aspect = (float)m_surface->getWidth() / (float)m_surface->getHeight();
+	float xNDC = (2.0f * ((float)(_pixelX + 0.5f) / m_surface->getWidth()) - 1.0f) * aspect;
+	float yNDC = (2.0f * ((float)(_pixelY + 0.5f) / m_surface->getHeight()) - 1.0f);
+	float x = xNDC * glm::tan(glm::radians(fov) / 2);
+	float y = yNDC * glm::tan(glm::radians(fov) / 2);
+	
+	//float xNDC = ((float)(_pixelX + 0.5f) / m_surface->getWidth()) * 2.0f - 1.0f;
+	//float yNDC = ((float)(_pixelY + 0.5f) / m_surface->getHeight()) * 2.0f - 1.0f;
+
+	//xNDC *= aspect;
 
 	//ray.direction = m_projectionInv * m_viewInv * glm::vec4(xNDC, yNDC, 0.0f, 1.0f);
 	//ray.origin = m_projectionInv * glm::vec4(xNDC, yNDC, 0.0f, 1.0f);
-	float aspect = (float)m_surface->getWidth() / (float)m_surface->getHeight();
 
 	//float Px = (2 * (((float)_pixelX + 0.5) / (float)m_surface->getWidth()) - 1) * glm::tan(fov / 2 * glm::pi<float>() / 180) * aspect;
 	//float Py = (1 - 2 * (((float)_pixelY + 0.5) / (float)m_surface->getHeight()) * glm::tan(fov / 2 * glm::pi<float>() / 180));
 
 
 
-	yNDC /= aspect;
-	ray.direction = glm::vec3(0.0f, 0.0f, 1.0f);
+	ray.direction = glm::vec3(x, y, 1.0f) - glm::vec3(xNDC, yNDC, 0.0f);
 	ray.origin = glm::vec3(xNDC, yNDC, 0.0f);
 
 
