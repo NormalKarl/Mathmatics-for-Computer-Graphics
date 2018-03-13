@@ -2,6 +2,16 @@
 
 #include <GLM\glm.hpp>
 
+/*
+Vertex
+IGeometry
+Triangle
+Plane
+Rectangle
+Sphere
+Circle (Can be used to make Octagon, Hexagon, Pentagon etc.)
+*/
+
 class Rasterizer;
 class Texture;
 
@@ -81,4 +91,9 @@ class Sphere {
 public:
 	glm::vec3 m_position;
 	float m_radius;
+};
+
+class Plane {
+public:
+	glm::vec3 point;
 };

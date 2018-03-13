@@ -31,7 +31,6 @@ RasterizerScene::RasterizerScene()
 			Vertex b = { (float)x + 1, pixelRight.g * 10.0f, (float)y, pixel.g, pixel.g, pixel.g, 1.0f };
 			Vertex c = { (float)x, pixelDown.g * 10.0f, (float)y + 1, pixel.g, pixel.g, pixel.g, 1.0f };
 
-
 			Vertex d = { (float)x + 1, pixelRight.g * 10.0f, (float)y, pixel.g, pixel.g, pixel.g, 1.0f };
 			Vertex e = { (float)x + 1, pixelRightDown.g * 10.0f, (float)y + 1, pixel.g, pixel.g, pixel.g, 1.0f };
 			Vertex f = { (float)x, pixelDown.g * 10.0f, (float)y + 1, pixel.g, pixel.g, pixel.g, 1.0f };
