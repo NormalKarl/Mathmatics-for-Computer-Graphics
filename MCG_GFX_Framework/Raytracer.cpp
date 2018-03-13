@@ -50,7 +50,7 @@ Ray Raytracer::createRay(int _pixelX, int _pixelY)
 	return ray;
 }
 
-bool intersect(Ray _ray, Sphere _sphere) {
+bool intersect(Ray _ray, Sphere _sphere , glm::vec3& normal) {
 	glm::vec3 pos = _sphere.m_position - _ray.origin;
 
 	float dot = glm::dot(pos, _ray.direction);
@@ -63,6 +63,8 @@ bool intersect(Ray _ray, Sphere _sphere) {
 	{
 		float x = glm::sqrt(_sphere.m_radius * _sphere.m_radius - mag * mag);
 		glm::vec3 near = _ray.origin + ((dot - x) * _ray.direction);
+
+		normal = glm::normalize(near - _sphere.m_position);
 		//printf("%f\n", near.z);
 		return true;
 	}
@@ -82,9 +84,18 @@ void Raytracer::trace() {
 		{
 			Ray ray = createRay(x, y);
 
-			if (intersect(ray, sphere))
+			glm::vec3 normal;
+
+			
+
+			if (intersect(ray, sphere, normal))
 			{
-				m_surface->setColourAt(x, y, { 1.0f, 0.0f, 1.0f, 1.0f });
+				//float mag = glm::sqrt(normal.x * normal.x + normal.y * normal.y + normal.z * normal.z);
+
+				float diff = glm::clamp(glm::dot(normal, {0.0f, 1.0f, 0.0f}), 0.0f, 0.7f);
+				glm::vec4 col = diff * glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
+
+				m_surface->setColourAt(x, y, ((1.0f - diff) * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)) + col);
 			}
 		}
 	}

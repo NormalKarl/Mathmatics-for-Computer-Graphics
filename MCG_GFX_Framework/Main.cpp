@@ -16,6 +16,14 @@
 #define SCREEN_WIDTH 960
 #define SCREEN_HEIGHT 540
 
+void clip(std::vector<glm::vec4> polygon, glm::vec2 a, glm::vec2 b)
+{
+	for (int i = 0; i < polygon.size(); i++)
+	{
+
+	}
+}
+
 int main(int argc, char *argv[])
 {
 	Surface* surface = new Surface({ 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT });
@@ -28,7 +36,7 @@ int main(int argc, char *argv[])
 	sceneManager->addScene(rasterizerScene);
 	sceneManager->addScene(raytracerScene);
 	sceneManager->addScene(mandlebrotScene);
-	sceneManager->goToScene(1);
+	sceneManager->goToScene(0);
 
 	if (!MCG::Init({ SCREEN_WIDTH, SCREEN_HEIGHT }))
 		return -1;
