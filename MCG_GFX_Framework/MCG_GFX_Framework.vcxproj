@@ -159,7 +159,7 @@
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="MandlebrotScene.cpp" />
     <ClCompile Include="MCG_GFX_Lib.cpp" />
-    <ClCompile Include="Pipeline.cpp" />
+    <ClCompile Include="Rasterizer.cpp" />
     <ClCompile Include="RasterizerScene.cpp" />
     <ClCompile Include="Raytracer.cpp" />
     <ClCompile Include="RaytracerScene.cpp" />
@@ -172,7 +172,7 @@
     <ClInclude Include="Geometry.h" />
     <ClInclude Include="MandlebrotScene.h" />
     <ClInclude Include="MCG_GFX_Lib.h" />
-    <ClInclude Include="Pipeline.h" />
+    <ClInclude Include="Rasterizer.h" />
     <ClInclude Include="RasterizerScene.h" />
     <ClInclude Include="Raytracer.h" />
     <ClInclude Include="RaytracerScene.h" />

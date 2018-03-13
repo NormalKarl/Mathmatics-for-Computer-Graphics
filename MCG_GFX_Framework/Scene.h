@@ -3,7 +3,7 @@
 #include <vector>
 #include <string>
 
-#include "Pipeline.h"
+#include "Rasterizer.h"
 
 class Scene;
 class SceneManager;

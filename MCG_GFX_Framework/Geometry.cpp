@@ -1,5 +1,5 @@
 #include "Geometry.h"
-#include "Pipeline.h"
+#include "Rasterizer.h"
 
 Triangle::Triangle(Vertex _a, Vertex _b, Vertex _c)
 {

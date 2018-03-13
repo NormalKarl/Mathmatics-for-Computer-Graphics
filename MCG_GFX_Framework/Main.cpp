@@ -4,7 +4,7 @@
 #include <algorithm>
 #include <thread>
 #include "MCG_GFX_Lib.h"
-#include "Pipeline.h"
+#include "Rasterizer.h"
 #include "stb_image.h"
 #include "Scene.h"
 #include "RasterizerScene.h"

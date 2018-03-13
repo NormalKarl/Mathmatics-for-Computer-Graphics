@@ -1,5 +1,5 @@
 #include "RasterizerScene.h"
-#include "Pipeline.h"
+#include "Rasterizer.h"
 #include "MCG_GFX_Lib.h"
 #include <SDL\SDL.h>
 

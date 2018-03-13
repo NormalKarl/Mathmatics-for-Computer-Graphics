@@ -1,4 +1,4 @@
-#include "Pipeline.h"
+#include "Rasterizer.h"
 #include <GLM/gtc/matrix_transform.hpp>
 #include "MCG_GFX_Lib.h"
 #include "stb_image.h"
