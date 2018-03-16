@@ -73,7 +73,7 @@ bool intersect(Ray _ray, Sphere _sphere , glm::vec3& normal) {
 }
 
 bool intersect(Ray _ray, Plane _plane, glm::vec3& normal) {
-
+	return false;
 }
 
 void Raytracer::trace() {
