@@ -20,54 +20,72 @@ inline int getSide(glm::vec2 p, glm::vec2 line0, glm::vec2 line1) {
 	return glm::sign((p.x - line0.x) * (line1.y - line0.y) - (p.y - line0.y) * (line1.x - line0.x));
 }
 
-inline glm::vec4 intersect(glm::vec2 c0, glm::vec2 c1, glm::vec4 v0, glm::vec4 v1) {
+inline glm::vec4 intersect(glm::vec4 v0, glm::vec4 v1, glm::vec2 c0, glm::vec2 c1) {
 	float x = (c0.x * c1.y - c0.y * c1.x) * (v0.x - v1.x) - (c0.x - c1.x) * (v0.x * v1.y - v0.y * v1.x);
 	float y = (c0.x * c1.y - c0.y * c1.x) * (v0.y - v1.y) - (c0.y - c1.y) * (v0.x * v1.y - v0.y * v1.x);
 
 	float div = (c0.x - c1.x) * (v0.y - v1.y) - (c0.y - c1.y) * (v0.x - v1.x);
 
-	return glm::vec4(x / div, y / div, v0.z, v0.w);
+	x /= div;
+	y /= div;
+
+	return glm::vec4(x, y, v0.z, v0.w);
 }
 
-void clip(std::vector<glm::vec4>& vertices, std::vector<glm::vec2> clips)
-{
+
+//Sutherland-Hodgeman Clipping Algorithm
+void edgeClip(std::vector<glm::vec4>& vertices, std::vector<glm::vec2> clips) {
+	//Define 2 vectors for both the current iteration and the new vertices.
+	std::vector<glm::vec4> iteration = vertices;
 	std::vector<glm::vec4> newVertices;
 
 	for (int c = 0; c < clips.size(); c++) {
-		//Clip points for current and the next to create a line.
-		glm::vec2 c0 = clips[c];
-		glm::vec2 c1 = clips[(c + 1) % clips.size()];
+		glm::vec2 c1 = clips[c];
+		glm::vec2 c2 = clips[(c + 1) % clips.size()];
+		
+		for (int v = 0; v < iteration.size(); v++) {
+			glm::vec4 v1 = iteration[v];
+			glm::vec4 v2 = iteration[(v + 1) % iteration.size()];
 
-		glm::vec4 v1 = vertices[vertices.size() - 1];
+			//Get the sign's of the side in which the point resides.
+			int sign1 = getSide(v1, c1, c2);
+			int sign2 = getSide(v2, c1, c2);
 
-		for (int v = 0; v < vertices.size(); v++)
-		{
-			glm::vec4 v0 = vertices[v];
+			//First point is inside the clipping plane.
+			if (sign1 >= 0) {
+				//Add current point.
+				newVertices.push_back(v1);
 
-			int E = getSide(v0, c0, c1);
-			int S = getSide(v1, c0, c1);
-
-			if (E >= 0) {
-				if (S < 0) {
-					newVertices.push_back(intersect(c0, c1, v0, v1));
+				//Second point is outside the clipping plane.
+				if (sign2 < 0) {
+					//Add intersected point.
+					newVertices.push_back(intersect(v1, v2, c1, c2));
 				}
-				newVertices.push_back(v0);
 			}
-			else if (S >= 0) {
-				newVertices.push_back(intersect(c0, c1, v0, v1));
+			//First point is outside the clipping plane and second point is inside.
+			else if (sign2 >= 0) {
+				//Add intersected point.
+				newVertices.push_back(intersect(v1, v2, c1, c2));
 			}
-
-			v1 = v0;
 		}
 
+		//Set new iteration to clipped vertices and clear the new vertex point.
+		iteration = newVertices;
+		newVertices.clear();
 	}
 
-	vertices = newVertices;
+	//Allocated the new clipped vertices to the referenced input.
+	vertices = iteration;
+}
+
+//Ear-Clipping Algorithm
+void earClip(std::vector<glm::vec4>& vertices) {
+
 }
 
 int main(int argc, char *argv[])
 {
-	Surface* surface = new Surface({ 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT });
+	/*Surface* surface = new Surface({ 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT });
 	SceneManager* sceneManager = new SceneManager(surface);
 
 	RasterizerScene* rasterizerScene = new RasterizerScene();
@@ -94,10 +112,13 @@ int main(int argc, char *argv[])
 		surface->clear();
 		sceneManager->draw();
 		surface->draw();
-	}
+	}*/
 
-	std::vector<glm::vec4> vertices = { { 100.0f, 150.0f, 1.0f, 1.0f },{ 200.0f,250.0f, 1.0f, 1.0f },{ 300.0f,200.0f, 1.0f, 1.0f } };
-	clip(vertices, { { 150.0f,150.0f },{ 150.0f,200.0f },{ 200.0f,200.0f },{ 200.0f,150.0f } });
+	//std::vector<glm::vec4> vertices = { { 0.0f, 0.0f, 1.0f, 1.0f },{ 0.0f,1.5f, 1.0f, 1.0f },{ 1.5f,0.0f, 1.0f, 1.0f } };
+	//clip(vertices, { { 0.0f,0.0f }, { 0.0f,1.0f }  ,{ 1.0f,1.0f },{ 1.0f,0.0f } });
 
-	return 0;
+
+	//glm::vec4 i = intersect({ 0.0f, 0.0f,1.0f, 0.0f }, {1.0f, 1.0f, 1.0f, 0.0f}, { 5.0f, 0.0f }, { 5.0f, 10.0f });
+
+	//return 0;
 }

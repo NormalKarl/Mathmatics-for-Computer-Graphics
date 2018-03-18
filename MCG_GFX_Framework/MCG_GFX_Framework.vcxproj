@@ -155,6 +155,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="Components.cpp" />
     <ClCompile Include="Geometry.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="MandlebrotScene.cpp" />
@@ -169,6 +170,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Buffer.h" />
+    <ClInclude Include="Components.h" />
     <ClInclude Include="Geometry.h" />
     <ClInclude Include="MandlebrotScene.h" />
     <ClInclude Include="MCG_GFX_Lib.h" />
@@ -179,9 +181,6 @@
     <ClInclude Include="Scene.h" />
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="Surface.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="Text.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

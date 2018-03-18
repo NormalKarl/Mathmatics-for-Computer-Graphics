@@ -25,6 +25,12 @@
     <Filter Include="Header Files\Libraries">
       <UniqueIdentifier>{1ad9be5c-d84d-427b-ba4d-de37e5d05115}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\UI">
+      <UniqueIdentifier>{4b3b71cb-08c1-4fce-ac68-86fc4b9bc1ce}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\UI">
+      <UniqueIdentifier>{4a18e6fe-8582-45e6-9dd2-0f469f7ebebd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -58,6 +64,9 @@
       <Filter>Source Files\Scenes</Filter>
     </ClCompile>
     <ClCompile Include="Rasterizer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Components.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -95,10 +104,8 @@
     <ClInclude Include="Rasterizer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="Text.txt">
+    <ClInclude Include="Components.h">
       <Filter>Header Files</Filter>
-    </Text>
+    </ClInclude>
   </ItemGroup>
 </Project>

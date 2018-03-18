@@ -24,6 +24,10 @@ public:
 	}
 };
 
+/*
+Surface is a target for the Raytracer, Rasterizer aswell as the UI components and anything else. 
+Surfaces are uncompressed image data with each pixel containing 16 bytes per pixel (Component Count * Float Size).
+*/
 class Surface
 {
 private:
@@ -84,6 +88,22 @@ public:
 	inline Viewport getViewport()
 	{
 		return m_viewport;
+	}
+
+	inline void clearFlagBuffer()
+	{
+		m_frameFlagBuffer->clear(false);
+	}
+
+	inline void clearFrameBuffer()
+	{
+		m_frameBuffer->clear(glm::vec4(m_clearColour, 1.0f));
+		m_frameFlagBuffer->clear(false);
+	}
+
+	inline void clearDepthBuffer()
+	{
+		m_frameFlagBuffer->clear(false);
 	}
 };
 

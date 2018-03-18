@@ -28,14 +28,14 @@ void Surface::draw()
 {
 	glm::vec4 clearColour = glm::vec4(m_clearColour, 1.0f);
 
-	for (int x = 0; x < m_viewport.width; x++)
+	for (int x = m_viewport.x; x < m_viewport.width; x++)
 	{
-		for (int y = 0; y < m_viewport.height; y++)
+		for (int y = m_viewport.y; y < m_viewport.height; y++)
 		{
 			//If the pixel has been changed then draw it.
 			if (m_frameFlagBuffer->Get(x, y) == true)
 			{
-				glm::vec4 pixelCol = m_frameBuffer->Get(x, y);
+				glm::vec4 pixelCol = m_frameBuffer->Get(x - m_viewport.x, y - m_viewport.y);
 				float alpha = pixelCol.a;
 
 				pixelCol *= alpha;
