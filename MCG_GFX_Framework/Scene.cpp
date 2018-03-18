@@ -34,14 +34,18 @@ void SceneManager::addScene(Scene* scene)
 
 void SceneManager::goToScene(Scene* scene)
 {
-	if (int i = std::find(m_scenes.begin(), m_scenes.end(), scene) != m_scenes.end())
+	bool foundEntry = false;
+	for (int i = 0; i < m_scenes.size(); i++)
 	{
-		m_sceneIndex = i - 1;
+		if (m_scenes[i] == scene)
+		{
+			m_sceneIndex = i;
+			foundEntry = true;
+		}
 	}
-	else
-	{
-		printf("Error: Could not find Scene in SceneManager!\n");
-	}
+
+	if (!foundEntry)
+		printf("Error: Couldn't find scene with Scene pointer.");
 }
 
 void SceneManager::goToScene(int index)

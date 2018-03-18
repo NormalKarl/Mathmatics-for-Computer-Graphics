@@ -112,6 +112,8 @@ private:
 
 	Culling m_culling;
 	WindingOrder m_windingOrder;
+
+	static const std::vector<glm::vec2> CLIP_COORDS;
 public:
 	Rasterizer() {}
 	Rasterizer(Surface* _surface);
@@ -126,6 +128,9 @@ public:
 	void lookAt(float eyeX, float eyeY, float eyeZ, float centerX, float centerY, float centerZ, float upX, float upY, float upZ);
 
 	void bindTexture(Texture* texture, int index = 0);
+
+
+	std::vector<glm::vec4> transform(std::vector<Vertex>& vertices);
 
 	glm::mat4 getMVP();
 

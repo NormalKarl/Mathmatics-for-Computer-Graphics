@@ -18,9 +18,9 @@ RasterizerScene::RasterizerScene()
 	Texture heightMap = Texture("heightmap.png");
 	heightMap.filter = Filter::Point;
 
-	for (int x = 1; x < heightMap.width - 1; x++)
+	for (int x = 0; x < heightMap.width - 1; x++)
 	{
-		for (int y = 1; y < heightMap.height - 1; y++)
+		for (int y = 0; y < heightMap.height - 1; y++)
 		{
 			glm::vec4 pixel = heightMap.getPixelAt(x, y);
 			glm::vec4 pixelRight = heightMap.getPixelAt(x + 1, y);
@@ -54,7 +54,7 @@ int lastMouseX = 0, lastMouseY = 0;
 
 float angle = 0.0f;
 float angleY = 0.0f;
-float dist = 2.5f;
+float dist = 1.0f;
 
 bool wireframe;
 
@@ -95,7 +95,7 @@ void RasterizerScene::draw()
 
 	m_renderer->perspective(glm::radians(75.0f), aspect, 0.1f, 100.0f);
 	m_renderer->lookAt(glm::cos(angle) * dist, glm::cos(angleY) * 5.0f, glm::sin(angle) * dist, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
-	m_renderer->setModel(glm::scale(glm::mat4(), glm::vec3(0.1f, 0.1f, 0.1f)));
+	m_renderer->setModel(glm::scale(glm::mat4(), glm::vec3(0.2f, 0.2f, 0.2f)));
 	m_renderer->bindTexture(NULL);
 
 	for (int i = 0; i < vertices.size() / 3; i++)

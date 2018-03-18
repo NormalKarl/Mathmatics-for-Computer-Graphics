@@ -6,6 +6,8 @@
 #include <vector>
 #include <algorithm>
 
+const std::vector<glm::vec2> Rasterizer::CLIP_COORDS = { { -1.0f, -1.0f },{ -1.0f, 1.0f },{ 1.0f, 1.0f },{ 1.0f, -1.0f } };
+
 Texture::Texture(const char* filename)
 {
 	data = stbi_load(filename, &width, &height, &bytesPerPixel, STBI_rgb_alpha);
@@ -246,13 +248,15 @@ bool sortY(const glm::vec4& a, const glm::vec4& b)
 	return a.y < b.y;
 }
 
-void findPointsTop(std::vector<glm::vec2>& points, glm::vec2 a, glm::vec2 b, glm::vec2 c)
+void findPointsTop(Viewport viewport, std::vector<glm::vec2>& points, glm::vec2 a, glm::vec2 b, glm::vec2 c)
 {
 	float invslope1 = (b.x - a.x) / (b.y - a.y);
 	float invslope2 = (c.x - a.x) / (c.y - a.y);
 
 	int yStart = (int)glm::ceil(a.y - 0.5f);
 	int yEnd = (int)glm::ceil(c.y - 0.5f);
+	//yStart = glm::clamp(yStart, viewport.y, viewport.height);
+	//yEnd = glm::clamp(yEnd, viewport.y, viewport.height);
 
 	for (int y = yStart; y < yEnd; y++)
 	{
@@ -261,6 +265,8 @@ void findPointsTop(std::vector<glm::vec2>& points, glm::vec2 a, glm::vec2 b, glm
 
 		int xStart = (int)glm::ceil(px0 - 0.5f);
 		int xEnd = (int)glm::ceil(px1 - 0.5f);
+		//xStart = glm::clamp(xStart, viewport.x, viewport.width);
+		//xEnd = glm::clamp(xEnd, viewport.x, viewport.width);
 
 		for (int x = xStart; x < xEnd; x++)
 		{
@@ -269,13 +275,16 @@ void findPointsTop(std::vector<glm::vec2>& points, glm::vec2 a, glm::vec2 b, glm
 	}
 }
 
-void findPointsBottom(std::vector<glm::vec2>& points, glm::vec2 a, glm::vec2 b, glm::vec2 c)
+void findPointsBottom(Viewport viewport, std::vector<glm::vec2>& points, glm::vec2 a, glm::vec2 b, glm::vec2 c)
 {
 	float invslope1 = (c.x - a.x) / (c.y - a.y);
 	float invslope2 = (c.x - b.x) / (c.y - b.y);
 
 	int yStart = (int)glm::ceil(a.y - 0.5f);
 	int yEnd = (int)glm::ceil(c.y - 0.5f);
+
+	//yStart = glm::clamp(yStart, viewport.y, viewport.height);
+	//yEnd = glm::clamp(yEnd, viewport.y, viewport.height);
 
 	for (int y = yStart; y < yEnd; y++)
 	{
@@ -284,6 +293,8 @@ void findPointsBottom(std::vector<glm::vec2>& points, glm::vec2 a, glm::vec2 b, 
 
 		int xStart = (int)glm::ceil(px0 - 0.5f);
 		int xEnd = (int)glm::ceil(px1 - 0.5f);
+		//xStart = glm::clamp(xStart, viewport.x, viewport.width);
+		//xEnd = glm::clamp(xEnd, viewport.x, viewport.width);
 
 		for (int x = xStart; x < xEnd; x++)
 		{
@@ -292,7 +303,7 @@ void findPointsBottom(std::vector<glm::vec2>& points, glm::vec2 a, glm::vec2 b, 
 	}
 }
 
-std::vector<glm::vec2> findPoints(glm::vec4 a, glm::vec4 b, glm::vec4 c)
+std::vector<glm::vec2> findPoints(Viewport viewport, glm::vec4 a, glm::vec4 b, glm::vec4 c)
 {
 	std::vector<glm::vec2> pixels;
 	std::vector<glm::vec4> points = { a, b, c };
@@ -306,22 +317,22 @@ std::vector<glm::vec2> findPoints(glm::vec4 a, glm::vec4 b, glm::vec4 c)
 	{
 		if (b.x < a.x)
 		{
-			findPointsBottom(pixels, b, a, c);
+			findPointsBottom(viewport, pixels, b, a, c);
 		}
 		else
 		{
-			findPointsBottom(pixels, a, b, c);
+			findPointsBottom(viewport, pixels, a, b, c);
 		}
 	}
 	else if (b.y == c.y)
 	{
 		if (c.x < b.x)
 		{
-			findPointsTop(pixels, a, c, b);
+			findPointsTop(viewport, pixels, a, c, b);
 		}
 		else
 		{
-			findPointsTop(pixels, a, b, c);
+			findPointsTop(viewport, pixels, a, b, c);
 		}
 	}
 	else
@@ -332,13 +343,13 @@ std::vector<glm::vec2> findPoints(glm::vec4 a, glm::vec4 b, glm::vec4 c)
 
 		if (b.x < v4.x)
 		{
-			findPointsTop(pixels, a, b, v4);
-			findPointsBottom(pixels, b, v4, c);
+			findPointsTop(viewport, pixels, a, b, v4);
+			findPointsBottom(viewport, pixels, b, v4, c);
 		}
 		else
 		{
-			findPointsTop(pixels, a, v4, b);
-			findPointsBottom(pixels, v4, b, c);
+			findPointsTop(viewport, pixels, a, v4, b);
+			findPointsBottom(viewport, pixels, v4, b, c);
 		}
 
 	}
@@ -346,76 +357,241 @@ std::vector<glm::vec2> findPoints(glm::vec4 a, glm::vec4 b, glm::vec4 c)
 	return pixels;
 }
 
+inline int getSide(glm::vec2 p, glm::vec2 line0, glm::vec2 line1)
+{
+	return glm::sign((p.x - line0.x) * (line1.y - line0.y) - (p.y - line0.y) * (line1.x - line0.x));
+}
+
+inline glm::vec4 intersect(glm::vec4 v0, glm::vec4 v1, glm::vec2 c0, glm::vec2 c1)
+{
+	float x = (c0.x * c1.y - c0.y * c1.x) * (v0.x - v1.x) - (c0.x - c1.x) * (v0.x * v1.y - v0.y * v1.x);
+	float y = (c0.x * c1.y - c0.y * c1.x) * (v0.y - v1.y) - (c0.y - c1.y) * (v0.x * v1.y - v0.y * v1.x);
+
+	float div = (c0.x - c1.x) * (v0.y - v1.y) - (c0.y - c1.y) * (v0.x - v1.x);
+
+	x /= div;
+	y /= div;
+
+	return glm::vec4(x, y, v0.z, v0.w);
+}
+
+
+//Sutherland-Hodgeman Clipping Algorithm
+void edgeClip(std::vector<glm::vec4>& vertices, std::vector<glm::vec2> clips)
+{
+	//Define 2 vectors for both the current iteration and the new vertices.
+	std::vector<glm::vec4> iteration = vertices;
+	std::vector<glm::vec4> newVertices;
+
+	for (int c = 0; c < clips.size(); c++)
+	{
+		glm::vec2 c1 = clips[c];
+		glm::vec2 c2 = clips[(c + 1) % clips.size()];
+
+		for (int v = 0; v < iteration.size(); v++)
+		{
+			glm::vec4 v1 = iteration[v];
+			glm::vec4 v2 = iteration[(v + 1) % iteration.size()];
+
+			//Get the sign's of the side in which the point resides.
+			int sign1 = getSide(v1, c1, c2);
+			int sign2 = getSide(v2, c1, c2);
+
+			//First point is inside the clipping plane.
+			if (sign1 >= 0)
+			{
+				//Add current point.
+				newVertices.push_back(v1);
+
+				//Second point is outside the clipping plane.
+				if (sign2 < 0)
+				{
+					//Add intersected point.
+					newVertices.push_back(intersect(v1, v2, c1, c2));
+				}
+			}
+			//First point is outside the clipping plane and second point is inside.
+			else if (sign2 >= 0)
+			{
+				//Add intersected point.
+				newVertices.push_back(intersect(v1, v2, c1, c2));
+			}
+		}
+
+		//Set new iteration to clipped vertices and clear the new vertex point.
+		iteration = newVertices;
+		newVertices.clear();
+	}
+
+	//Allocated the new clipped vertices to the referenced input.
+	vertices = iteration;
+}
+
+
+//This quick clip algorithm is used for convex polygons only.
+//Since I am using simple equalaterial clipping the clipping algotithm will produce only convex polygons.
+void quickClip(std::vector<glm::vec4>& vertices)
+{
+	//If the vertex count is only 3 then there is no need to trianglulate the polygon.
+	if (vertices.size() >= 4)
+	{
+		std::vector<glm::vec4> clippedVertices;
+
+		for (int i = 2; i < vertices.size(); i++)
+		{
+			clippedVertices.push_back(vertices[0]);
+			clippedVertices.push_back(vertices[i - 1]);
+			clippedVertices.push_back(vertices[i]);
+		}
+
+		vertices = clippedVertices;
+	}
+}
+
+std::vector<glm::vec4> Rasterizer::transform(std::vector<Vertex>& vertices)
+{
+	std::vector<Vertex> positions = vertices;
+	std::vector<glm::vec4> parseVectors;
+
+	//First transform the positions to camera space for culling.
+	for (int i = 0; i < vertices.size(); i++)
+	{
+		parseVectors.push_back(m_view * m_world * m_model * glm::vec4(vertices[i].m_position, 1.0f));
+	}
+
+	bool cull = false;
+	//Perform face culling.
+	switch (m_culling)
+	{
+
+		case Culling::None:
+			cull = false;
+			break;
+		case Culling::Backface:
+		{
+			if (m_windingOrder == WindingOrder::Clockwise)
+			{
+				cull = glm::dot(glm::cross((glm::vec3(parseVectors[2]) - glm::vec3(parseVectors[0])), (glm::vec3(parseVectors[1]) - glm::vec3(parseVectors[0]))), glm::vec3(parseVectors[0])) >= 0.0f;
+			}
+			else
+			{
+				cull = glm::dot(glm::cross((glm::vec3(parseVectors[1]) - glm::vec3(parseVectors[0])), (glm::vec3(parseVectors[2]) - glm::vec3(parseVectors[0]))), glm::vec3(parseVectors[0])) >= 0.0f;
+			}
+		}
+	}
+
+	if (cull)
+		return std::vector<glm::vec4>();
+
+	bool behindCamera = true;
+	//Convert to projection space for clipping.
+	for (int i = 0; i < parseVectors.size(); i++)
+	{
+		parseVectors[i] = m_projection * parseVectors[i];
+
+		if (parseVectors[i].w > 0.0f)
+			behindCamera = false;
+	}
+
+	if (behindCamera)
+	{
+		return std::vector<glm::vec4>();
+	}
+
+	std::vector<glm::vec4> originalPolygon = parseVectors;
+
+	//edgeClip(parseVectors, CLIP_COORDS);
+	//quickClip(parseVectors);
+
+	//Apply perspective divide.
+	for (int i = 0; i < parseVectors.size(); i++)
+	{
+		glm::vec4 clip = parseVectors[i];
+		float w = clip.w;
+
+		if (w != 0.0f || w != 1.0f)
+			clip /= w;
+
+		parseVectors[i] = { (clip.x + 1.0f) * 0.5f * m_surface->getViewport().width, (clip.y + 1.0f) * 0.5f * m_surface->getViewport().height, (clip.z + 1.0f) * 0.5f, w };
+	}
+
+	return parseVectors;
+}
+
 void Rasterizer::drawTriangle(Vertex& a, Vertex& b, Vertex &c)
 {
-	glm::vec4 tA, tB, tC;
+	std::vector<Vertex> vertices = { a,b,c };
+	std::vector<glm::vec4> transformedPoints = transform(vertices);
 	
 	//Todo change this algorithm so it produces better triangles.
 	//Use edge detection!
-	if (transform(a, b, c, tA, tB, tC))
+	for(int i = 0; i < transformedPoints.size(); i += 3)
 	{
 		/*int minX = (int)glm::floor(glm::clamp(glm::min(tA.x, glm::min(tB.x, tC.x)), 0.0f, (float)m_surface->getViewport().width));
 		int minY = (int)glm::floor(glm::clamp(glm::min(tA.y, glm::min(tB.y, tC.y)), 0.0f, (float)m_surface->getViewport().height));
 		int maxX = (int)glm::ceil(glm::clamp(glm::max(tA.x, glm::max(tB.x, tC.x)), 0.0f, (float)m_surface->getViewport().width));
 		int maxY = (int)glm::ceil(glm::clamp(glm::max(tA.y, glm::max(tB.y, tC.y)), 0.0f, (float)m_surface->getViewport().height));*/
 
-		std::vector<glm::vec2> points = findPoints(tA, tB, tC);
+		glm::vec4 tA = transformedPoints[i];
+		glm::vec4 tB = transformedPoints[i + 1];
+		glm::vec4 tC = transformedPoints[i + 2];
+
+		std::vector<glm::vec2> points = findPoints(m_surface->getViewport(), tA, tB, tC);
 
 		for(glm::vec2 point : points) {
 			if (point.x < 0 || point.y < 0 || point.x >= m_surface->getWidth() || point.y >= m_surface->getHeight())
 			{
 				continue;
 			}
-		//for (int x = minX; x <= maxX; x++)
-		//{
-			//for (int y = minY; y <= maxY; y++)
+
+			glm::vec4 pixel = { (float)point.x + 0.5f, (float)point.y + 0.5f, 0.0f, 0.0f };
+
+			float w0, w1, w2;
+			Barycentric(pixel, tA, tB, tC, w0, w1, w2);
+
+			//Make sure all of the weights are above or equal to 0
+			//ensuring that the point is indeed inside the triangle.
+			//if (w0 >= 0 && w1 >= 0 && w2 >= 0)
 			//{
-				glm::vec4 pixel = { (float)point.x + 0.5f, (float)point.y + 0.5f, 0.0f, 0.0f };
+			float persp = w0 * (1.0f / tA.w) + w1 * (1.0f / tB.w) + w2 * (1.0f / tC.w);
+			glm::vec2 texUV = (w0 * (a.m_textureCoords / tA.w) + w1 * (b.m_textureCoords / tB.w) + w2 * (c.m_textureCoords / tC.w)) / persp;
 
-				float w0, w1, w2;
-				Barycentric(pixel, tA, tB, tC, w0, w1, w2);
+			glm::vec4 pixelLoc = w0 * tA + w1 * tB + w2 * tC;
 
-				//Make sure all of the weights are above or equal to 0
-				//ensuring that the point is indeed inside the triangle.
-				//if (w0 >= 0 && w1 >= 0 && w2 >= 0)
-				//{
-					float persp = w0 * (1.0f / tA.w) + w1 * (1.0f / tB.w) + w2 * (1.0f / tC.w);
+			if (pixelLoc.z <= m_surface->getDepthAt(point.x, point.y))
+			{
+				m_surface->setDepthAt(point.x, point.y, pixelLoc.z);
+
+				//TODO perspective correct color
+				glm::vec4 pixelCol = (w0 * (a.m_colour / tA.w) + w1 * (b.m_colour / tB.w) + w2 * (c.m_colour / tC.w)) / persp;
+				glm::vec4 texColor = { 1.0f, 1.0f, 1.0f, 1.0f };
+
+				if (m_textures[0] != NULL)
+				{
 					glm::vec2 texUV = (w0 * (a.m_textureCoords / tA.w) + w1 * (b.m_textureCoords / tB.w) + w2 * (c.m_textureCoords / tC.w)) / persp;
+					texColor = m_textures[0]->getPixelApprox(texUV);
+				}
 
-					glm::vec4 pixelLoc = w0 * tA + w1 * tB + w2 * tC;
-
-					if (pixelLoc.z <= m_surface->getDepthAt(point.x, point.y))
-					{
-						m_surface->setDepthAt(point.x, point.y, pixelLoc.z);
-
-						//TODO perspective correct color
-						glm::vec4 pixelCol = (w0 * (a.m_colour / tA.w) + w1 * (b.m_colour / tB.w) + w2 * (c.m_colour / tC.w)) / persp;
-						glm::vec4 texColor = { 1.0f, 1.0f, 1.0f, 1.0f };
-
-						if (m_textures[0] != NULL)
-						{
-							glm::vec2 texUV = (w0 * (a.m_textureCoords / tA.w) + w1 * (b.m_textureCoords / tB.w) + w2 * (c.m_textureCoords / tC.w)) / persp;
-							texColor = m_textures[0]->getPixelApprox(texUV);
-						}
-
-						//2 Pixel combination
-						glm::vec4 finalCol = texColor * pixelCol;
+				//2 Pixel combination
+				glm::vec4 finalCol = texColor * pixelCol;
 
 
-						//finalCol = blend(texColor, glm::vec4(m_surface->getClearColour(), 1.0f));
-						//float a = finalCol.a;
-						//finalCol *= a;
-						//glm::vec4 other = m_surface->getClearColour() * (1.0f - a));
-						//finalCol += other;
+				//finalCol = blend(texColor, glm::vec4(m_surface->getClearColour(), 1.0f));
+				//float a = finalCol.a;
+				//finalCol *= a;
+				//glm::vec4 other = m_surface->getClearColour() * (1.0f - a));
+				//finalCol += other;
 
-						//MCG::DrawPixel({ (int)x, (int)m_viewport.height - y }, finalCol * 255.0f);
-						//frameBuffer.Set(x, y, finalCol);
+				//MCG::DrawPixel({ (int)x, (int)m_viewport.height - y }, finalCol * 255.0f);
+				//frameBuffer.Set(x, y, finalCol);
 
-						m_surface->setColourAt(point.x, point.y, finalCol);
-					}
-				//}
-			//}
+				m_surface->setColourAt(point.x, point.y, finalCol);
+			}
 		}
+
+		drawLine(tA.x, tA.y, tB.x, tB.y);
+		drawLine(tB.x, tB.y, tC.x, tC.y);
+		drawLine(tA.x, tA.y, tC.x, tC.y);
 	}
 }
 
