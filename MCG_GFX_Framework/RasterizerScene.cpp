@@ -12,7 +12,7 @@ std::vector<Vertex> vertices;
 RasterizerScene::RasterizerScene()
 {
 	m_renderer = new Rasterizer(getSurface());
-	m_renderer->setCulling(Rasterizer::Culling::None, Rasterizer::WindingOrder::CounterClockwise);
+	m_renderer->setCulling(Rasterizer::Culling::Backface, Rasterizer::WindingOrder::Clockwise);
 	m_img = new Texture("tex2.png");
 
 	Texture heightMap = Texture("heightmap.png");
@@ -100,12 +100,12 @@ void RasterizerScene::draw()
 	m_renderer->setModel(glm::translate(glm::scale(glm::mat4(), glm::vec3(0.1f, 0.1f, 0.1f)), glm::vec3(-16.0f, 0.0f, -16.0f)));
 	m_renderer->bindTexture(NULL);
 
-	/*for (int i = 0; i < vertices.size() / 3; i++)
+	for (int i = 0; i < vertices.size() / 3; i++)
 	{
 		m_renderer->drawTriangle(vertices[i * 3 + 0], vertices[i * 3 + 1], vertices[i * 3 + 2]);
-	}*/
+	}
 	
-	Vertex a = { 0.5, 0.5f, -0.5f, 1.0f, 1.0f };
+	/*Vertex a = { 0.5, 0.5f, -0.5f, 1.0f, 1.0f };
 	Vertex b = { -0.5, 0.5f, -0.5f, 0.0f, 1.0f };
 	Vertex c = { -0.5, -0.5, -0.5f, 0.0f, 0.0f };
 
@@ -142,5 +142,5 @@ void RasterizerScene::draw()
 
 	m_renderer->setModel(glm::rotate(glm::mat4(), glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f)));
 	m_renderer->drawTriangle(h, i, j);
-	m_renderer->drawTriangle(k, l, m);
+	m_renderer->drawTriangle(k, l, m);*/
 }

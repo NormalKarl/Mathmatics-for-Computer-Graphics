@@ -445,8 +445,6 @@ void clipEdge(glm::vec4 v1, glm::vec4 v2, std::vector<glm::vec4>& output) {
 
 		glm::vec4 newVertex = v2 + (factor * (d2 * v1 - d1 * v2));
 
-		//float diff = 1.0f / (v2.z - v1.z);
-		//glm::vec4 newVertex = v1 * (diff * (v2 - v1));
 
 		if (b1) {
 			new2 = newVertex;
@@ -571,13 +569,17 @@ std::vector<glm::vec4> Rasterizer::transform(std::vector<Vertex>& vertices)
 	for (int i = 0; i < parseVectors.size(); i++)
 	{
 		parseVectors[i] = m_projection * parseVectors[i];
+
+		if (parseVectors[i].w <= 0.0f) {
+			return std::vector<glm::vec4>();
+		}
 	}
 
 	//edgeClip(parseVectors, CLIP_COORDS);
+	//quickClip(parseVectors);
+	//nearFarClip(parseVectors);
 
-	nearFarClip(parseVectors);
-	//edgeClip(parseVectors, CLIP_COORDS);
-	quickClip(parseVectors);
+
 
 	//Apply perspective divide.
 	for (int i = 0; i < parseVectors.size(); i++)
