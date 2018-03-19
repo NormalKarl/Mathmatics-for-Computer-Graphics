@@ -10,6 +10,7 @@
 #include "RasterizerScene.h"
 #include "RaytracerScene.h"
 #include "MandlebrotScene.h"
+#include "BitmapFont.h"
 
 #include <SDL/SDL.h>
 
@@ -25,7 +26,7 @@ void earClip(std::vector<glm::vec4>& vertices) {
 
 int main(int argc, char *argv[])
 {
-	Surface* surface = new Surface({ 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT });
+	/*Surface* surface = new Surface({ 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT });
 	SceneManager* sceneManager = new SceneManager(surface);
 
 	RasterizerScene* rasterizerScene = new RasterizerScene();
@@ -52,13 +53,7 @@ int main(int argc, char *argv[])
 		surface->clear();
 		sceneManager->draw();
 		surface->draw();
-	}
-
-	//std::vector<glm::vec4> vertices = { { 0.0f, 0.0f, 1.0f, 1.0f },{ 0.0f,1.5f, 1.0f, 1.0f },{ 1.5f,0.0f, 1.0f, 1.0f } };
-	//clip(vertices, { { 0.0f,0.0f }, { 0.0f,1.0f }  ,{ 1.0f,1.0f },{ 1.0f,0.0f } });
-
-
-	//glm::vec4 i = intersect({ 0.0f, 0.0f,1.0f, 0.0f }, {1.0f, 1.0f, 1.0f, 0.0f}, { 5.0f, 0.0f }, { 5.0f, 10.0f });
-
-	//return 0;
+	}*/
+	BitmapFont font("font.fnt");
+	return 0;
 }
