@@ -12,7 +12,7 @@ std::vector<Vertex> vertices;
 RasterizerScene::RasterizerScene()
 {
 	m_renderer = new Rasterizer(getSurface());
-	m_renderer->setCulling(Rasterizer::Culling::Backface, Rasterizer::WindingOrder::Clockwise);
+	m_renderer->setCulling(Rasterizer::Culling::None, Rasterizer::WindingOrder::CounterClockwise);
 	m_img = new Texture("tex2.png");
 
 	Texture heightMap = Texture("heightmap.png");
@@ -56,7 +56,7 @@ int lastMouseX = 0, lastMouseY = 0;
 
 float angle = 0.0f;
 float angleY = 0.0f;
-float dist = 0.75f;
+float dist = 0.7f;
 
 bool wireframe;
 

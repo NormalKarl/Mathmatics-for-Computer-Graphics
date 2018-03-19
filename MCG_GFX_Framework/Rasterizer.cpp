@@ -437,16 +437,16 @@ void clipEdge(glm::vec4 v1, glm::vec4 v2, std::vector<glm::vec4>& output) {
 
 	if (b1 && b2) {
 	}
-	else if(!b1 && !b2) {
-		return;
-	}
 	else if (b1 || b2) {
 		float d1 = v1.z + v1.w;
 		float d2 = v2.z + v2.w;
 
 		float factor = 1.0f / (d2 - d1);
 
-		glm::vec4 newVertex = factor * (d2 * v1 - d1 * v2);
+		glm::vec4 newVertex = v2 + (factor * (d2 * v1 - d1 * v2));
+
+		//float diff = 1.0f / (v2.z - v1.z);
+		//glm::vec4 newVertex = v1 * (diff * (v2 - v1));
 
 		if (b1) {
 			new2 = newVertex;
@@ -455,13 +455,15 @@ void clipEdge(glm::vec4 v1, glm::vec4 v2, std::vector<glm::vec4>& output) {
 			new1 = newVertex;
 		}
 	}
+	else {
+		return;
+	}
 
-	/*if (output.size() == 0 || output[output.size() - 1] != new1) {
+	if (output.size() == 0 || output[output.size() - 1] != new1) {
 		output.push_back(new1);
-	}*/
-	output.push_back(new1);
+	}
 
-	//output.push_back(new2);
+	output.push_back(new2);
 }
 
 
@@ -494,7 +496,7 @@ void nearFarClip(std::vector<glm::vec4>& vertices) {
 		glm::vec4 v3 = vertices[i + 2];
 
 		//Outside the camera.
-		if (v1.w <= 0.0f && v2.w <= 0.0f && v3.w <= 0.0f) {
+		if (v1.w <= 0.0f || v2.w <= 0.0f || v3.w <= 0.0f) {
 			continue;
 		}
 
@@ -517,7 +519,7 @@ void nearFarClip(std::vector<glm::vec4>& vertices) {
 				continue;
 			}
 
-			if (vs.end() == vs.begin()) {
+			if (*(vs.end()) == *(vs.begin())) {
 				vs.pop_back();
 			}
 
