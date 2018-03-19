@@ -88,7 +88,8 @@ class Rasterizer
 public:
 	enum class Culling {
 		None,
-		Backface
+		Backface,
+		Frontface
 	};
 
 	enum class WindingOrder {

@@ -13,8 +13,8 @@
 
 #include <SDL/SDL.h>
 
-#define SCREEN_WIDTH 960
-#define SCREEN_HEIGHT 540
+#define SCREEN_WIDTH 640
+#define SCREEN_HEIGHT 480
 
 
 //Ear-Clipping Algorithm

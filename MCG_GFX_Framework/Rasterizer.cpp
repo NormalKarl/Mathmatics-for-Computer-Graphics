@@ -141,7 +141,7 @@ void Rasterizer::drawLineLow(float x0, float y0, float x1, float y1)
 	{
 		//frameBuffer.Set(x, y, { 1.0f, 1.0f, 1.0f, 1.0f });
 		//MCG::DrawPixel({ x, m_surface->getViewport().height - y }, { 255, 255, 255 });
-		m_surface->setColourAt(x, y, { 1.0f, 1.0f, 1.0f, 1.0f });
+		m_surface->setColourAt(x, y, { 0.0f, 0.0f, 0.0f, 1.0f });
 
 		if (d > 0.0f)
 		{
@@ -172,7 +172,7 @@ void Rasterizer::drawLineHigh(float x0, float y0, float x1, float y1)
 	{
 		//frameBuffer.Set(x, y, { 1.0f, 1.0f, 1.0f, 1.0f });
 		//MCG::DrawPixel({ x, m_surface->getViewport().height - y }, { 255, 255, 255 });
-		m_surface->setColourAt(x, y, { 1.0f, 1.0f, 1.0f, 1.0f });
+		m_surface->setColourAt(x, y, { 0.0f, 0.0f, 0.0f, 1.0f });
 
 		if (d > 0.0f)
 		{
@@ -427,6 +427,43 @@ void edgeClip(std::vector<glm::vec4>& vertices, std::vector<glm::vec2> clips)
 	vertices = iteration;
 }
 
+//Reorder this so it can execute without creating duplicates.
+void clipEdge(glm::vec4 v1, glm::vec4 v2, std::vector<glm::vec4>& output) {
+	glm::vec4 new1 = v1;
+	glm::vec4 new2 = v2;
+
+	bool b1 = v1.w > 0.0f && v1.z > -v1.w;
+	bool b2 = v2.w > 0.0f && v2.z > -v2.w;
+
+	if (b1 && b2) {
+	}
+	else if(!b1 && !b2) {
+		return;
+	}
+	else if (b1 || b2) {
+		float d1 = v1.z + v1.w;
+		float d2 = v2.z + v2.w;
+
+		float factor = 1.0f / (d2 - d1);
+
+		glm::vec4 newVertex = factor * (d2 * v1 - d1 * v2);
+
+		if (b1) {
+			new2 = newVertex;
+		}
+		else {
+			new1 = newVertex;
+		}
+	}
+
+	/*if (output.size() == 0 || output[output.size() - 1] != new1) {
+		output.push_back(new1);
+	}*/
+	output.push_back(new1);
+
+	//output.push_back(new2);
+}
+
 
 //This quick clip algorithm is used for convex polygons only.
 //Since I am using simple equalaterial clipping the clipping algotithm will produce only convex polygons.
@@ -446,6 +483,51 @@ void quickClip(std::vector<glm::vec4>& vertices)
 
 		vertices = clippedVertices;
 	}
+}
+
+void nearFarClip(std::vector<glm::vec4>& vertices) {
+	std::vector<glm::vec4> newVertices;
+
+	for (int i = 0; i < vertices.size(); i += 3) {
+		glm::vec4 v1 = vertices[i];
+		glm::vec4 v2 = vertices[i + 1];
+		glm::vec4 v3 = vertices[i + 2];
+
+		//Outside the camera.
+		if (v1.w <= 0.0f && v2.w <= 0.0f && v3.w <= 0.0f) {
+			continue;
+		}
+
+		//Inside the camera
+		else if (glm::abs(v1.z) < v1.w && glm::abs(v1.z) < v1.w && glm::abs(v1.z) < v1.w) {
+			newVertices.push_back(v1);
+			newVertices.push_back(v2);
+			newVertices.push_back(v3);
+		}
+
+		else {
+
+			std::vector<glm::vec4> vs;
+
+			clipEdge(v1, v2, vs);
+			clipEdge(v2, v3, vs);
+			clipEdge(v3, v1, vs);
+
+			if (vs.size() < 3) {
+				continue;
+			}
+
+			if (vs.end() == vs.begin()) {
+				vs.pop_back();
+			}
+
+			quickClip(vs);
+
+			newVertices.insert(newVertices.end(), vs.begin(), vs.end());
+		}
+	}
+
+	vertices = newVertices;
 }
 
 std::vector<glm::vec4> Rasterizer::transform(std::vector<Vertex>& vertices)
@@ -483,24 +565,16 @@ std::vector<glm::vec4> Rasterizer::transform(std::vector<Vertex>& vertices)
 	if (cull)
 		return std::vector<glm::vec4>();
 
-	bool behindCamera = true;
 	//Convert to projection space for clipping.
 	for (int i = 0; i < parseVectors.size(); i++)
 	{
 		parseVectors[i] = m_projection * parseVectors[i];
-
-		if (parseVectors[i].w > 0.0f)
-			behindCamera = false;
 	}
 
-	if (behindCamera)
-	{
-		return std::vector<glm::vec4>();
-	}
+	//edgeClip(parseVectors, CLIP_COORDS);
 
-	std::vector<glm::vec4> originalPolygon = parseVectors;
-
-	edgeClip(parseVectors, CLIP_COORDS);
+	nearFarClip(parseVectors);
+	//edgeClip(parseVectors, CLIP_COORDS);
 	quickClip(parseVectors);
 
 	//Apply perspective divide.
@@ -589,9 +663,13 @@ void Rasterizer::drawTriangle(Vertex& a, Vertex& b, Vertex &c)
 			}
 		}
 
-		//drawLine(tA.x, tA.y, tB.x, tB.y);
-		//drawLine(tB.x, tB.y, tC.x, tC.y);
-		//drawLine(tA.x, tA.y, tC.x, tC.y);
+		/*tA = glm::clamp(tA, { 0.0f, 0.0f, -1.0f, 0.0f, }, {m_surface->getViewport().width - 1.0f, m_surface->getViewport().height - 1.0f, -1.0f, 0.0f });
+		tB = glm::clamp(tB, { 0.0f, 0.0f, -1.0f, 0.0f, }, { m_surface->getViewport().width - 1.0f, m_surface->getViewport().height - 1.0f, -1.0f, 0.0f });
+		tC = glm::clamp(tC, { 0.0f, 0.0f, -1.0f, 0.0f, }, { m_surface->getViewport().width - 1.0f, m_surface->getViewport().height - 1.0f, -1.0f, 0.0f });
+
+		drawLine(tA.x, tA.y, tB.x, tB.y);
+		drawLine(tB.x, tB.y, tC.x, tC.y);
+		drawLine(tA.x, tA.y, tC.x, tC.y);*/
 	}
 }
 

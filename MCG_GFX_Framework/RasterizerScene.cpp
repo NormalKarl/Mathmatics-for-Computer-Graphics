@@ -18,6 +18,8 @@ RasterizerScene::RasterizerScene()
 	Texture heightMap = Texture("heightmap.png");
 	heightMap.filter = Filter::Point;
 
+	float gradient = 20.0f;
+
 	for (int x = 0; x < heightMap.width - 1; x++)
 	{
 		for (int y = 0; y < heightMap.height - 1; y++)
@@ -27,13 +29,13 @@ RasterizerScene::RasterizerScene()
 			glm::vec4 pixelDown = heightMap.getPixelAt(x, y + 1);
 			glm::vec4 pixelRightDown = heightMap.getPixelAt(x + 1, y + 1);
 
-			Vertex a = { (float)x, pixel.g * 10.0f, (float)y, pixel.g, pixel.g, pixel.g, 1.0f };
-			Vertex b = { (float)x + 1, pixelRight.g * 10.0f, (float)y, pixel.g, pixel.g, pixel.g, 1.0f };
-			Vertex c = { (float)x, pixelDown.g * 10.0f, (float)y + 1, pixel.g, pixel.g, pixel.g, 1.0f };
+			Vertex a = { (float)x, pixel.g * gradient, (float)y, pixel.g, pixel.g, pixel.g, 1.0f };
+			Vertex b = { (float)x + 1, pixelRight.g * gradient, (float)y, pixel.g, pixel.g, pixel.g, 1.0f };
+			Vertex c = { (float)x, pixelDown.g * gradient, (float)y + 1, pixel.g, pixel.g, pixel.g, 1.0f };
 
-			Vertex d = { (float)x + 1, pixelRight.g * 10.0f, (float)y, pixel.g, pixel.g, pixel.g, 1.0f };
-			Vertex e = { (float)x + 1, pixelRightDown.g * 10.0f, (float)y + 1, pixel.g, pixel.g, pixel.g, 1.0f };
-			Vertex f = { (float)x, pixelDown.g * 10.0f, (float)y + 1, pixel.g, pixel.g, pixel.g, 1.0f };
+			Vertex d = { (float)x + 1, pixelRight.g * gradient, (float)y, pixel.g, pixel.g, pixel.g, 1.0f };
+			Vertex e = { (float)x + 1, pixelRightDown.g * gradient, (float)y + 1, pixel.g, pixel.g, pixel.g, 1.0f };
+			Vertex f = { (float)x, pixelDown.g * gradient, (float)y + 1, pixel.g, pixel.g, pixel.g, 1.0f };
 
 			vertices.push_back(a);
 			vertices.push_back(b);
@@ -54,7 +56,7 @@ int lastMouseX = 0, lastMouseY = 0;
 
 float angle = 0.0f;
 float angleY = 0.0f;
-float dist = 1.0f;
+float dist = 0.75f;
 
 bool wireframe;
 
@@ -95,7 +97,7 @@ void RasterizerScene::draw()
 
 	m_renderer->perspective(glm::radians(75.0f), aspect, 0.1f, 100.0f);
 	m_renderer->lookAt(glm::cos(angle) * dist, glm::cos(angleY) * 5.0f, glm::sin(angle) * dist, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
-	//m_renderer->setModel(glm::scale(glm::mat4(), glm::vec3(0.2f, 0.2f, 0.2f)));
+	m_renderer->setModel(glm::translate(glm::scale(glm::mat4(), glm::vec3(0.1f, 0.1f, 0.1f)), glm::vec3(-16.0f, 0.0f, -16.0f)));
 	m_renderer->bindTexture(NULL);
 
 	/*for (int i = 0; i < vertices.size() / 3; i++)
