@@ -255,8 +255,8 @@ void findPointsTop(Viewport viewport, std::vector<glm::vec2>& points, glm::vec2 
 
 	int yStart = (int)glm::ceil(a.y - 0.5f);
 	int yEnd = (int)glm::ceil(c.y - 0.5f);
-	//yStart = glm::clamp(yStart, viewport.y, viewport.height);
-	//yEnd = glm::clamp(yEnd, viewport.y, viewport.height);
+	yStart = glm::clamp(yStart, viewport.y, viewport.height);
+	yEnd = glm::clamp(yEnd, viewport.y, viewport.height);
 
 	for (int y = yStart; y < yEnd; y++)
 	{
@@ -265,8 +265,8 @@ void findPointsTop(Viewport viewport, std::vector<glm::vec2>& points, glm::vec2 
 
 		int xStart = (int)glm::ceil(px0 - 0.5f);
 		int xEnd = (int)glm::ceil(px1 - 0.5f);
-		//xStart = glm::clamp(xStart, viewport.x, viewport.width);
-		//xEnd = glm::clamp(xEnd, viewport.x, viewport.width);
+		xStart = glm::clamp(xStart, viewport.x, viewport.width);
+		xEnd = glm::clamp(xEnd, viewport.x, viewport.width);
 
 		for (int x = xStart; x < xEnd; x++)
 		{
@@ -283,8 +283,8 @@ void findPointsBottom(Viewport viewport, std::vector<glm::vec2>& points, glm::ve
 	int yStart = (int)glm::ceil(a.y - 0.5f);
 	int yEnd = (int)glm::ceil(c.y - 0.5f);
 
-	//yStart = glm::clamp(yStart, viewport.y, viewport.height);
-	//yEnd = glm::clamp(yEnd, viewport.y, viewport.height);
+	yStart = glm::clamp(yStart, viewport.y, viewport.height);
+	yEnd = glm::clamp(yEnd, viewport.y, viewport.height);
 
 	for (int y = yStart; y < yEnd; y++)
 	{
@@ -293,8 +293,8 @@ void findPointsBottom(Viewport viewport, std::vector<glm::vec2>& points, glm::ve
 
 		int xStart = (int)glm::ceil(px0 - 0.5f);
 		int xEnd = (int)glm::ceil(px1 - 0.5f);
-		//xStart = glm::clamp(xStart, viewport.x, viewport.width);
-		//xEnd = glm::clamp(xEnd, viewport.x, viewport.width);
+		xStart = glm::clamp(xStart, viewport.x, viewport.width);
+		xEnd = glm::clamp(xEnd, viewport.x, viewport.width);
 
 		for (int x = xStart; x < xEnd; x++)
 		{
@@ -500,8 +500,8 @@ std::vector<glm::vec4> Rasterizer::transform(std::vector<Vertex>& vertices)
 
 	std::vector<glm::vec4> originalPolygon = parseVectors;
 
-	//edgeClip(parseVectors, CLIP_COORDS);
-	//quickClip(parseVectors);
+	edgeClip(parseVectors, CLIP_COORDS);
+	quickClip(parseVectors);
 
 	//Apply perspective divide.
 	for (int i = 0; i < parseVectors.size(); i++)
@@ -589,9 +589,9 @@ void Rasterizer::drawTriangle(Vertex& a, Vertex& b, Vertex &c)
 			}
 		}
 
-		drawLine(tA.x, tA.y, tB.x, tB.y);
-		drawLine(tB.x, tB.y, tC.x, tC.y);
-		drawLine(tA.x, tA.y, tC.x, tC.y);
+		//drawLine(tA.x, tA.y, tB.x, tB.y);
+		//drawLine(tB.x, tB.y, tC.x, tC.y);
+		//drawLine(tA.x, tA.y, tC.x, tC.y);
 	}
 }
 
