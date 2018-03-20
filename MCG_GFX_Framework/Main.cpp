@@ -26,7 +26,7 @@ void earClip(std::vector<glm::vec4>& vertices) {
 
 int main(int argc, char *argv[])
 {
-	/*Surface* surface = new Surface({ 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT });
+	Surface* surface = new Surface({ 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT });
 	SceneManager* sceneManager = new SceneManager(surface);
 
 	RasterizerScene* rasterizerScene = new RasterizerScene();
@@ -36,14 +36,14 @@ int main(int argc, char *argv[])
 	sceneManager->addScene(rasterizerScene);
 	sceneManager->addScene(raytracerScene);
 	sceneManager->addScene(mandlebrotScene);
-	sceneManager->goToScene(raytracerScene);
+	sceneManager->goToScene(rasterizerScene);
 
 	if (!MCG::Init({ SCREEN_WIDTH, SCREEN_HEIGHT }))
 		return -1;
 
 	float timer = 0.0f;
 
-	surface->setClearColour((unsigned char)255, 255, 255);
+	surface->setClearColour((unsigned char)0, 0, 0);
 
 	while (MCG::ProcessFrame())
 	{
@@ -53,7 +53,6 @@ int main(int argc, char *argv[])
 		surface->clear();
 		sceneManager->draw();
 		surface->draw();
-	}*/
-	BitmapFont font("font.fnt");
+	}
 	return 0;
 }

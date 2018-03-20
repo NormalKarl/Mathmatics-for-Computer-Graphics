@@ -637,9 +637,10 @@ void Rasterizer::drawTriangle(Vertex& a, Vertex& b, Vertex &c)
 	}
 }
 
-void transform(std::vector<glm::vec4> points)
-{
 
+void Rasterizer::drawQuad(Vertex& a, Vertex& b, Vertex& c, Vertex& d) {
+	drawTriangle(a, b, d);
+	drawTriangle(b, c, d);
 }
 
 glm::vec4 Rasterizer::transform(glm::vec3 _position)

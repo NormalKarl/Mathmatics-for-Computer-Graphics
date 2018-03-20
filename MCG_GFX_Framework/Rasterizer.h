@@ -94,6 +94,7 @@ public:
 	bool transform(const Vertex& a, const Vertex& b, const Vertex& c, glm::vec4& target_a, glm::vec4& target_b, glm::vec4& target_c);
 	void drawLine(Vertex& a, Vertex& b);
 	void drawTriangle(Vertex& a, Vertex& b, Vertex& c);
+	void drawQuad(Vertex& a, Vertex& b, Vertex& c, Vertex& d);
 	void ortho(float left, float right, float bottom, float top, float near, float far);
 	void perspective(float fovy, float aspect, float near, float far);
 	glm::vec4 transform(glm::vec3 _position);

@@ -190,6 +190,9 @@
   <ItemGroup>
     <None Include="Texture.h" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="NewRasterizer.h" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -17,17 +17,28 @@ public:
 	unsigned char* data;
 	Filter filter;
 
-	inline Texture()
-	{
-		filter = Filter::Bilinear;
-	}
-
+	Texture();
 	Texture(const char* filename);
 
-	~Texture() {
-		delete[] data;
-	};
+	~Texture();
 
 	glm::vec4 sample(glm::vec2 uv);
 	glm::vec4 getPixelAt(int x, int y);
+
+	inline int getWidth() {
+		return width;
+	}
+
+	inline int getHeight() {
+		return height;
+	}
+
+	inline float getWidthF() {
+		return (float)width;
+	}
+
+	inline float getHeightF() {
+		return (float)height;
+	}
+
 };

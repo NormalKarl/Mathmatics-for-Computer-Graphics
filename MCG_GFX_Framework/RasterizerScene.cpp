@@ -5,6 +5,8 @@
 
 #define USE_MATH_DEFINES
 
+#include "BitmapFont.h"
+
 #include <cmath>
 
 std::vector<Vertex> vertices;
@@ -143,4 +145,5 @@ void RasterizerScene::draw()
 	m_renderer->setModel(glm::rotate(glm::mat4(), glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f)));
 	m_renderer->drawTriangle(h, i, j);
 	m_renderer->drawTriangle(k, l, m);
+
 }

@@ -1,5 +1,7 @@
 #include "Scene.h"
 
+#include "BitmapFont.h"
+
 SceneManager* SceneManager::ActiveSceneManager = NULL;
 
 Scene::Scene()
@@ -13,9 +15,12 @@ Scene::~Scene()
 
 SceneManager::SceneManager(Surface* _surface) : m_surface(_surface)
 {
+
+	m_font = new BitmapFont("font.fnt", { "font_0.png" });
 	m_sceneIndex = -1;
 	m_renderer = Rasterizer(_surface);
 	m_renderer.ortho(0, m_surface->getViewport().width, m_surface->getViewport().height, 0, 0, 1);
+	m_renderer.setCulling(Rasterizer::Culling::None, Rasterizer::WindingOrder::Clockwise);
 
 	icons.push_back(new Texture("icon1.png"));
 
@@ -79,5 +84,7 @@ void SceneManager::draw()
 		rectangle.setColour({ 1, 1, 1, 0.75f });
 		rectangle.draw(&m_renderer);
 	}
+
+	m_font->drawText(&m_renderer, m_scenes[m_sceneIndex]->getTitle(), 50, 50);
 
 }

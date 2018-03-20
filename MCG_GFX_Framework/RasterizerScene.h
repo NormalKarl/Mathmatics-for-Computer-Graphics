@@ -3,6 +3,7 @@
 #include "Scene.h"
 
 class Rasterizer;
+class BitmapFont;
 
 class RasterizerScene : public Scene
 {

@@ -7,6 +7,7 @@
 
 class Scene;
 class SceneManager;
+class BitmapFont;
 
 class SceneManager
 {
@@ -17,6 +18,7 @@ private:
 	Rasterizer m_renderer;
 
 	std::vector<Texture*> icons;
+	BitmapFont* m_font;
 public:
 	static SceneManager* ActiveSceneManager;
 
@@ -55,6 +57,10 @@ public:
 	inline Surface* getSurface()
 	{
 		return SceneManager::ActiveSceneManager->getSurface();
+	}
+
+	inline std::string getTitle() {
+		return m_title;
 	}
 };
 

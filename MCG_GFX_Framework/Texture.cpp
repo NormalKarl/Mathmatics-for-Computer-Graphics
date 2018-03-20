@@ -1,10 +1,21 @@
 #include "Texture.h"
 #include "stb_image.h"
 
+Texture::Texture()
+{
+	filter = Filter::Bilinear;
+	data = NULL;
+}
+
 Texture::Texture(const char* filename)
 {
 	data = stbi_load(filename, &width, &height, &bytesPerPixel, STBI_rgb_alpha);
 	filter = Filter::Point;
+}
+
+Texture::~Texture()
+{
+	//stbi_image_free(data);
 }
 
 glm::vec4 Texture::sample(glm::vec2 uv)
