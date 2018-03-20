@@ -75,6 +75,9 @@
     <ClCompile Include="BitmapFont.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="tinyxml2.cpp">
+      <Filter>Source Files\Libraries</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Raytracer.h">
@@ -115,6 +118,9 @@
     </ClInclude>
     <ClInclude Include="BitmapFont.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tinyxml2.h">
+      <Filter>Header Files\Libraries</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
