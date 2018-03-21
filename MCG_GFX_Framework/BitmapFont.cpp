@@ -17,6 +17,9 @@ BitmapFont::BitmapFont(const char* filename, std::vector<const char*> pagePaths)
 	tinyxml2::XMLElement* commonEle = doc.FirstChildElement("font")->FirstChildElement("common");
 	lineHeight = commonEle->IntAttribute("lineHeight");
 	base = commonEle->IntAttribute("base");
+	scaleW = commonEle->IntAttribute("scaleW");
+	scaleH = commonEle->IntAttribute("scaleH");
+	pages = commonEle->IntAttribute("pages");
 
 	tinyxml2::XMLElement* e = doc.FirstChildElement("font")->FirstChildElement("chars");
 	texture = Texture(pagePaths[0]);
@@ -35,6 +38,8 @@ BitmapFont::BitmapFont(const char* filename, std::vector<const char*> pagePaths)
 		ch.page = c->IntAttribute("page");
 		ch.channel = c->IntAttribute("chnl");
 
+		//Transform the x, y, width and height of the sprite into normalized positions.
+		//This is used for the Rasterizer class.
 		ch.uvX = (float)ch.x / texture.getWidthF();
 		ch.uvY = (float)ch.y / texture.getHeightF();
 		ch.uvWidth = (float)ch.width / texture.getWidthF();
@@ -43,6 +48,18 @@ BitmapFont::BitmapFont(const char* filename, std::vector<const char*> pagePaths)
 		chars[ch.id] = ch;
 	}
 
+
+	tinyxml2::XMLElement* kerningsElement = doc.FirstChildElement("font")->FirstChildElement("kernings");
+
+	for (tinyxml2::XMLElement* c = (tinyxml2::XMLElement*)kerningsElement->FirstChild(); c != NULL; c = (tinyxml2::XMLElement*)c->NextSibling()) {
+		Kerning k = { 0 };
+
+		k.first = c->IntAttribute("first");
+		k.second = c->IntAttribute("second");
+		k.amount = c->IntAttribute("amount");
+
+		kerning[k.second].push_back(k);
+	}
 
 	return;
 }
@@ -60,8 +77,16 @@ void BitmapFont::drawText(Rasterizer* rasterizer, std::string text, float x, flo
 	for (int c = 0; c < text.size(); c++) {
 		BitmapChar bc = chars[text[c]];
 
-		float charX = currentX;
-		float charY = y + base - bc.height;
+		float charX = currentX + bc.xoffset;
+		float charY = (y - lineHeight + base) + bc.yoffset;
+
+		if (kerning[c].size() != 0 && c != 0) {
+			for (int k = 0; k < kerning[c].size(); k++) {
+				if (kerning[c][k].first == text[c - 1]) {
+					charX += kerning[c][k].amount;
+				}
+			}
+		}
 
 		Vertex vertices[] = { { charX, charY, 0, bc.uvX, bc.uvY },
 							 { charX + bc.width, charY, 0, bc.uvX + bc.uvWidth, bc.uvY },

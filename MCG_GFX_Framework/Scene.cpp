@@ -16,7 +16,7 @@ Scene::~Scene()
 SceneManager::SceneManager(Surface* _surface) : m_surface(_surface)
 {
 
-	m_font = new BitmapFont("font.fnt", { "font_0.png" });
+	m_font = new BitmapFont("opensans.fnt", { "opensans_0.png" });
 	m_sceneIndex = -1;
 	m_renderer = Rasterizer(_surface);
 	m_renderer.ortho(0, m_surface->getViewport().width, m_surface->getViewport().height, 0, 0, 1);

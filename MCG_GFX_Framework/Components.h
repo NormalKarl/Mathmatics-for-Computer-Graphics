@@ -1,5 +1,8 @@
 #pragma once
 
+#include <vector>
+#include <string>
+
 class UIComponent
 {
 private:
@@ -13,3 +16,10 @@ public:
 class Button : public UIComponent { 
 
 };
+
+/*class UIList : UIComponent {
+public:
+	UIList(std::vector<std::string>);
+	~UIList();
+
+};*/

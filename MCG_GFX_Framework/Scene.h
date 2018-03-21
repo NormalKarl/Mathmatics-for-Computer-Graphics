@@ -62,5 +62,9 @@ public:
 	inline std::string getTitle() {
 		return m_title;
 	}
+
+	inline void setTitle(std::string _title) {
+		m_title = _title;
+	}
 };
 

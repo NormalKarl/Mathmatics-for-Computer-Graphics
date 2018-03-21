@@ -13,6 +13,7 @@ std::vector<Vertex> vertices;
 
 RasterizerScene::RasterizerScene()
 {
+	setTitle("Rasterizer");
 	m_renderer = new Rasterizer(getSurface());
 	m_renderer->setCulling(Rasterizer::Culling::Backface, Rasterizer::WindingOrder::CounterClockwise);
 	m_img = new Texture("tex2.png");
