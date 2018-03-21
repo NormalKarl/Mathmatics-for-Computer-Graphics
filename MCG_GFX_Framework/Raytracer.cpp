@@ -5,12 +5,14 @@
 #include "MCG_GFX_Lib.h"
 #include <GLM\gtc\matrix_transform.hpp>
 #include <GLM/glm.hpp>
+#include <SDL\SDL.h>
 
 #include <cstdio>
 
 Raytracer::Raytracer(Surface* _surface) : m_surface(_surface)
 {
 	m_projectionInv = glm::perspective(75.0f, (float)_surface->getWidth() / (float)_surface->getHeight(), 0.0f, 1.0f);
+	m_projectionInv = glm::inverse(m_projectionInv);
 	m_viewInv = glm::mat4();
 }
 
@@ -82,6 +84,8 @@ void Raytracer::trace() {
 	sphere.m_position = { -0.1f, -0.1f, 2.0f };
 	sphere.m_radius = 0.15f;
 
+	float angle = (((float)(SDL_GetTicks() % 1000)) / 1000.0f) * (M_PI * 2);
+
 	for (int x = 0; x < m_surface->getWidth(); x++)
 	{
 		for (int y = 0; y < m_surface->getHeight(); y++)
@@ -96,7 +100,10 @@ void Raytracer::trace() {
 			{
 				//float mag = glm::sqrt(normal.x * normal.x + normal.y * normal.y + normal.z * normal.z);
 
-				float diff = glm::clamp(glm::dot(normal, {0.0f, 1.0f, 0.0f}), 0.0f, 0.7f);
+
+
+
+				float diff = glm::clamp(glm::dot(normal, { cos(angle) * 1.0f, 0.0f, sin(angle) * 1.0f}), 0.0f, 0.7f);
 				glm::vec4 col = diff * glm::vec4(1.0f, 0.0f, 0.0f, 1.0f);
 
 				m_surface->setColourAt(x, y, ((1.0f - diff) * glm::vec4(0.0f, 0.0f, 0.0f, 1.0f)) + col);

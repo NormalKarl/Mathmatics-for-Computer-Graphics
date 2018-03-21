@@ -15,7 +15,7 @@ RasterizerScene::RasterizerScene()
 {
 	setTitle("Rasterizer");
 	m_renderer = new Rasterizer(getSurface());
-	m_renderer->setCulling(Rasterizer::Culling::Backface, Rasterizer::WindingOrder::CounterClockwise);
+	m_renderer->setCulling(Rasterizer::Culling::Backface, Rasterizer::WindingOrder::Clockwise);
 	m_img = new Texture("tex2.png");
 
 	Texture heightMap = Texture("heightmap.png");

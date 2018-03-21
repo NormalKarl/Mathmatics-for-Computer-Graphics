@@ -14,8 +14,8 @@
 
 #include <SDL/SDL.h>
 
-#define SCREEN_WIDTH 640
-#define SCREEN_HEIGHT 480
+#define SCREEN_WIDTH 200
+#define SCREEN_HEIGHT 200
 
 
 //Ear-Clipping Algorithm
@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
 	sceneManager->addScene(rasterizerScene);
 	sceneManager->addScene(raytracerScene);
 	sceneManager->addScene(mandlebrotScene);
-	sceneManager->goToScene(rasterizerScene);
+	sceneManager->goToScene(raytracerScene);
 
 	if (!MCG::Init({ SCREEN_WIDTH, SCREEN_HEIGHT }))
 		return -1;
@@ -54,5 +54,6 @@ int main(int argc, char *argv[])
 		sceneManager->draw();
 		surface->draw();
 	}
+
 	return 0;
 }

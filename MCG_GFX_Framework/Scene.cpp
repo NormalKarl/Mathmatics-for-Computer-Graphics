@@ -20,7 +20,7 @@ SceneManager::SceneManager(Surface* _surface) : m_surface(_surface)
 	m_sceneIndex = -1;
 	m_renderer = Rasterizer(_surface);
 	m_renderer.ortho(0, m_surface->getViewport().width, m_surface->getViewport().height, 0, 0, 1);
-	m_renderer.setCulling(Rasterizer::Culling::None, Rasterizer::WindingOrder::Clockwise);
+	m_renderer.setCulling(Rasterizer::Culling::Backface, Rasterizer::WindingOrder::Clockwise);
 
 	icons.push_back(new Texture("icon1.png"));
 
@@ -85,6 +85,6 @@ void SceneManager::draw()
 		rectangle.draw(&m_renderer);
 	}
 
-	m_font->drawText(&m_renderer, m_scenes[m_sceneIndex]->getTitle(), 50, 50);
+	m_font->drawText(&m_renderer, m_scenes[m_sceneIndex]->getTitle(), 5, 5);
 
 }

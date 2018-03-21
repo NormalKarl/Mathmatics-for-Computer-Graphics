@@ -494,36 +494,6 @@ std::vector<glm::vec4> Rasterizer::transform(std::vector<Vertex>& vertices)
 		parseVectors.push_back(m_view * m_world * m_model * glm::vec4(vertices[i].m_position, 1.0f));
 	}
 
-	bool cull = false;
-	//Perform face culling.
-	switch (m_culling)
-	{
-
-		case Culling::None:
-			cull = false;
-			break;
-		case Culling::Backface:
-		{
-			if (m_windingOrder == WindingOrder::Clockwise)
-			{
-				cull = glm::dot(glm::cross((glm::vec3(parseVectors[2]) - glm::vec3(parseVectors[0])), (glm::vec3(parseVectors[1]) - glm::vec3(parseVectors[0]))), glm::vec3(parseVectors[0])) >= 0.0f;
-			}
-			else
-			{
-				cull = glm::dot(glm::cross((glm::vec3(parseVectors[1]) - glm::vec3(parseVectors[0])), (glm::vec3(parseVectors[2]) - glm::vec3(parseVectors[0]))), glm::vec3(parseVectors[0])) >= 0.0f;
-			}
-
-			/*float d = (parseVectors[1].x - parseVectors[0].x) *
-				(parseVectors[2].y - parseVectors[0].y) -
-				(parseVectors[1].y - parseVectors[0].y) *
-				(parseVectors[2].x - parseVectors[0].x)
-			if(d < 0.0f)
-				cull = true;*/
-		}
-	}
-
-	if (cull)
-		return std::vector<glm::vec4>();
 
 	//Convert to projection space for clipping.
 	for (int i = 0; i < parseVectors.size(); i++)
@@ -552,6 +522,28 @@ std::vector<glm::vec4> Rasterizer::transform(std::vector<Vertex>& vertices)
 
 		parseVectors[i] = { (clip.x + 1.0f) * 0.5f * m_surface->getViewport().width, (clip.y + 1.0f) * 0.5f * m_surface->getViewport().height, (clip.z + 1.0f) * 0.5f, w };
 	}
+
+	//Perform face culling.
+	if (m_culling != Culling::None) {
+		bool cull = false;
+
+		if (m_culling == Culling::Backface && m_windingOrder == WindingOrder::Clockwise
+			|| m_culling == Culling::Frontface && m_windingOrder == WindingOrder::CounterClockwise)
+		{
+			cull = (parseVectors[2].x - parseVectors[0].x) * (parseVectors[1].y - parseVectors[0].y)
+				- (parseVectors[2].y - parseVectors[0].y) * (parseVectors[1].x - parseVectors[0].x) < 0.0f;
+		}
+		else if (m_culling == Culling::Frontface && m_windingOrder == WindingOrder::Clockwise
+			|| m_culling == Culling::Backface && m_windingOrder == WindingOrder::CounterClockwise)
+		{
+			cull = (parseVectors[1].x - parseVectors[0].x) * (parseVectors[2].y - parseVectors[0].y)
+				- (parseVectors[1].y - parseVectors[0].y) * (parseVectors[2].x - parseVectors[0].x) < 0.0f;
+		}
+
+		if (cull)
+			return std::vector<glm::vec4>();
+	}
+
 
 	return parseVectors;
 }
