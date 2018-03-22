@@ -45,10 +45,16 @@ private:
 	unsigned int scaleW;
 	unsigned int scaleH;
 	unsigned int pages;
+	unsigned int size;
 public:
 	BitmapFont(const char* file, std::vector<const char*> pagePaths);
 	~BitmapFont();
 
+	inline int getLineHeight() {
+		return lineHeight;
+	}
+
+	int getWidth(const std::string& text);
 
 	void drawText(Rasterizer* rasterizer, std::string text, float x, float y);
 };

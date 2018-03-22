@@ -39,9 +39,6 @@ Ray Raytracer::createRay(int _pixelX, int _pixelY, float offsetX, float offsetY)
 	float x = xNDC * glm::tan(glm::radians(fov) / 2.0f);
 	float y = yNDC * glm::tan(glm::radians(fov) / 2.0f);
 	
-
-
-
 	ray.direction = glm::vec3(x, y, 1.0f) - glm::vec3(xNDC, yNDC, 0.0f);
 	ray.origin = glm::vec3(xNDC, yNDC, 0.0f);
 
@@ -55,7 +52,6 @@ bool intersect(Ray _ray, Sphere _sphere , glm::vec3& normal) {
 
 	glm::vec3 distance = _sphere.m_position - _ray.origin - (dot * _ray.direction);
 
-	if (distance.z < 0) return false;
 
 	float mag = glm::sqrt(distance.x * distance.x + distance.y * distance.y);
 
@@ -64,6 +60,8 @@ bool intersect(Ray _ray, Sphere _sphere , glm::vec3& normal) {
 		//printf("%f, %f, %f\n", distance.x, distance.y, distance.z);
 		float x = glm::sqrt(_sphere.m_radius * _sphere.m_radius - mag * mag);
 		glm::vec3 near = _ray.origin + ((dot - x) * _ray.direction);
+
+		if (near.z > 0) return false;
 
 		normal = near - _sphere.m_position;
 		//printf("%f\n", near.z);
@@ -83,7 +81,7 @@ void Raytracer::trace() {
 
 	Sphere sphere;
 
-	sphere.m_position = { 0.0f, 0.0f, 5.0f };
+	sphere.m_position = { 0.0f, 0.0f, -1.5f };
 	sphere.m_radius = 0.15f;
 
 	//float angle = (((float)(SDL_GetTicks() % 3000)) / 3000.0f) * (M_PI * 2);
@@ -92,8 +90,10 @@ void Raytracer::trace() {
 
 	static float angle = 0.0f;
 	angle++;
-	//m_viewInv = glm::inverse(glm::rotate(glm::mat4(), glm::radians(angle), glm::vec3(0.0f, 1.0f, 0.0f)));
-	m_projectionInv = glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 0.01f, 1000.0f); 
+	m_viewInv = glm::rotate(glm::mat4(), glm::radians(angle), glm::vec3(0.0f, 1.0f, 0.0f));
+	//m_projectionInv = glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 0.01f, 1000.0f); 
+	//m_viewInv = glm::mat4();
+	sphere.m_position = m_viewInv * glm::vec4(sphere.m_position, 1.0f);
 
 	//cameraDir = glm::vec3(cos(angle), 0.0f, sin(angle));
 	float angle2 = M_PI * 1.75f;

@@ -17,13 +17,6 @@
 #define SCREEN_WIDTH 640
 #define SCREEN_HEIGHT 480
 
-
-//Ear-Clipping Algorithm
-//n = vertices. triangles = n - 2;
-void earClip(std::vector<glm::vec4>& vertices) {
-
-}
-
 int main(int argc, char *argv[])
 {
 	Surface* surface = new Surface({ 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT });
@@ -36,7 +29,7 @@ int main(int argc, char *argv[])
 	sceneManager->addScene(rasterizerScene);
 	sceneManager->addScene(raytracerScene);
 	sceneManager->addScene(mandlebrotScene);
-	sceneManager->goToScene(rasterizerScene);
+	sceneManager->goToScene(raytracerScene);
 
 	if (!MCG::Init({ SCREEN_WIDTH, SCREEN_HEIGHT }))
 		return -1;

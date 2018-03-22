@@ -102,7 +102,6 @@ public:
 
 	void bindTexture(Texture* texture, int index = 0);
 
-
 	std::vector<glm::vec4> transform(std::vector<Vertex>& vertices);
 
 	glm::mat4 getMVP();

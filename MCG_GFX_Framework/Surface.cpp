@@ -51,3 +51,49 @@ void Surface::setClearColour(unsigned char r, unsigned char g, unsigned char b)
 {
 	m_clearColour = { (float)r / 255.0f, (float)g / 255.0f, (float)b / 255.0f };
 }
+
+glm::vec3 Surface::getFlattenedPixel(int x, int y) {
+	glm::vec4 pixelCol = m_frameBuffer->Get(x - m_viewport.x, y - m_viewport.y);
+	float alpha = pixelCol.a;
+
+	pixelCol *= alpha;
+	pixelCol += glm::vec4(m_clearColour, 1.0f) * (1.0f - alpha);
+	return glm::vec3(pixelCol);
+}
+
+float Surface::luma(int x, int y) {
+	glm::vec4 clearColour = glm::vec4(m_clearColour, 1.0f);
+	glm::vec4 pixelCol = m_frameBuffer->Get(x - m_viewport.x, y - m_viewport.y);
+	float alpha = pixelCol.a;
+
+	pixelCol *= alpha;
+	pixelCol += clearColour * (1.0f - alpha);
+
+	return glm::sqrt(glm::dot(glm::vec3(pixelCol), glm::vec3(0.299f, 0.587f, 0.114f)));
+}
+
+#define EDGE_THRESHOLD_MIN 0.0312f
+#define EDGE_THRESHOLD_MAX 0.125f
+
+//Implement http://blog.simonrodriguez.fr/articles/30-07-2016_implementing_fxaa.html;
+glm::vec3 Surface::performFXAA(int x, int y) {
+	float lumaCenter = luma(x, y);
+
+	float lumaDown = luma(x, y + 1);
+	float lumaUp = luma(x, y - 1);
+	float lumaLeft = luma(x - 1, y);
+	float lumaRight = luma(x + 1, y);
+
+	float lumaMin = glm::min(lumaCenter, glm::min(glm::min(lumaDown, lumaUp), glm::min(lumaLeft, lumaRight)));
+	float lumaMax = glm::max(lumaCenter, glm::max(glm::max(lumaDown, lumaUp), glm::max(lumaLeft, lumaRight)));
+
+	float lumaRange = lumaMax - lumaMin;
+
+	if (lumaRange < glm::max(EDGE_THRESHOLD_MIN, lumaMax * EDGE_THRESHOLD_MAX)) {
+		return getFlattenedPixel(x, y);
+	}
+
+
+
+
+}

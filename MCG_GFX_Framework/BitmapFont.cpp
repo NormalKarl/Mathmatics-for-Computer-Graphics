@@ -69,6 +69,19 @@ BitmapFont::~BitmapFont()
 {
 }
 
+
+int BitmapFont::getWidth(const std::string& text) {
+	float currentX = 0;
+
+	for (int c = 0; c < text.size(); c++) {
+		BitmapChar bc = chars[text[c]];
+
+		currentX += bc.xadvance;
+	}
+
+	return currentX;
+}
+
 void BitmapFont::drawText(Rasterizer* rasterizer, std::string text, float x, float y) {
 	float currentX = x;
 

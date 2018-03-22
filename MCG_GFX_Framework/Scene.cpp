@@ -29,7 +29,7 @@ SceneManager::SceneManager(Surface* _surface) : m_surface(_surface)
 
 SceneManager::~SceneManager()
 {
-	
+
 }
 
 void SceneManager::addScene(Scene* scene)
@@ -67,7 +67,7 @@ void SceneManager::goToScene(int index)
 
 void SceneManager::update()
 {
-	if(m_sceneIndex != -1)
+	if (m_sceneIndex != -1)
 		m_scenes[m_sceneIndex]->update();
 }
 
@@ -84,6 +84,21 @@ void SceneManager::draw()
 		rectangle.draw(&m_renderer);
 	}
 
-	m_font->drawText(&m_renderer, m_scenes[m_sceneIndex]->getTitle(), 5, 5);
+
+	for (int i = 0; i < m_scenes.size(); i++) {
+		int h = m_font->getLineHeight();
+		int w = m_font->getWidth(m_scenes[i]->getTitle());
+
+		Vertex vertices[] = { Vertex(5.0f, 5.0f + ((5 + h) * i), 0.0f, 0.0f, 0.0f, 0.0f, 0.5f),
+			Vertex(5.0f + w, 5.0f + ((5 + h) * i), 0.0f, 0.0f, 0.0f, 0.0f, 0.5f) ,
+			Vertex(5.0f + w, 5.0f + ((5 + h) * i) + h, 0.0f, 0.0f, 0.0f, 0.0f, 0.5f) ,
+			Vertex(5.0f, 5.0f + ((5 + h) * i) + h, 0.0f, 0.0f, 0.0f, 0.0f, 0.5f) };
+		m_renderer.drawQuad(vertices[0], vertices[1], vertices[2], vertices[3]);
+
+		m_font->drawText(&m_renderer, m_scenes[i]->getTitle(), 5, 5 + ((5 + h) * i));
+
+
+	}
+
 
 }
