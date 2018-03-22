@@ -3,6 +3,7 @@
 
 RaytracerScene::RaytracerScene()
 {
+	setTitle("Raytracer");
 	m_tracer = new Raytracer(getSurface());
 }
 

@@ -14,8 +14,8 @@
 
 #include <SDL/SDL.h>
 
-#define SCREEN_WIDTH 200
-#define SCREEN_HEIGHT 200
+#define SCREEN_WIDTH 640
+#define SCREEN_HEIGHT 480
 
 
 //Ear-Clipping Algorithm
@@ -43,7 +43,7 @@ int main(int argc, char *argv[])
 
 	float timer = 0.0f;
 
-	surface->setClearColour((unsigned char)0, 0, 0);
+	surface->setClearColour((unsigned char)0, 0, 150);
 
 	while (MCG::ProcessFrame())
 	{

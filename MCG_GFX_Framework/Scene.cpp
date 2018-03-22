@@ -79,7 +79,6 @@ void SceneManager::draw()
 	for (int i = 0; i < 5; i++)
 	{
 		Rectangle rectangle(glm::round((m_surface->getViewport().width / 2) + (i * 35 + (i * 5)) - (2.5f * 35)), m_surface->getViewport().height - 45, 35, 35);
-		//Rectangle rectangle((m_surface->getViewport().width / 2) + (i * 35 + (i * 5)) - (2.5f * 35), m_surface->getViewport().height - 45, 35, 35);
 		rectangle.setTexture(icons[0]);
 		rectangle.setColour({ 1, 1, 1, 0.75f });
 		rectangle.draw(&m_renderer);

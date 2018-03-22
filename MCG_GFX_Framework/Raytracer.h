@@ -16,10 +16,12 @@ private:
 	Surface* m_surface;
 	glm::mat4 m_projectionInv;
 	glm::mat4 m_viewInv;
+
+	glm::vec3 cameraDir;
 public:
 	Raytracer(Surface* _surface);
 	~Raytracer();
-	Ray createRay(int _pixelX, int _pixelY);
+	Ray createRay(int _pixelX, int _pixelY, float offsetX = 0.5f, float offsetY = 0.5f);
 	void trace();
 };
 
