@@ -36,8 +36,8 @@ Ray Raytracer::createRay(int _pixelX, int _pixelY, float offsetX, float offsetY)
 	float yNDC = (2.0f * ((float)(_pixelY + offsetY) / m_surface->getHeight()) - 1.0f);
 
 	//Half the fov angle and get the tangent then multiply by the ndc to span outwards.
-	float x = xNDC * glm::tan(glm::radians(fov) / 2);
-	float y = yNDC * glm::tan(glm::radians(fov) / 2);
+	float x = xNDC * glm::tan(glm::radians(fov) / 2.0f);
+	float y = yNDC * glm::tan(glm::radians(fov) / 2.0f);
 	
 
 
@@ -55,10 +55,13 @@ bool intersect(Ray _ray, Sphere _sphere , glm::vec3& normal) {
 
 	glm::vec3 distance = _sphere.m_position - _ray.origin - (dot * _ray.direction);
 
+	if (distance.z < 0) return false;
+
 	float mag = glm::sqrt(distance.x * distance.x + distance.y * distance.y);
 
 	if (mag <= _sphere.m_radius)
 	{
+		//printf("%f, %f, %f\n", distance.x, distance.y, distance.z);
 		float x = glm::sqrt(_sphere.m_radius * _sphere.m_radius - mag * mag);
 		glm::vec3 near = _ray.origin + ((dot - x) * _ray.direction);
 
@@ -80,14 +83,20 @@ void Raytracer::trace() {
 
 	Sphere sphere;
 
-	sphere.m_position = { 0.0f, 0.0f, 0.0f };
+	sphere.m_position = { 0.0f, 0.0f, 5.0f };
 	sphere.m_radius = 0.15f;
 
-	float angle = (((float)(SDL_GetTicks() % 3000)) / 3000.0f) * (M_PI * 2);
+	//float angle = (((float)(SDL_GetTicks() % 3000)) / 3000.0f) * (M_PI * 2);
 
-	m_viewInv = glm::inverse(glm::lookAt(glm::vec3(cos(angle) * 2.0f, 1.0f, sin(angle) * 2.0f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
+	//m_viewInv = glm::inverse(glm::lookAt(glm::vec3(cos(angle) * 2.0f, 1.0f, sin(angle) * 2.0f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
+
+	static float angle = 0.0f;
+	angle++;
+	//m_viewInv = glm::inverse(glm::rotate(glm::mat4(), glm::radians(angle), glm::vec3(0.0f, 1.0f, 0.0f)));
+	m_projectionInv = glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 0.01f, 1000.0f); 
+
 	//cameraDir = glm::vec3(cos(angle), 0.0f, sin(angle));
-	angle = M_PI * 1.75f;
+	float angle2 = M_PI * 1.75f;
 
 	for (int x = 0; x < m_surface->getWidth(); x++)
 	{
@@ -115,7 +124,7 @@ void Raytracer::trace() {
 				float alpha = (float)hitRays / 256.0f;*/
 				float alpha = 1.0f;
 
-				glm::vec3 lightPos = { cos(angle) * 1.0f, 0.5f, sin(angle) * 1.0f };
+				glm::vec3 lightPos = { cos(angle2) * 1.0f, 0.5f, sin(angle2) * 1.0f };
 
 				glm::vec3 objectColour = glm::vec3(0.5f, 0.0f, 0.0f);
 
