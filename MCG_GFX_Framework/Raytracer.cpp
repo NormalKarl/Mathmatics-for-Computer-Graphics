@@ -76,12 +76,9 @@ bool intersect(Ray _ray, Plane _plane, glm::vec3& normal) {
 }
 
 void Raytracer::trace() {
-
-
-
 	Sphere sphere;
 
-	sphere.m_position = { 0.0f, 0.0f, -1.5f };
+	sphere.m_position = { 0.0f, 0.0f, 0.0f };
 	sphere.m_radius = 0.15f;
 
 	//float angle = (((float)(SDL_GetTicks() % 3000)) / 3000.0f) * (M_PI * 2);
@@ -90,7 +87,8 @@ void Raytracer::trace() {
 
 	static float angle = 0.0f;
 	angle++;
-	m_viewInv = glm::rotate(glm::mat4(), glm::radians(angle), glm::vec3(0.0f, 1.0f, 0.0f));
+	//m_viewInv = glm::rotate(glm::mat4(), glm::radians(angle), glm::vec3(0.0f, 1.0f, 0.0f));
+	m_viewInv = glm::lookAt(glm::vec3(cos(angle) * 2.0f, 1.0f, sin(angle) * 2.0f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	//m_projectionInv = glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 0.01f, 1000.0f); 
 	//m_viewInv = glm::mat4();
 	sphere.m_position = m_viewInv * glm::vec4(sphere.m_position, 1.0f);
@@ -124,7 +122,7 @@ void Raytracer::trace() {
 				float alpha = (float)hitRays / 256.0f;*/
 				float alpha = 1.0f;
 
-				glm::vec3 lightPos = { cos(angle2) * 1.0f, 0.5f, sin(angle2) * 1.0f };
+				glm::vec3 lightPos = m_viewInv * glm::vec4(cos(angle2) * 1.0f, 0.5f, sin(angle2) * 1.0f, 1.0f);
 
 				glm::vec3 objectColour = glm::vec3(0.5f, 0.0f, 0.0f);
 
