@@ -76,16 +76,24 @@ void SceneManager::draw()
 	if (m_sceneIndex != -1)
 		m_scenes[m_sceneIndex]->draw();
 
-	for (int i = 0; i < 5; i++)
+	/*for (int i = 0; i < 5; i++)
 	{
 		Rectangle rectangle(glm::round((m_surface->getViewport().width / 2) + (i * 35 + (i * 5)) - (2.5f * 35)), m_surface->getViewport().height - 45, 35, 35);
 		rectangle.setTexture(icons[0]);
 		rectangle.setColour({ 1, 1, 1, 0.75f });
 		rectangle.draw(&m_renderer);
-	}
+	}*/
 
+	m_renderer.bindTexture(NULL, 0);
 
-	for (int i = 0; i < m_scenes.size(); i++) {
+	Vertex vertices[] = { Vertex(0, 0, 0.0f, 0.0f, 0.0f, 0.0f, 0.5f),
+		Vertex(m_surface->getWidth(), 0, 0.0f, 0.0f, 0.0f, 0.0f, 0.5f) ,
+		Vertex(m_surface->getWidth(), m_font->getLineHeight(), 0.0f, 0.0f, 0.0f, 0.0f, 0.5f) ,
+		Vertex(0, m_font->getLineHeight(), 0.0f, 0.0f, 0.0f, 0.0f, 0.5f) };
+	m_renderer.drawQuad(vertices[0], vertices[1], vertices[2], vertices[3]);
+	m_font->drawText(&m_renderer, m_scenes[m_sceneIndex]->getTitle(), (m_surface->getWidth() - m_font->getWidth(m_scenes[m_sceneIndex]->getTitle())) / 2, 5);
+
+	/*for (int i = 0; i < m_scenes.size(); i++) {
 		int h = m_font->getLineHeight();
 		int w = m_font->getWidth(m_scenes[i]->getTitle());
 
@@ -98,7 +106,7 @@ void SceneManager::draw()
 		m_font->drawText(&m_renderer, m_scenes[i]->getTitle(), 5, 5 + ((5 + h) * i));
 
 
-	}
+	}*/
 
 
 }

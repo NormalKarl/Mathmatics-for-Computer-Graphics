@@ -612,8 +612,26 @@ void Rasterizer::drawTriangle(Vertex& a, Vertex& b, Vertex &c)
 				//glm::vec4 other = m_surface->getClearColour() * (1.0f - a));
 				//finalCol += other;
 
-				//MCG::DrawPixel({ (int)x, (int)m_viewport.height - y }, finalCol * 255.0f);
-				//frameBuffer.Set(x, y, finalCol);
+
+
+
+				glm::vec4 currentColour = m_surface->getColourAt(pixel.x, pixel.y);
+
+				float finalColA = finalCol.a;
+				float currentColA = currentColour.a;
+				
+				float alpha_final = currentColA + finalColA - currentColA * finalColA;
+
+
+
+				finalColA *= currentColA;
+
+				finalColA *= alpha_final;
+				currentColour *= (1.0f - alpha_final);
+
+				finalCol += currentColour;
+
+
 
 				m_surface->setColourAt(point.x, point.y, finalCol);
 			}

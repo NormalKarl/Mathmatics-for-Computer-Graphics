@@ -47,6 +47,19 @@ void Surface::draw()
 	}
 }
 
+void Surface::setColourAt(int _x, int _y, glm::vec4 _colour)
+{
+	glm::vec4 currentColour = getColourAt(_x, _y);
+	glm::vec4 newColour = glm::vec4();
+
+	newColour.a = ((1.0f - _colour.a) * currentColour.a) + _colour.a;
+	newColour.r = ((1.0f - _colour.a) * (currentColour.a * currentColour.r) + (_colour.a * _colour.r)) / currentColour.a;
+	newColour.g = ((1.0f - _colour.a) * (currentColour.a * currentColour.g) + (_colour.a * _colour.g)) / currentColour.a;
+	newColour.b = ((1.0f - _colour.a) * (currentColour.a * currentColour.b) + (_colour.a * _colour.b)) / currentColour.a;
+	m_frameBuffer->Set(_x, _y, newColour);
+	m_frameFlagBuffer->Set(_x, _y, true);
+}
+
 void Surface::setClearColour(unsigned char r, unsigned char g, unsigned char b)
 {
 	m_clearColour = { (float)r / 255.0f, (float)g / 255.0f, (float)b / 255.0f };

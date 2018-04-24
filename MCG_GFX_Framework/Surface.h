@@ -70,10 +70,17 @@ public:
 		m_depthBuffer->Set(_x, _y, _depth);
 	}
 
-	inline void setColourAt(int _x, int _y, glm::vec4 _colour)
+	/*inline void setColourAt(int _x, int _y, glm::vec4 _colour)
 	{
-		m_frameBuffer->Set(_x, _y, _colour);
+		//m_frameBuffer->Set(_x, _y, _colour);
+		addColourAt(_x, _y, _colour);
 		m_frameFlagBuffer->Set(_x, _y, true);
+	}*/
+
+	void setColourAt(int _x, int _y, glm::vec4 _colour);
+
+	inline glm::vec4 getColourAt(int _x, int _y) {
+		return m_frameBuffer->Get(_x, _y);
 	}
 
 	inline glm::vec3 getClearColour()

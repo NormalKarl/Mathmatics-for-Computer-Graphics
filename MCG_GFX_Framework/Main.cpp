@@ -29,14 +29,14 @@ int main(int argc, char *argv[])
 	sceneManager->addScene(rasterizerScene);
 	sceneManager->addScene(raytracerScene);
 	sceneManager->addScene(mandlebrotScene);
-	sceneManager->goToScene(raytracerScene);
+	sceneManager->goToScene(rasterizerScene);
 
 	if (!MCG::Init({ SCREEN_WIDTH, SCREEN_HEIGHT }))
 		return -1;
 
 	float timer = 0.0f;
 
-	surface->setClearColour((unsigned char)163, 198, 255);
+	surface->setClearColour((unsigned char)246, 114, 128);
 
 	while (MCG::ProcessFrame())
 	{
