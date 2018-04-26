@@ -7,6 +7,7 @@
 #include "Rasterizer.h"
 #include "stb_image.h"
 #include "Scene.h"
+#include "PrimitivesScene.h"
 #include "RasterizerScene.h"
 #include "RaytracerScene.h"
 #include "MandlebrotScene.h"
@@ -22,14 +23,16 @@ int main(int argc, char *argv[])
 	Surface* surface = new Surface({ 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT });
 	SceneManager* sceneManager = new SceneManager(surface);
 
+	PrimitivesScene* primitivesScene = new PrimitivesScene();
 	RasterizerScene* rasterizerScene = new RasterizerScene();
 	RaytracerScene* raytracerScene = new RaytracerScene();
 	MandlebrotScene* mandlebrotScene = new MandlebrotScene();
 
+	sceneManager->addScene(primitivesScene);
 	sceneManager->addScene(rasterizerScene);
 	sceneManager->addScene(raytracerScene);
 	sceneManager->addScene(mandlebrotScene);
-	sceneManager->goToScene(rasterizerScene);
+	sceneManager->goToScene(primitivesScene);
 
 	if (!MCG::Init({ SCREEN_WIDTH, SCREEN_HEIGHT }))
 		return -1;

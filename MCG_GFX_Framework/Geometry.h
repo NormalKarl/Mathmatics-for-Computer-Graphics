@@ -28,6 +28,13 @@ struct Vertex
 		m_textureCoords = { 0.0f, 0.0f };
 	}
 
+	inline Vertex(float x, float y)
+	{
+		m_position = { x, y, 0.0f };
+		m_colour = { 1.0f, 1.0f, 1.0f, 1.0f };
+		m_textureCoords = { 0.0f, 0.0f };
+	}
+
 	inline Vertex(float x, float y, float z)
 	{
 		m_position = { x, y, z };

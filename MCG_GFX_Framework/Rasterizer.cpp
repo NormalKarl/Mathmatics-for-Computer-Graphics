@@ -27,6 +27,74 @@ glm::vec4 BasicShader::frag() {
 
 }*/
 
+VertexArray::VertexArray(Primitive _primitive, int _initalVertexSize, int _initalIndiceSize)
+	: m_primitive(_primitive)
+	, m_vertices(std::vector<Vertex>(_initalVertexSize))
+	, m_indices(std::vector<unsigned int>(_initalIndiceSize))
+{
+}
+
+VertexArray::~VertexArray()
+{
+}
+
+void VertexArray::appendVertex(const Vertex& vertex)
+{
+	m_vertices.push_back(vertex);
+}
+
+void VertexArray::appendVertices(const std::vector<Vertex>& _vertices)
+{
+	m_vertices.insert(m_vertices.end(), _vertices.begin(), _vertices.end());
+}
+
+void VertexArray::appendIndice(unsigned int index)
+{
+	m_indices.push_back(index);
+}
+
+void VertexArray::appendIndices(std::vector<unsigned int> _indices)
+{
+	m_indices.insert(m_indices.end(), _indices.begin(), _indices.end());
+}
+
+Vertex& VertexArray::operator[](int index)
+{
+	return m_vertices[index];
+}
+
+void VertexArray::render(Rasterizer* rasterizer)
+{
+	if (m_indices.size() != 0)
+	{
+		int i = 0;
+
+		while (i < m_indices.size())
+		{
+			switch (m_primitive)
+			{
+				case Primitive::Triangle:
+					rasterizer->drawTriangle(m_vertices[m_indices[i]], m_vertices[m_indices[i + 1]], m_vertices[m_indices[i + 2]]);
+					i += 3;
+					break;
+			}
+		}
+	}
+	else {
+		int i = 0;
+
+		while (i < m_vertices.size())
+		{
+			switch (m_primitive)
+			{
+				case Primitive::Triangle:
+					rasterizer->drawTriangle(m_vertices[i], m_vertices[i + 1], m_vertices[i + 2]);
+					i += 3;
+					break;
+			}
+		}
+	}
+}
 
 //Raster Code
 
@@ -40,6 +108,10 @@ Rasterizer::Rasterizer(Surface* _surface)
 
 	m_culling = Rasterizer::Culling::Backface;
 	m_windingOrder = Rasterizer::WindingOrder::Clockwise;
+
+	for (int i = 0; i < 16; i++) {
+		m_textures[i] = nullptr;
+	}
 }
 
 Rasterizer::~Rasterizer()

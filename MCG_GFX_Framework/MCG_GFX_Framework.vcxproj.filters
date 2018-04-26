@@ -78,6 +78,9 @@
     <ClCompile Include="tinyxml2.cpp">
       <Filter>Source Files\Libraries</Filter>
     </ClCompile>
+    <ClCompile Include="PrimitivesScene.cpp">
+      <Filter>Source Files\Scenes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Raytracer.h">
@@ -122,15 +125,13 @@
     <ClInclude Include="tinyxml2.h">
       <Filter>Header Files\Libraries</Filter>
     </ClInclude>
+    <ClInclude Include="PrimitivesScene.h">
+      <Filter>Header Files\Scenes</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Texture.h">
       <Filter>Header Files</Filter>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="NewRasterizer.h">
-      <Filter>Header Files</Filter>
-    </Text>
   </ItemGroup>
 </Project>

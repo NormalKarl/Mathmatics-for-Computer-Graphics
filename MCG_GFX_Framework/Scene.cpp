@@ -86,10 +86,12 @@ void SceneManager::draw()
 
 	m_renderer.bindTexture(NULL, 0);
 
-	Vertex vertices[] = { Vertex(0, 0, 0.0f, 0.0f, 0.0f, 0.0f, 0.5f),
-		Vertex(m_surface->getWidth(), 0, 0.0f, 0.0f, 0.0f, 0.0f, 0.5f) ,
-		Vertex(m_surface->getWidth(), m_font->getLineHeight(), 0.0f, 0.0f, 0.0f, 0.0f, 0.5f) ,
-		Vertex(0, m_font->getLineHeight(), 0.0f, 0.0f, 0.0f, 0.0f, 0.5f) };
+	glm::vec3 col = glm::vec3(53.0f, 83.0f, 125.0f) / glm::vec3(255.0f, 255.0f, 255.0f);
+
+	Vertex vertices[] = { Vertex(0, 0, 0.0f, col.r, col.g, col.b, 1.0f),
+		Vertex(m_surface->getWidth(), 0, 0.0f, col.r, col.g, col.b, 1.0f) ,
+		Vertex(m_surface->getWidth(), m_font->getLineHeight(), 0.0f, col.r, col.g, col.b, 1.0f) ,
+		Vertex(0, m_font->getLineHeight(), 0.0f, col.r, col.g, col.b, 1.0f) };
 	m_renderer.drawQuad(vertices[0], vertices[1], vertices[2], vertices[3]);
 	m_font->drawText(&m_renderer, m_scenes[m_sceneIndex]->getTitle(), (m_surface->getWidth() - m_font->getWidth(m_scenes[m_sceneIndex]->getTitle())) / 2, 5);
 

@@ -54,6 +54,31 @@ public:
 	glm::vec4 frag();
 };*/
 
+enum class Primitive {
+	Point,
+	Line,
+	Triangle
+};
+
+class VertexArray
+{
+private:
+	Primitive m_primitive;
+	std::vector<Vertex> m_vertices;
+	std::vector<unsigned int> m_indices;
+public:
+	VertexArray(Primitive _primitive = Primitive::Triangle, int _initalVertexSize = 0, int _initalIndiceSize = 0);
+	~VertexArray();
+	void appendVertex(const Vertex& vertex);
+	void appendVertices(const std::vector<Vertex>& _vertices);
+	void appendIndice(unsigned int index);
+	void appendIndices(std::vector<unsigned int> _indices);
+
+	Vertex& operator[](int index);
+
+	void render(Rasterizer* rasterizer);
+};
+
 class Rasterizer
 {
 public:
@@ -90,6 +115,8 @@ public:
 	Rasterizer() {}
 	Rasterizer(Surface* _surface);
 	~Rasterizer();
+
+	void drawVA(VertexArray* array);
 
 	bool transform(const Vertex& a, const Vertex& b, const Vertex& c, glm::vec4& target_a, glm::vec4& target_b, glm::vec4& target_c);
 	void drawLine(Vertex& a, Vertex& b);
