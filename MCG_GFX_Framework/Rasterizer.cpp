@@ -81,6 +81,10 @@ void VertexArray::render(Rasterizer* rasterizer)
 		{
 			switch (m_primitive)
 			{
+				case Primitive::Line:
+					rasterizer->drawLine(m_vertices[m_indices[i]], m_vertices[m_indices[i + 1]]);
+					i += 2;
+					break;
 				case Primitive::Triangle:
 					rasterizer->drawTriangle(m_vertices[m_indices[i]], m_vertices[m_indices[i + 1]], m_vertices[m_indices[i + 2]]);
 					i += 3;
@@ -95,6 +99,10 @@ void VertexArray::render(Rasterizer* rasterizer)
 		{
 			switch (m_primitive)
 			{
+				case Primitive::Line:
+					rasterizer->drawLine(m_vertices[i], m_vertices[i + 1]);
+					i += 2;
+					break;
 				case Primitive::Triangle:
 					rasterizer->drawTriangle(m_vertices[i], m_vertices[i + 1], m_vertices[i + 2]);
 					i += 3;
@@ -156,7 +164,7 @@ bool Rasterizer::transform(const Vertex & a, const Vertex & b, const Vertex & c,
 }
 
 
-void Rasterizer::drawLineLow(float x0, float y0, float x1, float y1)
+void Rasterizer::drawLineLow(float x0, float y0, float x1, float y1, glm::vec4 colour)
 {
 	float dx = x1 - x0;
 	float dy = y1 - y0;
@@ -185,7 +193,7 @@ void Rasterizer::drawLineLow(float x0, float y0, float x1, float y1)
 	}
 }
 
-void Rasterizer::drawLineHigh(float x0, float y0, float x1, float y1)
+void Rasterizer::drawLineHigh(float x0, float y0, float x1, float y1, glm::vec4 colour)
 {
 	float dx = x1 - x0;
 	float dy = y1 - y0;
@@ -217,38 +225,38 @@ void Rasterizer::drawLineHigh(float x0, float y0, float x1, float y1)
 	}
 }
 
-void Rasterizer::drawLine(float x0, float y0, float x1, float y1)
+void Rasterizer::drawLine(float x0, float y0, float x1, float y1, glm::vec4 colour)
 {
 	if (glm::abs(y1 - y0) < glm::abs(x1 - x0))
 	{
 		if (x0 > x1)
 		{
-			drawLineLow(x1, y1, x0, y0);
+			drawLineLow(x1, y1, x0, y0, colour);
 		}
 		else
 		{
-			drawLineLow(x0, y0, x1, y1);
+			drawLineLow(x0, y0, x1, y1, colour);
 		}
 	}
 	else
 	{
 		if (y0 > y1)
 		{
-			drawLineHigh(x1, y1, x0, y0);
+			drawLineHigh(x1, y1, x0, y0, colour);
 		}
 		else
 		{
-			drawLineHigh(x0, y0, x1, y1);
+			drawLineHigh(x0, y0, x1, y1, colour);
 		}
 	}
 }
 
 void Rasterizer::drawLine(Vertex& a, Vertex& b)
 {
-	glm::vec4 tA = transform(a.m_position);
-	glm::vec4 tB = transform(b.m_position);
+	glm::vec4 fA = transform(a.m_position);
+	glm::vec4 fB = transform(b.m_position);
 
-
+	drawLine(fA.x, fA.y, fB.x, fB.y, a.m_colour);
 }
 
 void Barycentric(glm::dvec4 p, glm::dvec4 a, glm::dvec4 b, glm::dvec4 c, float &u, float &v, float &w)

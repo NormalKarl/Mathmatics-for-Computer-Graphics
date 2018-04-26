@@ -112,9 +112,9 @@ private:
 	glm::mat4 m_projection;
 
 	//Taken from Wikipedia
-	void drawLineLow(float x0, float y0, float x1, float y1);
-	void drawLineHigh(float x0, float y0, float x1, float y1);
-	void drawLine(float x0, float y0, float x1, float y1);
+	void drawLineLow(float x0, float y0, float x1, float y1, glm::vec4 colour);
+	void drawLineHigh(float x0, float y0, float x1, float y1, glm::vec4 colour);
+	void drawLine(float x0, float y0, float x1, float y1, glm::vec4 colour = { 0.0f, 0.0f,0.0f,1.0f });
 
 	Culling m_culling;
 	WindingOrder m_windingOrder;

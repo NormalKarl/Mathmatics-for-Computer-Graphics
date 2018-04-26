@@ -6,7 +6,11 @@ class PrimitivesScene : public Scene
 {
 private:
 	Rasterizer m_renderer;
-	VertexArray m_polygonArray;
+	VertexArray m_triangle;
+	VertexArray m_square;
+	VertexArray m_circle;
+	VertexArray m_polygon;
+	VertexArray m_lines;
 public:
 	PrimitivesScene();
 	~PrimitivesScene();
