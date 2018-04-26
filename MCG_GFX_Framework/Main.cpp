@@ -15,7 +15,7 @@
 
 #include <SDL/SDL.h>
 
-#define SCREEN_WIDTH 640
+#define SCREEN_WIDTH 600
 #define SCREEN_HEIGHT 480
 
 int main(int argc, char *argv[])

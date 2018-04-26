@@ -17,7 +17,7 @@ const std::vector<glm::vec2> Rasterizer::CLIP_COORDS = { { -1.0f, -1.0f },{ -1.0
 	float persp = w.x * (1.0f / getFrag().w) + w.y * (1.0f / getFrag().w) + w.z * (1.0f / getFrag().w);
 	glm::vec2 texUV = (w.x * (a.m_textureCoords / getFrag().w) + w.y * (b.m_textureCoords / getFrag().w) + w.z * (c.m_textureCoords / getFrag().w)) / persp;
 }
- 
+
 
 glm::vec4 BasicShader::vertex() {
 	return getModelViewProjection() * getVertex();
@@ -56,6 +56,14 @@ void VertexArray::appendIndice(unsigned int index)
 void VertexArray::appendIndices(std::vector<unsigned int> _indices)
 {
 	m_indices.insert(m_indices.end(), _indices.begin(), _indices.end());
+}
+
+void VertexArray::offsetIndices(unsigned int _offset, std::vector<unsigned int> _indices) {
+	for (int i = 0; i < _indices.size(); i++) {
+		_indices[i] = _offset + _indices[i];
+	}
+
+	appendIndices(_indices);
 }
 
 Vertex& VertexArray::operator[](int index)

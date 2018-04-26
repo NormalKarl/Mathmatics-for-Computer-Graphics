@@ -36,6 +36,10 @@ public:
 	{
 		return m_surface;
 	}
+
+	inline BitmapFont* getFont() {
+		return m_font;
+	}
 };
 
 class Scene

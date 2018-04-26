@@ -73,10 +73,19 @@ public:
 	void appendVertices(const std::vector<Vertex>& _vertices);
 	void appendIndice(unsigned int index);
 	void appendIndices(std::vector<unsigned int> _indices);
+	void offsetIndices(unsigned int _offset, std::vector<unsigned int> _indices);
 
 	Vertex& operator[](int index);
 
 	void render(Rasterizer* rasterizer);
+
+	inline int getIndiceCount() {
+		return m_indices.size();
+	}
+
+	inline int getVertexCount() {
+		return m_vertices.size();
+	}
 };
 
 class Rasterizer
