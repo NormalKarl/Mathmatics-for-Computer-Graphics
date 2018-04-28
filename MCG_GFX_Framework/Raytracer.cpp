@@ -45,6 +45,35 @@ Ray Raytracer::createRay(int _pixelX, int _pixelY, float offsetX, float offsetY)
 	return ray;
 }
 
+bool intersect(Ray _ray, Triangle triangle) {
+	glm::vec3 a = triangle.m_b.m_position - triangle.m_a.m_position;
+	glm::vec3 b = triangle.m_c.m_position - triangle.m_a.m_position;
+	glm::vec3 cross = glm::cross(a, b);
+	float area = glm::length(cross);
+
+	float rayDirDot = glm::dot(cross, _ray.direction);
+	
+	if (glm::abs(rayDirDot) < 0.000001f)
+		return false;
+
+	float d = glm::dot(cross, triangle.m_a.m_position);
+
+	float t = glm::dot(cross, _ray.origin);
+
+	if (t < 0)
+		return false;
+
+	glm::vec3 p = _ray.origin + t * _ray.direction;
+
+	glm::vec3 c;
+
+	glm::vec3 edge0 = triangle.m_b.m_position - triangle.m_a.m_position;
+	glm::vec3 vp0 = p - triangle.m_a.m_position;
+	c = glm::cross(edge0, vp0);
+	if (glm::dot(cross, c) < 0.0f) return false;
+
+}
+
 bool intersect(Ray _ray, Sphere _sphere , glm::vec3& normal) {
 	glm::vec3 pos = _sphere.m_position - _ray.origin;
 
@@ -88,7 +117,11 @@ void Raytracer::trace() {
 	static float angle = 0.0f;
 	angle++;
 	//m_viewInv = glm::rotate(glm::mat4(), glm::radians(angle), glm::vec3(0.0f, 1.0f, 0.0f));
-	m_viewInv = glm::lookAt(glm::vec3(cos(angle) * 2.0f, 1.0f, sin(angle) * 2.0f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	m_viewInv = glm::lookAt(glm::vec3(glm::cos(glm::radians(angle)) * 3.0f, 0.2f, glm::sin(glm::radians(angle)) * 3.0f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+
+	//m_viewInv = glm::translate(glm::mat4(), glm::vec3((glm::cos(glm::radians(angle) * 5.0f)), 0.0f, (glm::sin(glm::radians(angle)) * 5.0f)));
+	//m_viewInv = glm::rotate(m_viewInv, glm::radians(angle), glm::vec3(0.0f, 1.0f, 0.0f));
+	//m_viewInv = glm::translate(m_viewInv, glm::vec3(2.5f, 0.0f, 0.0f));
 	//m_projectionInv = glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 0.01f, 1000.0f); 
 	//m_viewInv = glm::mat4();
 	sphere.m_position = m_viewInv * glm::vec4(sphere.m_position, 1.0f);
@@ -123,6 +156,8 @@ void Raytracer::trace() {
 				float alpha = 1.0f;
 
 				glm::vec3 lightPos = m_viewInv * glm::vec4(cos(angle2) * 1.0f, 0.5f, sin(angle2) * 1.0f, 1.0f);
+
+				printf("%f, %f, %f\n", lightPos.x, lightPos.y, lightPos.z);
 
 				glm::vec3 objectColour = glm::vec3(0.5f, 0.0f, 0.0f);
 

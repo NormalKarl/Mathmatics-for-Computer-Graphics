@@ -17,7 +17,11 @@ class Texture;
 
 struct Vertex
 {
-	glm::vec3 m_position;
+	union {
+		glm::vec3 m_position;
+		glm::vec4 m_posExt;
+	};
+
 	glm::vec4 m_colour;
 	glm::vec2 m_textureCoords;
 
@@ -66,15 +70,16 @@ struct Vertex
 
 class Triangle
 {
-private:
+public:
 	Vertex m_a;
 	Vertex m_b;
 	Vertex m_c;
 	glm::vec3 m_normal;
-public:
 	Triangle() {}
 	Triangle(Vertex _a, Vertex _b, Vertex _c);
-	~Triangle();
+	~Triangle() {
+
+	}
 };
 
 class Rectangle

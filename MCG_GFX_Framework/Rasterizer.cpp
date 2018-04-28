@@ -182,7 +182,7 @@ void Rasterizer::drawLineLow(float x0, float y0, float x1, float y1, glm::vec4 c
 	{
 		//frameBuffer.Set(x, y, { 1.0f, 1.0f, 1.0f, 1.0f });
 		//MCG::DrawPixel({ x, m_surface->getViewport().height - y }, { 255, 255, 255 });
-		m_surface->setColourAt(x, y, { 0.0f, 0.0f, 0.0f, 1.0f });
+		m_surface->setColourAt(x, y, colour);
 
 		if (d > 0.0f)
 		{
@@ -213,7 +213,7 @@ void Rasterizer::drawLineHigh(float x0, float y0, float x1, float y1, glm::vec4 
 	{
 		//frameBuffer.Set(x, y, { 1.0f, 1.0f, 1.0f, 1.0f });
 		//MCG::DrawPixel({ x, m_surface->getViewport().height - y }, { 255, 255, 255 });
-		m_surface->setColourAt(x, y, { 0.0f, 0.0f, 0.0f, 1.0f });
+		m_surface->setColourAt(x, y, colour);
 
 		if (d > 0.0f)
 		{
@@ -635,7 +635,11 @@ std::vector<glm::vec4> Rasterizer::transform(std::vector<Vertex>& vertices)
 
 	return parseVectors;
 }
-
+inline
+float edgeFunction(const glm::vec3 &a, const glm::vec3 &b, const glm::vec3 &c)
+{
+	return (c[0] - a[0]) * (b[1] - a[1]) - (c[1] - a[1]) * (b[0] - a[0]);
+}
 void Rasterizer::drawTriangle(Vertex& a, Vertex& b, Vertex &c)
 {
 	std::vector<Vertex> vertices = { a,b,c };
@@ -671,10 +675,14 @@ void Rasterizer::drawTriangle(Vertex& a, Vertex& b, Vertex &c)
 			//ensuring that the point is indeed inside the triangle.
 			//if (w0 >= 0 && w1 >= 0 && w2 >= 0)
 			//{
+			//float reverse = (1.0f / pixelLoc.w);
 			float persp = w0 * (1.0f / tA.w) + w1 * (1.0f / tB.w) + w2 * (1.0f / tC.w);
-			glm::vec2 texUV = (w0 * (a.m_textureCoords / tA.w) + w1 * (b.m_textureCoords / tB.w) + w2 * (c.m_textureCoords / tC.w)) / persp;
+			//glm::vec2 texUV = (w0 * (a.m_textureCoords / tA.w) + w1 * (b.m_textureCoords / tB.w) + w2 * (c.m_textureCoords / tC.w)) / persp;
 
 			glm::vec4 pixelLoc = w0 * tA + w1 * tB + w2 * tC;
+			float reverse = (1.0f / pixelLoc.w);
+
+			float z = (w0 * (1.0f / tA.z) + w1 * (1.0f / tB.z) + w2 * (1.0f / tC.z));
 
 			if (pixelLoc.z <= m_surface->getDepthAt(point.x, point.y))
 			{
@@ -686,40 +694,18 @@ void Rasterizer::drawTriangle(Vertex& a, Vertex& b, Vertex &c)
 
 				if (m_textures[0] != NULL)
 				{
-					glm::vec2 texUV = (w0 * (a.m_textureCoords / tA.w) + w1 * (b.m_textureCoords / tB.w) + w2 * (c.m_textureCoords / tC.w)) / persp;
+					//glm::vec2 texUV = (w0 * (a.m_textureCoords / tA.w) + w1 * (b.m_textureCoords / tB.w) + w2 * (c.m_textureCoords / tC.w)) / persp;
+
+					//float overZ = 1.0f / pixelLoc.z;
+					//glm::vec2 texUV = (w0 * (a.m_textureCoords) + w1 * (b.m_textureCoords) + w2 * (c.m_textureCoords)) / overZ;
+
+					glm::vec2 texUV = (w0 * (a.m_textureCoords / (1.0f / tA.z)) + w1 * (b.m_textureCoords / (1.0f / tB.z)) + w2 * (c.m_textureCoords / (1.0f / tC.z))) / z;
+
 					texColor = m_textures[0]->sample(texUV);
 				}
 
 				//2 Pixel combination
 				glm::vec4 finalCol = texColor * pixelCol;
-
-
-				//finalCol = blend(texColor, glm::vec4(m_surface->getClearColour(), 1.0f));
-				//float a = finalCol.a;
-				//finalCol *= a;
-				//glm::vec4 other = m_surface->getClearColour() * (1.0f - a));
-				//finalCol += other;
-
-
-
-
-				glm::vec4 currentColour = m_surface->getColourAt(pixel.x, pixel.y);
-
-				float finalColA = finalCol.a;
-				float currentColA = currentColour.a;
-				
-				float alpha_final = currentColA + finalColA - currentColA * finalColA;
-
-
-
-				finalColA *= currentColA;
-
-				finalColA *= alpha_final;
-				currentColour *= (1.0f - alpha_final);
-
-				finalCol += currentColour;
-
-
 
 				m_surface->setColourAt(point.x, point.y, finalCol);
 			}

@@ -48,6 +48,25 @@ RasterizerScene::RasterizerScene()
 			vertices.push_back(f);
 		}
 	}
+
+
+	m_skyboxDown = new Texture("container2.png");
+	m_skyboxUp = new Texture("assets/TropicalSunnyDayUp2048.png");
+	m_skyboxFront = new Texture("assets/TropicalSunnyDayFront2048.png");
+	m_skyboxBack = new Texture("assets/TropicalSunnyDayBack2048.png");
+	m_skyboxLeft = new Texture("assets/TropicalSunnyDayLeft2048.png");
+	m_skyboxRight = new Texture("assets/TropicalSunnyDayRight2048.png");
+	m_skybox = VertexArray(Primitive::Triangle);
+
+
+	m_skybox.appendVertices({
+							{ -256.0f, 256.0f, 512.0f, 0.0f, 0.0f }
+							,{ 256.0f, 256.0f, 512.0f, 1.0f, 0.0f }
+							,{ 256.0f, -256.0f, 512.0f, 1.0f, 1.0f }
+							,{ -256.0f, -256.0f, 512.0f, 0.0f, 1.0f } });
+	m_skybox.appendIndices({ 0, 3, 2, 0, 2, 1 });
+
+	context.m_surface = getSurface();
 }
 
 
@@ -98,17 +117,16 @@ void RasterizerScene::draw()
 
 	Uint32 ticks = 0;
 
-	m_renderer->perspective(glm::radians(75.0f), aspect, 0.1f, 100.0f);
-	m_renderer->lookAt(glm::cos(angle) * dist, glm::cos(angleY) * 5.0f, glm::sin(angle) * dist, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
-	m_renderer->setModel(glm::translate(glm::scale(glm::mat4(), glm::vec3(0.1f, 0.1f, 0.1f)), glm::vec3(-16.0f, 0.0f, -16.0f)));
-	m_renderer->bindTexture(NULL);
+	context.perspective(glm::radians(75.0f), aspect, 0.1f, 2048.0f);
+	context.lookAt(glm::cos(angle) * dist, glm::cos(angleY) * 5.0f, glm::sin(angle) * dist, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+	context.m_model = glm::translate(glm::scale(glm::mat4(), glm::vec3(0.1f, 0.1f, 0.1f)), glm::vec3(-16.0f, 0.0f, -16.0f));
 
 	/*for (int i = 0; i < vertices.size() / 3; i++)
 	{
 		m_renderer->drawTriangle(vertices[i * 3 + 0], vertices[i * 3 + 1], vertices[i * 3 + 2]);
 	}*/
 	
-	Vertex a = { 0.5, 0.5f, -0.5f, 1.0f, 1.0f };
+	Vertex a = { 0.5, 0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f };
 	Vertex b = { -0.5, 0.5f, -0.5f, 0.0f, 1.0f };
 	Vertex c = { -0.5, -0.5, -0.5f, 0.0f, 0.0f };
 
@@ -116,20 +134,22 @@ void RasterizerScene::draw()
 	Vertex e = { 0.5f, -0.5f, -0.5f, 1.0f, 0.0f };
 	Vertex f = { 0.5f, 0.5f, -0.5f, 1.0f, 1.0f };
 
-	m_renderer->bindTexture(m_img);
+	//m_renderer->bindTexture(m_img);
+	context.m_texture = m_img;
+	//m_renderer->bindTexture(m_skyboxDown);
 
-	m_renderer->setModel(glm::rotate(glm::mat4(), glm::radians(ticks / 50.0f), { 0.0f, 1.0f, 0.0f }));
-	m_renderer->drawTriangle(a, b, c);
-	m_renderer->drawTriangle(d, e, f);
-	m_renderer->setModel(glm::rotate(glm::mat4(), glm::radians((ticks / 50.0f) + 90.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
-	m_renderer->drawTriangle(a, b, c);
-	m_renderer->drawTriangle(d, e, f);
-	m_renderer->setModel(glm::rotate(glm::mat4(), glm::radians((ticks / 50.0f) + 180.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
-	m_renderer->drawTriangle(a, b, c);
-	m_renderer->drawTriangle(d, e, f);
-	m_renderer->setModel(glm::rotate(glm::mat4(), glm::radians((ticks / 50.0f) + 270.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
-	m_renderer->drawTriangle(a, b, c);
-	m_renderer->drawTriangle(d, e, f);
+	context.m_model = glm::rotate(glm::mat4(), glm::radians(ticks / 50.0f), { 0.0f, 1.0f, 0.0f });
+	Render::DrawTriangle(context, a, b, c);
+	Render::DrawTriangle(context, d, e, f);
+	context.m_model = glm::rotate(glm::mat4(), glm::radians((ticks / 50.0f) + 90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	Render::DrawTriangle(context, a, b, c);
+	Render::DrawTriangle(context, d, e, f);
+	context.m_model = glm::rotate(glm::mat4(), glm::radians((ticks / 50.0f) + 180.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	Render::DrawTriangle(context, a, b, c);
+	Render::DrawTriangle(context, d, e, f);
+	context.m_model = glm::rotate(glm::mat4(), glm::radians((ticks / 50.0f) + 270.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	Render::DrawTriangle(context, a, b, c);
+	Render::DrawTriangle(context, d, e, f);
 
 	Vertex h = { 0.5, 0.5f, 0.5f, 1.0f, 1.0f };
 	Vertex i = { -0.5, 0.5f, 0.5f, 0.0f, 1.0f };
@@ -139,12 +159,15 @@ void RasterizerScene::draw()
 	Vertex l = { 0.5f, 0.5f, -0.5f, 1.0f, 0.0f };
 	Vertex m = { 0.5f, 0.5f, 0.5f, 1.0f, 1.0f };
 
-	m_renderer->setModel(glm::rotate(glm::mat4(), glm::radians(ticks / 50.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
-	m_renderer->drawTriangle(h, i, j);
-	m_renderer->drawTriangle(k, l, m);
+	context.m_model = glm::rotate(glm::mat4(), glm::radians(ticks / 50.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	Render::DrawTriangle(context, h, i, j);
+	Render::DrawTriangle(context, k, l, m);
 
-	m_renderer->setModel(glm::rotate(glm::mat4(), glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f)));
-	m_renderer->drawTriangle(h, i, j);
-	m_renderer->drawTriangle(k, l, m);
+	context.m_model = glm::rotate(glm::mat4(), glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+	Render::DrawTriangle(context, h, i, j);
+	Render::DrawTriangle(context, k, l, m);
+
+	//m_renderer->bindTexture(m_skyboxDown);
+	//m_skybox.render(m_renderer);
 
 }

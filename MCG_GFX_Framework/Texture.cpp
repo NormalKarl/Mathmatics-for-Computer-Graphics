@@ -20,11 +20,11 @@ Texture::~Texture()
 
 glm::vec4 Texture::sample(glm::vec2 uv)
 {
-	float x = glm::clamp(uv.x, 0.0f, 1.0f);
-	float y = glm::clamp(uv.y, 0.0f, 1.0f);
+	//float x = glm::clamp(uv.x, 0.0f, 1.0f);
+	//float y = glm::clamp(uv.y, 0.0f, 1.0f);
 
-	float approxPosX = uv.x * float(width);
-	float approxPosY = uv.y * float(height);
+	double approxPosX = (double)uv.x * double(width);
+	double approxPosY = (double)uv.y * double(height);
 
 	int pixelX = static_cast<int>(glm::floor(approxPosX));
 	int pixelY = static_cast<int>(glm::floor(approxPosY));
@@ -45,6 +45,9 @@ glm::vec4 Texture::sample(glm::vec2 uv)
 
 		pixel = (pixel * unitPosXInv + right * unitPosX) * unitPosYInv + (down * unitPosXInv + rightDown * unitPosX) * unitPosY;
 	}
+
+	if (bytesPerPixel == 3)
+		pixel.a = 1.0f;
 
 	return pixel;
 }
