@@ -31,7 +31,7 @@ void DrawWeightedPixel(const Context& context, Vertex& a, Vertex& b, Vertex& c, 
 
 	glm::vec3 newPosition = w0 * a.m_position + w1 * b.m_position + w2 * c.m_position;
 	glm::vec4 newColour = w0 * a.m_colour + w1 * b.m_colour + w2 * c.m_colour;
-	glm::vec2 newTexCoords = (w0 * (a.m_textureCoords / zValues[0])) + (w1 * (b.m_textureCoords / zValues[1])) + (w2 * (c.m_textureCoords / zValues[2]));
+	glm::vec2 newTexCoords = (w0 * (a.m_textureCoords / a.m_posExt.w)) + (w1 * (b.m_textureCoords / b.m_posExt.w)) + (w2 * (c.m_textureCoords / c.m_posExt.w));
 
 	//newTexCoords /= persp;
 
@@ -131,34 +131,24 @@ void FlatTop(const Context& context, Vertex a, Vertex b, Vertex c) {
 }
 
 bool Transform(const Context& context, Vertex& v0, Vertex& v1, Vertex& v2) {
-	glm::vec4 t0 = (context.m_projection * context.m_view * context.m_world * context.m_model) * glm::vec4(v0.m_position, 1.0f);
-	glm::vec4 t1 = (context.m_projection * context.m_view * context.m_world * context.m_model) * glm::vec4(v1.m_position, 1.0f);
-	glm::vec4 t2 = (context.m_projection * context.m_view * context.m_world * context.m_model) * glm::vec4(v2.m_position, 1.0f);
-
-	//Really basic culling
-	if (t0.w <= 0.0f || t1.w <= 0.0f || t2.w <= 0.0f)
-		return false;
-
-	float tempW0 = t0.w;
-	float tempW1 = t1.w;
-	float tempW2 = t2.w;
-
-	if (t0.w > 0.0f) t0 /= t0.w;
-	if (t1.w > 0.0f) t1 /= t1.w;
-	if (t2.w > 0.0f) t2 /= t2.w;
-
 	float width = context.m_surface->getWidth();
 	float height = context.m_surface->getHeight();
 
-	t0 = { ((t0.x + 1.0f) * 0.5f) * width, ((t0.y + 1.0f) * 0.5f) * height, (t0.z + 1.0f) * 0.5f, 1.0f / tempW0 };
-	t1 = { ((t1.x + 1.0f) * 0.5f) * width, ((t1.y + 1.0f) * 0.5f) * height, (t1.z + 1.0f) * 0.5f, 1.0f / tempW1 };
-	t2 = { ((t2.x + 1.0f) * 0.5f) * width, ((t2.y + 1.0f) * 0.5f) * height, (t2.z + 1.0f) * 0.5f, 1.0f / tempW2 };
+	auto transform = [&context, &width, &height](Vertex& v) {
+		glm::vec4 t = (context.m_projection * context.m_view * context.m_world * context.m_model) * glm::vec4(v.m_position, 1.0f);
 
-	v0.m_posExt = t0;
-	v1.m_posExt = t1;
-	v2.m_posExt = t2;
+		if (t.w <= 0.0f)
+			return false;
 
-	return true;
+		float tempW = t.w;
+
+		t /= t.w;
+		v.m_posExt = { ((t.x + 1.0f) * 0.5f) * width, ((t.y + 1.0f) * 0.5f) * height, (t.z + 1.0f) * 0.5f, tempW };
+
+		return true;
+	};
+
+	return transform(v0) && transform(v1) && transform(v2);
 }
 
 void SortY(Vertex& a, Vertex& b) {
