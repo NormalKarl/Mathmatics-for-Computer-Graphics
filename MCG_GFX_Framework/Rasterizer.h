@@ -7,6 +7,7 @@
 #include "Geometry.h"
 #include "Surface.h"
 #include "Texture.h"
+#include "Rasterizer2.h"
 
 /*class IShader
 {
@@ -77,7 +78,7 @@ public:
 
 	Vertex& operator[](int index);
 
-	void render(Rasterizer* rasterizer);
+	void render(const Context& context);
 
 	inline int getIndiceCount() {
 		return m_indices.size();
@@ -86,6 +87,11 @@ public:
 	inline int getVertexCount() {
 		return m_vertices.size();
 	}
+};
+
+class Model {
+public:
+	Model();
 };
 
 class Rasterizer

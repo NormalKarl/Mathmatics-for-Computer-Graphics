@@ -50,7 +50,7 @@ RasterizerScene::RasterizerScene()
 	}
 
 
-	m_skyboxDown = new Texture("container2.png");
+	m_skyboxDown = new Texture("TropicalSunnyDayDown2048");
 	m_skyboxUp = new Texture("assets/TropicalSunnyDayUp2048.png");
 	m_skyboxFront = new Texture("assets/TropicalSunnyDayFront2048.png");
 	m_skyboxBack = new Texture("assets/TropicalSunnyDayBack2048.png");
@@ -60,10 +60,10 @@ RasterizerScene::RasterizerScene()
 
 
 	m_skybox.appendVertices({
-							{ -256.0f, 256.0f, 512.0f, 0.0f, 0.0f }
-							,{ 256.0f, 256.0f, 512.0f, 1.0f, 0.0f }
-							,{ 256.0f, -256.0f, 512.0f, 1.0f, 1.0f }
-							,{ -256.0f, -256.0f, 512.0f, 0.0f, 1.0f } });
+							{ -10.0f, 10.0f, 1024.0f, 0.0f, 0.0f }
+							,{ 10.0f, 10.0f, 1024.0f, 1.0f, 0.0f }
+							,{ 10.0f, -10.0f, 1024.0f, 1.0f, 1.0f }
+							,{ -10.0f, -10.0f, 1024.0f, 0.0f, 1.0f } });
 	m_skybox.appendIndices({ 0, 3, 2, 0, 2, 1 });
 
 	context.m_surface = getSurface();
@@ -167,7 +167,9 @@ void RasterizerScene::draw()
 	Render::DrawTriangle(context, h, i, j);
 	Render::DrawTriangle(context, k, l, m);
 
-	//m_renderer->bindTexture(m_skyboxDown);
-	//m_skybox.render(m_renderer);
+	context.m_texture = m_skyboxFront;
+	m_skybox.render(context);
+	context.m_model = glm::rotate(glm::mat4(), glm::radians((ticks / 50.0f) + 90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	m_skybox.render(context);
 
 }

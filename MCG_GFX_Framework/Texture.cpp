@@ -58,7 +58,7 @@ glm::vec4 Texture::getPixelAt(int x, int y)
 	y = glm::clamp(y, 0, height - 1);
 	//Problem is here somewhere
 	unsigned char dat[4] = { 0 };
-	memcpy_s(dat, 4, &data[((y * width) + x) * bytesPerPixel], 4);
+	memcpy_s(dat, bytesPerPixel, &data[((y * width) + x) * bytesPerPixel], bytesPerPixel);
 
 	return glm::vec4((float)dat[0] / 255.0f, (float)dat[1] / 255.0f, (float)dat[2] / 255.0f, (float)dat[3] / 255.0f);
 }

@@ -172,6 +172,7 @@
     <ClCompile Include="Surface.cpp" />
     <ClCompile Include="Texture.cpp" />
     <ClCompile Include="tinyxml2.cpp" />
+    <ClCompile Include="tiny_obj_loader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BitmapFont.h" />
@@ -190,6 +191,7 @@
     <ClInclude Include="stb_image.h" />
     <ClInclude Include="Surface.h" />
     <ClInclude Include="tinyxml2.h" />
+    <ClInclude Include="tiny_obj_loader.h" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Texture.h" />

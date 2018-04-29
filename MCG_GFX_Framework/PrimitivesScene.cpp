@@ -64,9 +64,9 @@ PrimitivesScene::~PrimitivesScene()
 }
 
 void PrimitivesScene::draw() {
-	m_triangle.render(&m_renderer);
+	/*m_triangle.render(&m_renderer);
 	m_square.render(&m_renderer);
 	m_circle.render(&m_renderer);
 	m_polygon.render(&m_renderer);
-	m_lines.render(&m_renderer);
+	m_lines.render(&m_renderer);*/
 }

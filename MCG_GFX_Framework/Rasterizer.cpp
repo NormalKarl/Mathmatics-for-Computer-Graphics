@@ -2,9 +2,12 @@
 #include <GLM/gtc/matrix_transform.hpp>
 #include "MCG_GFX_Lib.h"
 #include "stb_image.h"
+#include "Rasterizer2.h"
+#include "tiny_obj_loader.h"
 
 #include <vector>
 #include <algorithm>
+#include <iostream>
 
 const std::vector<glm::vec2> Rasterizer::CLIP_COORDS = { { -1.0f, -1.0f },{ -1.0f, 1.0f },{ 1.0f, 1.0f },{ 1.0f, -1.0f } };
 
@@ -71,7 +74,7 @@ Vertex& VertexArray::operator[](int index)
 	return m_vertices[index];
 }
 
-void VertexArray::render(Rasterizer* rasterizer)
+void VertexArray::render(const Context& context)
 {
 	if (m_indices.size() != 0)
 	{
@@ -82,11 +85,11 @@ void VertexArray::render(Rasterizer* rasterizer)
 			switch (m_primitive)
 			{
 				case Primitive::Line:
-					rasterizer->drawLine(m_vertices[m_indices[i]], m_vertices[m_indices[i + 1]]);
+					//Render::DrawTriangle(m_vertices[m_indices[i]], m_vertices[m_indices[i + 1]]);
 					i += 2;
 					break;
 				case Primitive::Triangle:
-					rasterizer->drawTriangle(m_vertices[m_indices[i]], m_vertices[m_indices[i + 1]], m_vertices[m_indices[i + 2]]);
+					Render::DrawTriangle(context, m_vertices[m_indices[i]], m_vertices[m_indices[i + 1]], m_vertices[m_indices[i + 2]]);
 					i += 3;
 					break;
 			}
@@ -100,14 +103,65 @@ void VertexArray::render(Rasterizer* rasterizer)
 			switch (m_primitive)
 			{
 				case Primitive::Line:
-					rasterizer->drawLine(m_vertices[i], m_vertices[i + 1]);
+					//rasterizer->drawLine(m_vertices[i], m_vertices[i + 1]);
 					i += 2;
 					break;
 				case Primitive::Triangle:
-					rasterizer->drawTriangle(m_vertices[i], m_vertices[i + 1], m_vertices[i + 2]);
+					Render::DrawTriangle(context, m_vertices[i], m_vertices[i + 1], m_vertices[i + 2]);
 					i += 3;
 					break;
 			}
+		}
+	}
+}
+
+//Model Code
+
+Model::Model() {
+	std::string inputfile = "cornell_box.obj";
+	tinyobj::attrib_t attrib;
+	std::vector<tinyobj::shape_t> shapes;
+	std::vector<tinyobj::material_t> materials;
+
+	std::string err;
+	bool ret = tinyobj::LoadObj(&attrib, &shapes, &materials, &err, inputfile.c_str());
+
+	if (!err.empty()) { // `err` may contain warning message.
+		std::cout << err << std::endl;
+	}
+
+	if (!ret) {
+		exit(1);
+	}
+
+	// Loop over shapes
+	for (size_t s = 0; s < shapes.size(); s++) {
+		// Loop over faces(polygon)
+		size_t index_offset = 0;
+		for (size_t f = 0; f < shapes[s].mesh.num_face_vertices.size(); f++) {
+			int fv = shapes[s].mesh.num_face_vertices[f];
+
+			// Loop over vertices in the face.
+			for (size_t v = 0; v < fv; v++) {
+				// access to vertex
+				tinyobj::index_t idx = shapes[s].mesh.indices[index_offset + v];
+				tinyobj::real_t vx = attrib.vertices[3 * idx.vertex_index + 0];
+				tinyobj::real_t vy = attrib.vertices[3 * idx.vertex_index + 1];
+				tinyobj::real_t vz = attrib.vertices[3 * idx.vertex_index + 2];
+				tinyobj::real_t nx = attrib.normals[3 * idx.normal_index + 0];
+				tinyobj::real_t ny = attrib.normals[3 * idx.normal_index + 1];
+				tinyobj::real_t nz = attrib.normals[3 * idx.normal_index + 2];
+				tinyobj::real_t tx = attrib.texcoords[2 * idx.texcoord_index + 0];
+				tinyobj::real_t ty = attrib.texcoords[2 * idx.texcoord_index + 1];
+				// Optional: vertex colors
+				// tinyobj::real_t red = attrib.colors[3*idx.vertex_index+0];
+				// tinyobj::real_t green = attrib.colors[3*idx.vertex_index+1];
+				// tinyobj::real_t blue = attrib.colors[3*idx.vertex_index+2];
+			}
+			index_offset += fv;
+
+			// per-face material
+			shapes[s].mesh.material_ids[f];
 		}
 	}
 }
