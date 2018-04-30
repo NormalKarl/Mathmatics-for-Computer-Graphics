@@ -58,7 +58,10 @@ RasterizerScene::RasterizerScene()
 	m_skyboxRight = new Texture("assets/TropicalSunnyDayRight2048.png");
 	m_skybox = VertexArray(Primitive::Triangle);
 
-	model = new Model("assets/bunny_textured.obj");
+	m_skyboxFront = new Texture("assets/skin_man.png");
+	
+
+	model = new Model("assets/advancedCharacter.obj");
 	/*m_skybox.appendVertices({
 							{ -10.0f, 10.0f, 5.0f, 0.0f, 0.0f }
 							,{ 10.0f, 10.0f, 5.0f, 1.0f, 0.0f }
@@ -172,6 +175,8 @@ void RasterizerScene::draw()
 	context.m_model = glm::rotate(glm::mat4(), glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 	m_skybox.render(context);*/
 
-	context.m_model = glm::scale(glm::mat4(), glm::vec3(5.0f, 5.0f, 5.0f));
+	context.m_texture = m_skyboxFront;
+	//context.m_model = glm::scale(glm::mat4(), glm::vec3(10.0f, 10.0f, 10.0f));
+	//context.m_world = glm::translate(glm::mat4(), glm::vec3(0.0f, -5.0f, 0.0f));
 	model->array.render(context);
 }
