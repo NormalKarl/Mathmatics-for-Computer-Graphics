@@ -5,6 +5,7 @@
 
 class Rasterizer;
 class BitmapFont;
+class Model;
 
 class RasterizerScene : public Scene
 {
@@ -21,6 +22,7 @@ private:
 	Texture* m_skyboxLeft;
 	Texture* m_skyboxRight;
 	VertexArray m_skybox;
+	Model* model;
 public:
 	RasterizerScene();
 	~RasterizerScene();

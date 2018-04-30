@@ -100,8 +100,8 @@ bool Transform(const Context& context, Vertex& v0, Vertex& v1, Vertex& v2) {
 	auto transform = [&context, &width, &height](Vertex& v) {
 		glm::vec4 t = (context.m_projection * context.m_view * context.m_world * context.m_model) * glm::vec4(v.m_position, 1.0f);
 
-		//if (t.w <= 0.0f)
-		//	return false;
+		if (t.w <= 0.0f)
+			return false;
 
 		float tempW = t.w;
 

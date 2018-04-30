@@ -91,7 +91,8 @@ public:
 
 class Model {
 public:
-	Model();
+	VertexArray array;
+	Model(std::string name);
 };
 
 class Rasterizer

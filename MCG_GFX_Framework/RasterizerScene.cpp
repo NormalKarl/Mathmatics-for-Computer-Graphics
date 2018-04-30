@@ -6,7 +6,7 @@
 #define USE_MATH_DEFINES
 
 #include "BitmapFont.h"
-
+#include "Geometry.h"
 #include <cmath>
 
 std::vector<Vertex> vertices;
@@ -58,13 +58,13 @@ RasterizerScene::RasterizerScene()
 	m_skyboxRight = new Texture("assets/TropicalSunnyDayRight2048.png");
 	m_skybox = VertexArray(Primitive::Triangle);
 
-
-	m_skybox.appendVertices({
-							{ -10.0f, 10.0f, 1024.0f, 0.0f, 0.0f }
-							,{ 10.0f, 10.0f, 1024.0f, 1.0f, 0.0f }
-							,{ 10.0f, -10.0f, 1024.0f, 1.0f, 1.0f }
-							,{ -10.0f, -10.0f, 1024.0f, 0.0f, 1.0f } });
-	m_skybox.appendIndices({ 0, 3, 2, 0, 2, 1 });
+	model = new Model("assets/bunny_textured.obj");
+	/*m_skybox.appendVertices({
+							{ -10.0f, 10.0f, 5.0f, 0.0f, 0.0f }
+							,{ 10.0f, 10.0f, 5.0f, 1.0f, 0.0f }
+							,{ 10.0f, -10.0f, 5.0f, 1.0f, 1.0f }
+							,{ -10.0f, -10.0f, 5.0f, 0.0f, 1.0f } });
+	m_skybox.appendIndices({ 0, 3, 2, 0, 2, 1 });*/
 
 	context.m_surface = getSurface();
 }
@@ -126,7 +126,7 @@ void RasterizerScene::draw()
 		m_renderer->drawTriangle(vertices[i * 3 + 0], vertices[i * 3 + 1], vertices[i * 3 + 2]);
 	}*/
 	
-	Vertex a = { 0.5, 0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f };
+	/*Vertex a = { 0.5, 0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 1.0f, 1.0f, 1.0f };
 	Vertex b = { -0.5, 0.5f, -0.5f, 0.0f, 1.0f };
 	Vertex c = { -0.5, -0.5, -0.5f, 0.0f, 0.0f };
 
@@ -166,10 +166,12 @@ void RasterizerScene::draw()
 	context.m_model = glm::rotate(glm::mat4(), glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 	Render::DrawTriangle(context, h, i, j);
 	Render::DrawTriangle(context, k, l, m);
-
-	context.m_texture = m_skyboxFront;
+	*/
+	/*context.m_texture = m_skyboxFront;
 	m_skybox.render(context);
-	context.m_model = glm::rotate(glm::mat4(), glm::radians((ticks / 50.0f) + 90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-	m_skybox.render(context);
+	context.m_model = glm::rotate(glm::mat4(), glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	m_skybox.render(context);*/
 
+	context.m_model = glm::scale(glm::mat4(), glm::vec3(5.0f, 5.0f, 5.0f));
+	model->array.render(context);
 }
