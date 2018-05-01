@@ -3,9 +3,8 @@
 #include <vector>
 #include <string>
 
+#include "Rasterizer.h"
 #include "Texture.h"
-#include "Rasterizer2.h"
-class Rasterizer;
 
 struct BitmapChar {
 	unsigned int id;
@@ -56,6 +55,6 @@ public:
 
 	int getWidth(const std::string& text);
 
-	void drawText(Context& context, std::string text, float x, float y);
+	void drawText(Context& context, std::string text, float x, float y, float scale = 1.0f, Filter filter = Filter::Point);
 };
 

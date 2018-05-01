@@ -2,8 +2,9 @@
 #include <GLM/gtc/matrix_transform.hpp>
 #include "MCG_GFX_Lib.h"
 #include "stb_image.h"
-#include "Rasterizer2.h"
 #include "tiny_obj_loader.h"
+#include "Surface.h"
+#include "Texture.h"
 
 #include <vector>
 #include <algorithm>
@@ -41,7 +42,7 @@ void VertexArray::appendIndices(std::vector<unsigned int> _indices)
 }
 
 void VertexArray::offsetIndices(unsigned int _offset, std::vector<unsigned int> _indices) {
-	for (int i = 0; i < _indices.size(); i++) {
+	for (size_t i = 0; i < _indices.size(); i++) {
 		_indices[i] = _offset + _indices[i];
 	}
 
@@ -57,7 +58,7 @@ void VertexArray::render(const Context& context)
 {
 	if (m_indices.size() != 0)
 	{
-		int i = 0;
+		size_t i = 0;
 
 		while (i < m_indices.size())
 		{
@@ -68,14 +69,14 @@ void VertexArray::render(const Context& context)
 					i += 2;
 					break;
 				case Primitive::Triangle:
-					Render::DrawTriangle(context, m_vertices[m_indices[i]], m_vertices[m_indices[i + 1]], m_vertices[m_indices[i + 2]]);
+					Rasterizer::DrawTriangle(context, m_vertices[m_indices[i]], m_vertices[m_indices[i + 1]], m_vertices[m_indices[i + 2]]);
 					i += 3;
 					break;
 			}
 		}
 	}
 	else {
-		int i = 0;
+		size_t i = 0;
 
 		while (i < m_vertices.size())
 		{
@@ -86,7 +87,7 @@ void VertexArray::render(const Context& context)
 					i += 2;
 					break;
 				case Primitive::Triangle:
-					Render::DrawTriangle(context, m_vertices[i], m_vertices[i + 1], m_vertices[i + 2]);
+					Rasterizer::DrawTriangle(context, m_vertices[i], m_vertices[i + 1], m_vertices[i + 2]);
 					i += 3;
 					break;
 			}
@@ -118,7 +119,7 @@ Model::Model(std::string name) {
 		// Loop over faces(polygon)
 		size_t index_offset = 0;
 		for (size_t f = 0; f < shapes[s].mesh.num_face_vertices.size(); f++) {
-			int fv = shapes[s].mesh.num_face_vertices[f];
+			size_t fv = shapes[s].mesh.num_face_vertices[f];
 
 			std::vector<glm::vec3> vectors;
 
@@ -167,6 +168,8 @@ Model::Model(std::string name) {
 	}
 }
 
+//Rasterizer
+
 void CalculateWeights(glm::dvec2 p, glm::dvec2 a, glm::dvec2 b, glm::dvec2 c, float &u, float &v, float &w)
 {
 	glm::dvec2 v0 = b - a, v1 = c - a, v2 = p - a;
@@ -198,7 +201,9 @@ void DrawWeightedPixel(const Context& context, Vertex& a, Vertex& b, Vertex& c, 
 		newColour = context.m_texture->sample(newTexCoords);
 	}
 
-	if (newPosition.z <= context.m_surface->getDepthAt(pixel.x, pixel.y)) {
+	float d = context.m_surface->getDepthAt(pixel.x, pixel.y);
+
+	if (newPosition.z <= d) {
 		context.m_surface->setDepthAt(pixel.x, pixel.y, newPosition.z);
 		context.m_surface->setColourAt(pixel.x, pixel.y, newColour);
 	}
@@ -287,7 +292,7 @@ void SortY(Vertex& a, Vertex& b) {
 	}
 }
 
-void Render::DrawTriangle(const Context& context, const Vertex& a, const Vertex& b, const Vertex& c) {
+void Rasterizer::DrawTriangle(const Context& context, const Vertex& a, const Vertex& b, const Vertex& c) {
 	Vertex v0 = a, v1 = b, v2 = c;
 
 	if (Transform(context, v0, v1, v2)) {
@@ -331,7 +336,34 @@ void Render::DrawTriangle(const Context& context, const Vertex& a, const Vertex&
 	}
 }
 
-void Render::DrawQuad(const Context& context, const Vertex& a, const Vertex& b, const Vertex& c, const Vertex& d) {
+void Rasterizer::DrawQuad(const Context& context, const Vertex& a, const Vertex& b, const Vertex& c, const Vertex& d) {
 	DrawTriangle(context, a, b, d);
 	DrawTriangle(context, b, c, d);
+}
+
+void Rasterizer::FillRect(Context& context, float x, float y, float width, float height, const glm::uvec4& colour) {
+	glm::vec4 calculatedColour = (glm::vec4)colour / glm::vec4(255.0f, 255.0f, 255.0f, 255.0f);
+	FillRect(context, x, y, width, height, calculatedColour);
+}
+
+void Rasterizer::FillRect(Context& context, float x, float y, float width, float height, const glm::vec4& colour) {
+	context.m_texture = NULL;
+	DrawQuad(context,
+		{ x, y, 0.0f, colour.r, colour.g, colour.b, colour.a },
+		{ x + width, y, 0.0f, colour.r, colour.g, colour.b, colour.a },
+		{ x + width, y + height, 0.0f, colour.r, colour.g, colour.b, colour.a },
+		{ x, y + height, 0.0f, colour.r, colour.g, colour.b, colour.a });
+}
+
+void Rasterizer::DrawImage(Context& context, Texture* texture, float x, float y, float width, float height, float tx, float ty, float tw, float th) {
+	Texture* temp = context.m_texture;
+	context.m_texture = texture;
+
+	DrawQuad(context,
+		{ x, y, 0.0f, tx, ty },
+		{ x + width, y, 0.0f, tx + tw, ty },
+		{ x + width, y + height, 0.0f, tx + tw, ty + th },
+		{ x, y + height, 0.0f, tx, ty + th });
+
+	context.m_texture = temp;
 }

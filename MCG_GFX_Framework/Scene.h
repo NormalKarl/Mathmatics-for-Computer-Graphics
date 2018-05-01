@@ -15,10 +15,15 @@ private:
 	int m_sceneIndex;
 	std::vector<Scene*> m_scenes;
 	Surface* m_surface;
-	Context m_renderer;
+	Context m_context;
 
 	std::vector<Texture*> icons;
 	BitmapFont* m_font;
+
+	Texture* backIcon;
+
+	glm::vec4 backButtonRegion;
+	bool mouseOnBackButton;
 public:
 	static SceneManager* ActiveSceneManager;
 
@@ -32,9 +37,17 @@ public:
 	void update();
 	void draw();
 
+	inline std::vector<Scene*>& getScenes() {
+		return m_scenes;
+	}
+
 	inline Surface* getSurface()
 	{
 		return m_surface;
+	}
+
+	inline Context& getContext() {
+		return m_context;
 	}
 
 	inline BitmapFont* getFont() {
@@ -61,6 +74,14 @@ public:
 	inline Surface* getSurface()
 	{
 		return SceneManager::ActiveSceneManager->getSurface();
+	}
+
+	inline Context& getContext() {
+		return SceneManager::ActiveSceneManager->getContext();
+	}
+
+	inline BitmapFont* getFont() {
+		return SceneManager::ActiveSceneManager->getFont();
 	}
 
 	inline std::string getTitle() {

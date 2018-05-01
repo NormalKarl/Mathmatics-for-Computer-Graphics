@@ -22,7 +22,7 @@ BitmapFont::BitmapFont(const char* filename, std::vector<const char*> pagePaths)
 	pages = commonEle->IntAttribute("pages");
 
 	tinyxml2::XMLElement* e = doc.FirstChildElement("font")->FirstChildElement("chars");
-	texture = Texture(pagePaths[0]);
+	texture = Texture(pagePaths[0], Filter::Bilinear);
 
 	for (tinyxml2::XMLElement* c = (tinyxml2::XMLElement*)e->FirstChild(); c != NULL; c = (tinyxml2::XMLElement*)c->NextSibling()) {
 		BitmapChar ch = { 0 };
@@ -82,10 +82,18 @@ int BitmapFont::getWidth(const std::string& text) {
 	return currentX;
 }
 
-void BitmapFont::drawText(Context& context, std::string text, float x, float y) {
+void BitmapFont::drawText(Context& context, std::string text, float x, float y, float scale, Filter filter) {
 	float currentX = x;
 
 	context.m_texture = &texture;
+
+	Filter tempFilter = texture.filter;
+	texture.filter = filter;
+
+	glm::mat4 mat = glm::translate(glm::mat4(), glm::vec3(x, y, 0.0f));
+	mat = glm::scale(mat, glm::vec3(scale, scale, 1.0f));
+	mat = glm::translate(mat, glm::vec3(-x, -y, 0.0f));
+	context.m_model = mat;
 	
 	for (int c = 0; c < text.size(); c++) {
 		BitmapChar bc = chars[text[c]];
@@ -107,7 +115,9 @@ void BitmapFont::drawText(Context& context, std::string text, float x, float y) 
 							 { charX, charY + bc.height, 0, bc.uvX, bc.uvY + bc.uvHeight } };
 
 		currentX += bc.xadvance;
-
-		Render::DrawQuad(context, vertices[0], vertices[1], vertices[2], vertices[3]);
+		Rasterizer::DrawQuad(context, vertices[0], vertices[1], vertices[2], vertices[3]);
 	}
+
+	context.m_model = glm::mat4();
+	texture.filter = tempFilter;
 }

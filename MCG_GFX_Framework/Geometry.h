@@ -12,7 +12,6 @@ Sphere
 Circle (Can be used to make Octagon, Hexagon, Pentagon etc.)
 */
 
-class Rasterizer;
 class Texture;
 
 struct Vertex
@@ -66,40 +65,4 @@ struct Vertex
 		m_colour = { r, g, b, a };
 		m_textureCoords = { u, v };
 	}
-};
-
-/*class Triangle
-{
-public:
-	Vertex m_a;
-	Vertex m_b;
-	Vertex m_c;
-	glm::vec3 m_normal;
-	Triangle() {}
-	Triangle(Vertex _a, Vertex _b, Vertex _c);
-	~Triangle() {
-
-	}
-};*/
-
-class Rectangle
-{
-private:
-	Vertex m_points[4];
-	float m_x;
-	float m_y;
-	float m_width;
-	float m_height;
-	Texture* m_texture;
-public:
-	Rectangle(float x, float y, float width, float height, float minU = 0.0f, float minV = 0.0f, float maxU = 1.0f, float maxV = 1.0f);
-
-	void draw(Rasterizer* renderer);
-	void setColour(glm::vec4 colour);
-	void setTexture(Texture* texture);
-};
-
-class Plane {
-public:
-	glm::vec3 point;
 };

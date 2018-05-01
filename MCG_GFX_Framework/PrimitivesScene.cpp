@@ -1,6 +1,7 @@
 #define PI 3.14159265359
 #include <cmath>
 #include "PrimitivesScene.h"
+#include "Surface.h"
 
 PrimitivesScene::PrimitivesScene() : Scene()
 {
@@ -22,7 +23,7 @@ PrimitivesScene::PrimitivesScene() : Scene()
 	m_square.appendVertices({ { 275.0f, 100.0f },{ 350.0f, 100.0f },{ 350.0f, 175.0f },{ 275.0f, 175.0f } });
 	m_square.appendIndices({ 0,1,2,2,3,0 });
 
-	float angleStep = (PI * 2) / 25;
+	float angleStep = (float)((PI * 2) / 25);
 	float angle = 0;
 	float radius = 85.0f / 2;
 

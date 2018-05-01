@@ -18,7 +18,7 @@ public:
 	Filter filter;
 
 	Texture();
-	Texture(const char* filename);
+	Texture(const char* filename, Filter filter = Filter::Point);
 
 	~Texture();
 

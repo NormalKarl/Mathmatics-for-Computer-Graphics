@@ -156,14 +156,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="BitmapFont.cpp" />
-    <ClCompile Include="Components.cpp" />
     <ClCompile Include="Geometry.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="MandlebrotScene.cpp" />
     <ClCompile Include="MCG_GFX_Lib.cpp" />
+    <ClCompile Include="MenuScene.cpp" />
     <ClCompile Include="PrimitivesScene.cpp" />
     <ClCompile Include="Rasterizer.cpp" />
-    <ClCompile Include="Rasterizer2.cpp" />
     <ClCompile Include="RasterizerScene.cpp" />
     <ClCompile Include="Raytracer.cpp" />
     <ClCompile Include="RaytracerScene.cpp" />
@@ -176,14 +175,12 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BitmapFont.h" />
-    <ClInclude Include="Buffer.h" />
-    <ClInclude Include="Components.h" />
     <ClInclude Include="Geometry.h" />
     <ClInclude Include="MandlebrotScene.h" />
     <ClInclude Include="MCG_GFX_Lib.h" />
+    <ClInclude Include="MenuScene.h" />
     <ClInclude Include="PrimitivesScene.h" />
     <ClInclude Include="Rasterizer.h" />
-    <ClInclude Include="Rasterizer2.h" />
     <ClInclude Include="RasterizerScene.h" />
     <ClInclude Include="Raytracer.h" />
     <ClInclude Include="RaytracerScene.h" />
@@ -195,6 +192,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Texture.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="Defs.h" />
+    <Text Include="OldCode.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

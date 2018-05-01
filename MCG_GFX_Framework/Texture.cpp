@@ -3,14 +3,14 @@
 
 Texture::Texture()
 {
-	filter = Filter::Bilinear;
+	filter = Filter::Point;
 	data = NULL;
 }
 
-Texture::Texture(const char* filename)
+Texture::Texture(const char* filename, Filter filter)
 {
 	data = stbi_load(filename, &width, &height, &bytesPerPixel, STBI_rgb_alpha);
-	filter = Filter::Point;
+	this->filter = filter;
 }
 
 Texture::~Texture()

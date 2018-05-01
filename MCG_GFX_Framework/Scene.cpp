@@ -1,6 +1,11 @@
 #include "Scene.h"
 
+#include <SDL\SDL.h>
+
 #include "BitmapFont.h"
+#include "Surface.h"
+#include "Defs.h"
+#include "MCG_GFX_Lib.h"
 
 SceneManager* SceneManager::ActiveSceneManager = NULL;
 
@@ -16,13 +21,18 @@ Scene::~Scene()
 SceneManager::SceneManager(Surface* _surface) : m_surface(_surface)
 {
 
-	m_font = new BitmapFont("opensans.fnt", { "opensans_0.png" });
+	m_font = OPEN_SANS_FONT_INIT;
 	m_sceneIndex = -1;
-	m_renderer.m_surface = _surface;
-	m_renderer.ortho(0, m_surface->getViewport().width, m_surface->getViewport().height, 0, 0, 1);
+	m_context.m_surface = _surface;
+	m_context.ortho(0, m_surface->getViewport().width, m_surface->getViewport().height, 0, 0, 1);
 	//m_renderer.setCulling(Rasterizer::Culling::Backface, Rasterizer::WindingOrder::Clockwise);
 
 	icons.push_back(new Texture("icon1.png"));
+	backIcon = BACK_ICON_INIT;
+
+	float offsetY = (m_font->getLineHeight() - 24.0f) / 2.0f;
+	float offsetX = offsetY * 2;
+	backButtonRegion = {0,0, offsetX * 2 + 29.0f + ((m_font->getWidth("Back")) * 0.75f), m_font->getLineHeight() };
 
 	ActiveSceneManager = this;
 }
@@ -69,6 +79,21 @@ void SceneManager::update()
 {
 	if (m_sceneIndex != -1)
 		m_scenes[m_sceneIndex]->update();
+
+	int mouseX = 0, mouseY = 0;
+	mouseOnBackButton = false;
+	SDL_GetMouseState(&mouseX, &mouseY);
+
+	if (m_sceneIndex != 0) {
+		if (mouseX >= backButtonRegion.x && mouseX < backButtonRegion.x + backButtonRegion.z
+			&& mouseY >= backButtonRegion.y && mouseY < backButtonRegion.y + backButtonRegion.w) {
+			mouseOnBackButton = true;
+
+			if (MCG::MouseDown) {
+				goToScene(0);
+			}
+		}
+	}
 }
 
 void SceneManager::draw()
@@ -76,40 +101,16 @@ void SceneManager::draw()
 	if (m_sceneIndex != -1)
 		m_scenes[m_sceneIndex]->draw();
 
-	/*for (int i = 0; i < 5; i++)
-	{
-		Rectangle rectangle(glm::round((m_surface->getViewport().width / 2) + (i * 35 + (i * 5)) - (2.5f * 35)), m_surface->getViewport().height - 45, 35, 35);
-		rectangle.setTexture(icons[0]);
-		rectangle.setColour({ 1, 1, 1, 0.75f });
-		rectangle.draw(&m_renderer);
-	}*/
 
-	m_renderer.m_texture = NULL;
+	Rasterizer::FillRect(m_context, 0.0f, 0.0f, m_surface->getWidth(), m_font->getLineHeight(), glm::uvec4(53, 83, 125, 255));
 
-	glm::vec3 col = glm::vec3(53.0f, 83.0f, 125.0f) / glm::vec3(255.0f, 255.0f, 255.0f);
+	m_font->drawText(m_context, m_scenes[m_sceneIndex]->getTitle(), (m_surface->getWidth() - m_font->getWidth(m_scenes[m_sceneIndex]->getTitle())) / 2, 6, 1.0f);
 
-	Vertex vertices[] = { Vertex(0, 0, 0.0f, col.r, col.g, col.b, 1.0f),
-		Vertex(m_surface->getWidth(), 0, 0.0f, col.r, col.g, col.b, 1.0f) ,
-		Vertex(m_surface->getWidth(), m_font->getLineHeight(), 0.0f, col.r, col.g, col.b, 1.0f) ,
-		Vertex(0, m_font->getLineHeight(), 0.0f, col.r, col.g, col.b, 1.0f) };
-
-	Render::DrawQuad(m_renderer, vertices[0], vertices[1], vertices[2], vertices[3]);
-	m_font->drawText(m_renderer, m_scenes[m_sceneIndex]->getTitle(), (m_surface->getWidth() - m_font->getWidth(m_scenes[m_sceneIndex]->getTitle())) / 2, 5);
-
-	/*for (int i = 0; i < m_scenes.size(); i++) {
-		int h = m_font->getLineHeight();
-		int w = m_font->getWidth(m_scenes[i]->getTitle());
-
-		Vertex vertices[] = { Vertex(5.0f, 5.0f + ((5 + h) * i), 0.0f, 0.0f, 0.0f, 0.0f, 0.5f),
-			Vertex(5.0f + w, 5.0f + ((5 + h) * i), 0.0f, 0.0f, 0.0f, 0.0f, 0.5f) ,
-			Vertex(5.0f + w, 5.0f + ((5 + h) * i) + h, 0.0f, 0.0f, 0.0f, 0.0f, 0.5f) ,
-			Vertex(5.0f, 5.0f + ((5 + h) * i) + h, 0.0f, 0.0f, 0.0f, 0.0f, 0.5f) };
-		m_renderer.drawQuad(vertices[0], vertices[1], vertices[2], vertices[3]);
-
-		m_font->drawText(&m_renderer, m_scenes[i]->getTitle(), 5, 5 + ((5 + h) * i));
-
-
-	}*/
-
-
-}
+	if (m_sceneIndex != 0) {
+		float offsetY = (m_font->getLineHeight() - 24.0f) / 2.0f;
+		float offsetX = offsetY * 2;
+		Rasterizer::FillRect(m_context, 0.0f, 0.0f, backButtonRegion.p, backButtonRegion.q, mouseOnBackButton ? glm::uvec4(30, 48, 72, 255) : glm::uvec4(68, 107, 160, 255));
+		Rasterizer::DrawImage(m_context, backIcon, offsetX, offsetY, 24.0f, 24.0f);
+		m_font->drawText(m_context, "Back", offsetX + 29.0f, 9, 0.75f);
+	}
+};

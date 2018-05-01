@@ -1,6 +1,65 @@
 #pragma once
 
-#include "Buffer.h"
+#include <GLM\glm.hpp>
+
+template<typename T>
+class Buffer
+{
+public:
+	unsigned int width;
+	unsigned int height;
+	T* data;
+
+	Buffer<T>()
+	{
+		width = 0;
+		height = 0;
+		data = NULL;
+	}
+
+	Buffer<T>(unsigned int _width, unsigned int _height) : width(_width), height(_height)
+	{
+		int size = width * height;
+		data = new T[size];
+		clear((T)0);
+		return;
+	};
+
+	~Buffer<T>()
+	{
+		delete[] data;
+	}
+
+	void clear(T value)
+	{
+		for (size_t i = 0; i < width * height; i++)
+		{
+			data[i] = value;
+		}
+	}
+
+	T get(int x, int y);
+	void set(int x, int y, T value);
+
+};
+
+template <typename T>
+T Buffer<T>::get(int x, int y)
+{
+	int index = (y * width) + x;
+	return data[index];
+}
+
+template <typename T>
+void Buffer<T>::set(int x, int y, T t)
+{
+	this->data[(y * width) + x] = t;
+}
+
+typedef Buffer<unsigned int> Image;
+typedef Buffer<float> DepthBuffer;
+typedef Buffer<glm::vec4> FrameBuffer;
+typedef Buffer<bool> FlagBuffer;
 
 class Viewport
 {
@@ -62,12 +121,12 @@ public:
 
 	inline float getDepthAt(int _x, int _y)
 	{
-		return m_depthBuffer->Get(_x, _y);
+		return m_depthBuffer->get(_x, _y);
 	}
 
 	inline void setDepthAt(int _x, int _y, float _depth)
 	{
-		m_depthBuffer->Set(_x, _y, _depth);
+		m_depthBuffer->set(_x, _y, _depth);
 	}
 
 	/*inline void setColourAt(int _x, int _y, glm::vec4 _colour)
@@ -80,7 +139,7 @@ public:
 	void setColourAt(int _x, int _y, glm::vec4 _colour);
 
 	inline glm::vec4 getColourAt(int _x, int _y) {
-		return m_frameBuffer->Get(_x, _y);
+		return m_frameBuffer->get(_x, _y);
 	}
 
 	inline glm::vec3 getClearColour()

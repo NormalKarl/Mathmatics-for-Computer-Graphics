@@ -1,9 +1,13 @@
 #include "MandlebrotScene.h"
 
+#include "Scene.h"
+#include "Surface.h"
+
 
 
 MandlebrotScene::MandlebrotScene()
 {
+	setTitle("Fractals");
 }
 
 
@@ -12,8 +16,6 @@ MandlebrotScene::~MandlebrotScene()
 }
 
 #define MAX_ITERATIONS 1000
-
-
 
 void MandlebrotScene::draw()
 {

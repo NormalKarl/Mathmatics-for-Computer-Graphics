@@ -25,12 +25,6 @@
     <Filter Include="Header Files\Libraries">
       <UniqueIdentifier>{1ad9be5c-d84d-427b-ba4d-de37e5d05115}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Header Files\UI">
-      <UniqueIdentifier>{4b3b71cb-08c1-4fce-ac68-86fc4b9bc1ce}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Source Files\UI">
-      <UniqueIdentifier>{4a18e6fe-8582-45e6-9dd2-0f469f7ebebd}</UniqueIdentifier>
-    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Main.cpp">
@@ -66,9 +60,6 @@
     <ClCompile Include="Rasterizer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Components.cpp">
-      <Filter>Source Files\UI</Filter>
-    </ClCompile>
     <ClCompile Include="Texture.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -81,11 +72,11 @@
     <ClCompile Include="PrimitivesScene.cpp">
       <Filter>Source Files\Scenes</Filter>
     </ClCompile>
-    <ClCompile Include="Rasterizer2.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="tiny_obj_loader.cpp">
       <Filter>Source Files\Libraries</Filter>
+    </ClCompile>
+    <ClCompile Include="MenuScene.cpp">
+      <Filter>Source Files\Scenes</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -110,17 +101,11 @@
     <ClInclude Include="stb_image.h">
       <Filter>Header Files\Libraries</Filter>
     </ClInclude>
-    <ClInclude Include="Buffer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="RaytracerScene.h">
       <Filter>Header Files\Scenes</Filter>
     </ClInclude>
     <ClInclude Include="Rasterizer.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Components.h">
-      <Filter>Header Files\UI</Filter>
     </ClInclude>
     <ClInclude Include="MandlebrotScene.h">
       <Filter>Header Files\Scenes</Filter>
@@ -134,16 +119,22 @@
     <ClInclude Include="PrimitivesScene.h">
       <Filter>Header Files\Scenes</Filter>
     </ClInclude>
-    <ClInclude Include="Rasterizer2.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="tiny_obj_loader.h">
       <Filter>Header Files\Libraries</Filter>
+    </ClInclude>
+    <ClInclude Include="MenuScene.h">
+      <Filter>Header Files\Scenes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Texture.h">
       <Filter>Header Files</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="OldCode.txt" />
+    <Text Include="Defs.h">
+      <Filter>Header Files</Filter>
+    </Text>
   </ItemGroup>
 </Project>

@@ -33,9 +33,9 @@ void Surface::draw()
 		for (int y = m_viewport.y; y < m_viewport.height; y++)
 		{
 			//If the pixel has been changed then draw it.
-			if (m_frameFlagBuffer->Get(x, y) == true)
+			if (m_frameFlagBuffer->get(x, y) == true)
 			{
-				glm::vec4 pixelCol = m_frameBuffer->Get(x - m_viewport.x, y - m_viewport.y);
+				glm::vec4 pixelCol = m_frameBuffer->get(x - m_viewport.x, y - m_viewport.y);
 				float alpha = pixelCol.a;
 
 				pixelCol *= alpha;
@@ -49,15 +49,22 @@ void Surface::draw()
 
 void Surface::setColourAt(int _x, int _y, glm::vec4 _colour)
 {
+
+	if (_colour.a == 0.0f)
+		return;
+
 	glm::vec4 currentColour = getColourAt(_x, _y);
 	glm::vec4 newColour = glm::vec4();
 
+	//newColour = ((1.0f - _colour.a) * (currentColour.a * currentColour) + (_colour.a * _colour)) / currentColour.a;
+
 	newColour.a = ((1.0f - _colour.a) * currentColour.a) + _colour.a;
+
 	newColour.r = ((1.0f - _colour.a) * (currentColour.a * currentColour.r) + (_colour.a * _colour.r)) / currentColour.a;
 	newColour.g = ((1.0f - _colour.a) * (currentColour.a * currentColour.g) + (_colour.a * _colour.g)) / currentColour.a;
 	newColour.b = ((1.0f - _colour.a) * (currentColour.a * currentColour.b) + (_colour.a * _colour.b)) / currentColour.a;
-	m_frameBuffer->Set(_x, _y, newColour);
-	m_frameFlagBuffer->Set(_x, _y, true);
+	m_frameBuffer->set(_x, _y, newColour);
+	m_frameFlagBuffer->set(_x, _y, true);
 }
 
 void Surface::setClearColour(unsigned char r, unsigned char g, unsigned char b)
@@ -66,7 +73,7 @@ void Surface::setClearColour(unsigned char r, unsigned char g, unsigned char b)
 }
 
 glm::vec3 Surface::getFlattenedPixel(int x, int y) {
-	glm::vec4 pixelCol = m_frameBuffer->Get(x - m_viewport.x, y - m_viewport.y);
+	glm::vec4 pixelCol = m_frameBuffer->get(x - m_viewport.x, y - m_viewport.y);
 	float alpha = pixelCol.a;
 
 	pixelCol *= alpha;
@@ -76,7 +83,7 @@ glm::vec3 Surface::getFlattenedPixel(int x, int y) {
 
 float Surface::luma(int x, int y) {
 	glm::vec4 clearColour = glm::vec4(m_clearColour, 1.0f);
-	glm::vec4 pixelCol = m_frameBuffer->Get(x - m_viewport.x, y - m_viewport.y);
+	glm::vec4 pixelCol = m_frameBuffer->get(x - m_viewport.x, y - m_viewport.y);
 	float alpha = pixelCol.a;
 
 	pixelCol *= alpha;
