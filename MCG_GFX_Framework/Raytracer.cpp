@@ -9,6 +9,34 @@
 
 #include <cstdio>
 
+bool Sphere::intersect(const Ray& _ray, glm::vec3& _normal) {
+	glm::vec3 pos = m_position - _ray.origin;
+
+	float dot = glm::dot(pos, _ray.direction);
+
+	glm::vec3 distance = m_position - _ray.origin - (dot * _ray.direction);
+
+	float mag = glm::sqrt(distance.x * distance.x + distance.y * distance.y);
+
+	if (mag <= m_radius)
+	{
+		float x = glm::sqrt(m_radius * m_radius - mag * mag);
+		glm::vec3 near = _ray.origin + ((dot - x) * _ray.direction);
+
+		if (near.z > 0)
+			return false;
+
+		_normal = near - m_position;
+		return true;
+	}
+
+	return false;
+}
+
+bool Triangle::intersect(const Ray& ray, glm::vec3& _normal) {
+	return false;
+}
+
 Raytracer::Raytracer(Surface* _surface) : m_surface(_surface)
 {
 	m_projectionInv = glm::perspective(75.0f, (float)_surface->getWidth() / (float)_surface->getHeight(), 0.0f, 1.0f);
@@ -45,7 +73,7 @@ Ray Raytracer::createRay(int _pixelX, int _pixelY, float offsetX, float offsetY)
 	return ray;
 }
 
-bool intersect(Ray _ray, Triangle triangle) {
+/*bool intersect(Ray _ray, Triangle triangle) {
 	glm::vec3 a = triangle.m_b.m_position - triangle.m_a.m_position;
 	glm::vec3 b = triangle.m_c.m_position - triangle.m_a.m_position;
 	glm::vec3 cross = glm::cross(a, b);
@@ -74,35 +102,9 @@ bool intersect(Ray _ray, Triangle triangle) {
 
 }
 
-bool intersect(Ray _ray, Sphere _sphere , glm::vec3& normal) {
-	glm::vec3 pos = _sphere.m_position - _ray.origin;
-
-	float dot = glm::dot(pos, _ray.direction);
-
-	glm::vec3 distance = _sphere.m_position - _ray.origin - (dot * _ray.direction);
-
-
-	float mag = glm::sqrt(distance.x * distance.x + distance.y * distance.y);
-
-	if (mag <= _sphere.m_radius)
-	{
-		//printf("%f, %f, %f\n", distance.x, distance.y, distance.z);
-		float x = glm::sqrt(_sphere.m_radius * _sphere.m_radius - mag * mag);
-		glm::vec3 near = _ray.origin + ((dot - x) * _ray.direction);
-
-		if (near.z > 0) return false;
-
-		normal = near - _sphere.m_position;
-		//printf("%f\n", near.z);
-		return true;
-	}
-
-	return false;
-}
-
 bool intersect(Ray _ray, Plane _plane, glm::vec3& normal) {
 	return false;
-}
+}*/
 
 void Raytracer::trace() {
 	Sphere sphere;
@@ -137,9 +139,7 @@ void Raytracer::trace() {
 
 			glm::vec3 fragPos;
 
-			
-
-			if (intersect(ray, sphere, fragPos))
+			if (sphere.intersect(ray, fragPos))
 			{
 				//float mag = glm::sqrt(normal.x * normal.x + normal.y * normal.y + normal.z * normal.z);
 
@@ -155,9 +155,9 @@ void Raytracer::trace() {
 				float alpha = (float)hitRays / 256.0f;*/
 				float alpha = 1.0f;
 
-				glm::vec3 lightPos = m_viewInv * glm::vec4(cos(angle2) * 1.0f, 0.5f, sin(angle2) * 1.0f, 1.0f);
+				glm::vec3 lightPos = m_viewInv * glm::vec4(cos(angle2) * 1.0f, 0.0f, sin(angle2) * 1.0f, 1.0f);
 
-				printf("%f, %f, %f\n", lightPos.x, lightPos.y, lightPos.z);
+				//printf("%f, %f, %f\n", lightPos.x, lightPos.y, lightPos.z);
 
 				glm::vec3 objectColour = glm::vec3(0.5f, 0.0f, 0.0f);
 
@@ -173,7 +173,7 @@ void Raytracer::trace() {
 				glm::vec3 diffuseCol = lightCol * diff;
 
 
-				glm::vec3 viewDir = glm::normalize(glm::vec3(0.0f) - fragPos);
+				glm::vec3 viewDir = glm::normalize(glm::vec3(glm::cos(glm::radians(angle)) * 3.0f, 0.2f, glm::sin(glm::radians(angle)) * 3.0f) - fragPos);
 				glm::vec3 reflectDir = reflect(lightDir, norm);
 
 				float specularStrength = 0.5;
@@ -182,8 +182,8 @@ void Raytracer::trace() {
 
 				glm::vec3 col = (ambientCol + diffuseCol + specular) * objectColour;
 
-
 				m_surface->setColourAt(x, y, glm::vec4(col, alpha));
+				//m_surface->setColourAt(x, y, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
 			}
 		}
 	}

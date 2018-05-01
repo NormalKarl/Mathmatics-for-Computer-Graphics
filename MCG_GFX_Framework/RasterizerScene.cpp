@@ -49,25 +49,7 @@ RasterizerScene::RasterizerScene()
 		}
 	}
 
-
-	m_skyboxDown = new Texture("TropicalSunnyDayDown2048");
-	m_skyboxUp = new Texture("assets/TropicalSunnyDayUp2048.png");
-	m_skyboxFront = new Texture("assets/TropicalSunnyDayFront2048.png");
-	m_skyboxBack = new Texture("assets/TropicalSunnyDayBack2048.png");
-	m_skyboxLeft = new Texture("assets/TropicalSunnyDayLeft2048.png");
-	m_skyboxRight = new Texture("assets/TropicalSunnyDayRight2048.png");
-	m_skybox = VertexArray(Primitive::Triangle);
-
-	m_skyboxFront = new Texture("assets/skin_man.png");
-	
-
-	model = new Model("assets/advancedCharacter.obj");
-	/*m_skybox.appendVertices({
-							{ -10.0f, 10.0f, 5.0f, 0.0f, 0.0f }
-							,{ 10.0f, 10.0f, 5.0f, 1.0f, 0.0f }
-							,{ 10.0f, -10.0f, 5.0f, 1.0f, 1.0f }
-							,{ -10.0f, -10.0f, 5.0f, 0.0f, 1.0f } });
-	m_skybox.appendIndices({ 0, 3, 2, 0, 2, 1 });*/
+	model = new Model("assets/bunny.wobj");
 
 	context.m_surface = getSurface();
 }
@@ -120,8 +102,8 @@ void RasterizerScene::draw()
 
 	Uint32 ticks = 0;
 
-	context.perspective(glm::radians(75.0f), aspect, 0.1f, 2048.0f);
-	context.lookAt(glm::cos(angle) * dist, glm::cos(angleY) * 5.0f, glm::sin(angle) * dist, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+	context.perspective(glm::radians(75.0f), aspect, 1.0f, 2048.0f);
+	context.lookAt(glm::cos(angle) * dist, 1.0f + (glm::cos(angleY) * 5.0f), glm::sin(angle) * dist, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
 	context.m_model = glm::translate(glm::scale(glm::mat4(), glm::vec3(0.1f, 0.1f, 0.1f)), glm::vec3(-16.0f, 0.0f, -16.0f));
 
 	/*for (int i = 0; i < vertices.size() / 3; i++)
@@ -137,9 +119,7 @@ void RasterizerScene::draw()
 	Vertex e = { 0.5f, -0.5f, -0.5f, 1.0f, 0.0f };
 	Vertex f = { 0.5f, 0.5f, -0.5f, 1.0f, 1.0f };
 
-	//m_renderer->bindTexture(m_img);
 	context.m_texture = m_img;
-	//m_renderer->bindTexture(m_skyboxDown);
 
 	context.m_model = glm::rotate(glm::mat4(), glm::radians(ticks / 50.0f), { 0.0f, 1.0f, 0.0f });
 	Render::DrawTriangle(context, a, b, c);
@@ -168,15 +148,10 @@ void RasterizerScene::draw()
 
 	context.m_model = glm::rotate(glm::mat4(), glm::radians(180.0f), glm::vec3(1.0f, 0.0f, 0.0f));
 	Render::DrawTriangle(context, h, i, j);
-	Render::DrawTriangle(context, k, l, m);
-	*/
-	/*context.m_texture = m_skyboxFront;
-	m_skybox.render(context);
-	context.m_model = glm::rotate(glm::mat4(), glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-	m_skybox.render(context);*/
-
-	context.m_texture = m_skyboxFront;
-	//context.m_model = glm::scale(glm::mat4(), glm::vec3(10.0f, 10.0f, 10.0f));
+	Render::DrawTriangle(context, k, l, m);*/
+	
+	context.m_texture = NULL;
+	context.m_model = glm::scale(glm::mat4(), glm::vec3(10.0f, 10.0f, 10.0f));
 	//context.m_world = glm::translate(glm::mat4(), glm::vec3(0.0f, -5.0f, 0.0f));
 	model->array.render(context);
 }

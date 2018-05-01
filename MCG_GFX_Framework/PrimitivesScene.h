@@ -5,7 +5,7 @@
 class PrimitivesScene : public Scene
 {
 private:
-	Rasterizer m_renderer;
+	Context m_renderer;
 	VertexArray m_triangle;
 	VertexArray m_square;
 	VertexArray m_circle;

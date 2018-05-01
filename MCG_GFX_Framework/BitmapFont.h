@@ -4,7 +4,7 @@
 #include <string>
 
 #include "Texture.h"
-
+#include "Rasterizer2.h"
 class Rasterizer;
 
 struct BitmapChar {
@@ -56,6 +56,6 @@ public:
 
 	int getWidth(const std::string& text);
 
-	void drawText(Rasterizer* rasterizer, std::string text, float x, float y);
+	void drawText(Context& context, std::string text, float x, float y);
 };
 

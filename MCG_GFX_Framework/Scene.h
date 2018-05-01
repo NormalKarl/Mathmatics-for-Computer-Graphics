@@ -15,7 +15,7 @@ private:
 	int m_sceneIndex;
 	std::vector<Scene*> m_scenes;
 	Surface* m_surface;
-	Rasterizer m_renderer;
+	Context m_renderer;
 
 	std::vector<Texture*> icons;
 	BitmapFont* m_font;

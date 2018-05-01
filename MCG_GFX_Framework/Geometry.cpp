@@ -1,13 +1,13 @@
 #include "Geometry.h"
 #include "Rasterizer.h"
 
-Triangle::Triangle(Vertex _a, Vertex _b, Vertex _c)
+/*Triangle::Triangle(Vertex _a, Vertex _b, Vertex _c)
 {
 	m_a = _a;
 	m_b = _b;
 	m_c = _c;
 	m_normal = glm::cross((_b.m_position - _a.m_position), (_c.m_position - _a.m_position));
-}
+}*/
 
 
 Rectangle::Rectangle(float x, float y, float width, float height, float minS, float minT, float maxS, float maxT) : m_x(x), m_y(y), m_width(width), m_height(height), m_texture(NULL)

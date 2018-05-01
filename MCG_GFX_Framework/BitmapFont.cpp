@@ -82,10 +82,10 @@ int BitmapFont::getWidth(const std::string& text) {
 	return currentX;
 }
 
-void BitmapFont::drawText(Rasterizer* rasterizer, std::string text, float x, float y) {
+void BitmapFont::drawText(Context& context, std::string text, float x, float y) {
 	float currentX = x;
 
-	rasterizer->bindTexture(&texture);
+	context.m_texture = &texture;
 	
 	for (int c = 0; c < text.size(); c++) {
 		BitmapChar bc = chars[text[c]];
@@ -108,6 +108,6 @@ void BitmapFont::drawText(Rasterizer* rasterizer, std::string text, float x, flo
 
 		currentX += bc.xadvance;
 
-		rasterizer->drawQuad(vertices[0], vertices[1], vertices[2], vertices[3]);
+		Render::DrawQuad(context, vertices[0], vertices[1], vertices[2], vertices[3]);
 	}
 }

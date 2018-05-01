@@ -22,7 +22,7 @@
     <ProjectGuid>{EDAE6090-F60E-444B-B66D-13979FD63FE3}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
     <RootNamespace>MCG_GFX_Framework</RootNamespace>
-    <WindowsTargetPlatformVersion>10.0.15063.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

@@ -5,7 +5,7 @@
 PrimitivesScene::PrimitivesScene() : Scene()
 {
 	setTitle("Primitives");
-	m_renderer = Rasterizer(getSurface());
+	m_renderer.m_surface = getSurface();
 	m_renderer.ortho(0.0f, (float)getSurface()->getWidth(), (float)getSurface()->getHeight(), 0.0f, -1.0f, 1.0f);
 
 	m_triangle = VertexArray(Primitive::Triangle);
@@ -64,9 +64,9 @@ PrimitivesScene::~PrimitivesScene()
 }
 
 void PrimitivesScene::draw() {
-	/*m_triangle.render(&m_renderer);
-	m_square.render(&m_renderer);
-	m_circle.render(&m_renderer);
-	m_polygon.render(&m_renderer);
-	m_lines.render(&m_renderer);*/
+	m_triangle.render(m_renderer);
+	m_square.render(m_renderer);
+	m_circle.render(m_renderer);
+	m_polygon.render(m_renderer);
+	m_lines.render(m_renderer);
 }

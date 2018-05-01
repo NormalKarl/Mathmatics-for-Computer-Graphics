@@ -7,53 +7,9 @@
 #include "Geometry.h"
 #include "Surface.h"
 #include "Texture.h"
-#include "Rasterizer2.h"
 
-/*class IShader
-{
-private:
-	friend class Rasterizer;
-	Rasterizer* m_context;
-	glm::vec4 m_vertex;
-	glm::vec4 m_frag;
-	glm::vec3 m_weights;
-public:
-	glm::vec4 sample() const;
-
-	virtual glm::vec4 vertex() = 0;
-	virtual glm::vec4 frag() = 0;
-
-	inline Rasterizer& getContext() {
-		return *m_context;
-	}
-
-	inline glm::mat4 getModelViewProjection()
-	{
-		return m_context->getMVP();
-	}
-
-	inline glm::vec4 getVertex()
-	{
-		return m_vertex;
-	}
-
-	inline glm::vec4 getFrag() const
-	{
-		return m_frag;
-	}
-
-	inline glm::vec3 getWeights() const
-	{
-		return m_weights;
-	}
-
-};
-
-class BasicShader : IShader {
-public:
-	glm::vec4 vertex();
-	glm::vec4 frag();
-};*/
+class Texture;
+class Surface;
 
 enum class Primitive {
 	Point,
@@ -95,103 +51,37 @@ public:
 	Model(std::string name);
 };
 
-class Rasterizer
-{
-public:
-	enum class Culling {
-		None,
-		Backface,
-		Frontface
-	};
-
-	enum class WindingOrder {
-		Clockwise,
-		CounterClockwise
-	};
-
-private:
+struct Context {
 	Surface* m_surface;
-	Texture* m_textures[16];
-
-	glm::mat4 m_model;
-	glm::mat4 m_world;
-	glm::mat4 m_view;
+	Texture* m_texture;
 	glm::mat4 m_projection;
+	glm::mat4 m_view;
+	glm::mat4 m_world;
+	glm::mat4 m_model;
 
-	//Taken from Wikipedia
-	void drawLineLow(float x0, float y0, float x1, float y1, glm::vec4 colour);
-	void drawLineHigh(float x0, float y0, float x1, float y1, glm::vec4 colour);
-	void drawLine(float x0, float y0, float x1, float y1, glm::vec4 colour = { 0.0f, 0.0f,0.0f,1.0f });
-
-	Culling m_culling;
-	WindingOrder m_windingOrder;
-
-	static const std::vector<glm::vec2> CLIP_COORDS;
-public:
-	Rasterizer() {}
-	Rasterizer(Surface* _surface);
-	~Rasterizer();
-
-	void drawVA(VertexArray* array);
-
-	bool transform(const Vertex& a, const Vertex& b, const Vertex& c, glm::vec4& target_a, glm::vec4& target_b, glm::vec4& target_c);
-	void drawLine(Vertex& a, Vertex& b);
-	void drawTriangle(Vertex& a, Vertex& b, Vertex& c);
-	void drawQuad(Vertex& a, Vertex& b, Vertex& c, Vertex& d);
-	void ortho(float left, float right, float bottom, float top, float near, float far);
-	void perspective(float fovy, float aspect, float near, float far);
-	glm::vec4 transform(glm::vec3 _position);
-	void lookAt(float eyeX, float eyeY, float eyeZ, float centerX, float centerY, float centerZ, float upX, float upY, float upZ);
-
-	void bindTexture(Texture* texture, int index = 0);
-
-	std::vector<glm::vec4> transform(std::vector<Vertex>& vertices);
-
-	glm::mat4 getMVP();
-
-	inline void setCulling(Culling _culling, WindingOrder _windingOrder) {
-		m_culling = _culling;
-		m_windingOrder = _windingOrder;
+	inline Context() {
+		m_surface = NULL;
+		m_texture = NULL;
+		m_projection = m_view = m_world = m_model = glm::mat4(1.0f);
 	}
 
-	inline glm::mat4 getModel()
+	inline void lookAt(float eyeX, float eyeY, float eyeZ, float centerX, float centerY, float centerZ, float upX, float upY, float upZ)
 	{
-		return m_model;
+		m_view = glm::lookAt(glm::vec3(eyeX, eyeY, eyeZ), glm::vec3(centerX, centerY, centerZ), glm::vec3(upX, upY, upZ));
 	}
 
-	inline glm::mat4 getWorld()
+	inline void ortho(float left, float right, float bottom, float top, float near, float far)
 	{
-		return m_world;
+		m_projection = glm::ortho(left, right, bottom, top, near, far);
 	}
 
-	inline glm::mat4 getView()
+	inline void perspective(float fovy, float aspect, float near, float far)
 	{
-		return m_view;
+		m_projection = glm::perspective(fovy, aspect, near, far);
 	}
-
-	inline glm::mat4 getProjection()
-	{
-		return m_projection;
-	}
-
-	inline void setModel(glm::mat4 _model)
-	{
-		m_model = _model;
-	}
-
-	inline void setWorld(glm::mat4 _world)
-	{
-		m_view = _world;
-	}
-
-	inline void setView(glm::mat4 _view)
-	{
-		m_view = _view;
-	}
-
-	inline void setProjection(glm::mat4 _projection)
-	{
-		m_projection = _projection;
-	}
-	
 };
+
+namespace Render {
+	void DrawTriangle(const Context& context, const Vertex& a, const Vertex& b, const Vertex& c);
+	void DrawQuad(const Context& context, const Vertex& a, const Vertex& b, const Vertex& c, const Vertex& d);
+}

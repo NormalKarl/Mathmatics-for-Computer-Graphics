@@ -14,14 +14,6 @@ private:
 	Texture* m_img;
 
 	Context context;
-
-	Texture* m_skyboxDown;
-	Texture* m_skyboxUp;
-	Texture* m_skyboxFront;
-	Texture* m_skyboxBack;
-	Texture* m_skyboxLeft;
-	Texture* m_skyboxRight;
-	VertexArray m_skybox;
 	Model* model;
 public:
 	RasterizerScene();

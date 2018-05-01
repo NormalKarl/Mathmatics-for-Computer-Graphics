@@ -68,7 +68,7 @@ struct Vertex
 	}
 };
 
-class Triangle
+/*class Triangle
 {
 public:
 	Vertex m_a;
@@ -80,7 +80,7 @@ public:
 	~Triangle() {
 
 	}
-};
+};*/
 
 class Rectangle
 {
@@ -97,12 +97,6 @@ public:
 	void draw(Rasterizer* renderer);
 	void setColour(glm::vec4 colour);
 	void setTexture(Texture* texture);
-};
-
-class Sphere {
-public:
-	glm::vec3 m_position;
-	float m_radius;
 };
 
 class Plane {
