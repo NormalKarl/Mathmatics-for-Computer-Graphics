@@ -22,7 +22,7 @@ BitmapFont::BitmapFont(const char* filename, std::vector<const char*> pagePaths)
 	pages = commonEle->IntAttribute("pages");
 
 	tinyxml2::XMLElement* e = doc.FirstChildElement("font")->FirstChildElement("chars");
-	texture = Texture(pagePaths[0], Filter::Bilinear);
+	texture = new Texture(pagePaths[0], Filter::Bilinear);
 
 	for (tinyxml2::XMLElement* c = (tinyxml2::XMLElement*)e->FirstChild(); c != NULL; c = (tinyxml2::XMLElement*)c->NextSibling()) {
 		BitmapChar ch = { 0 };
@@ -40,10 +40,10 @@ BitmapFont::BitmapFont(const char* filename, std::vector<const char*> pagePaths)
 
 		//Transform the x, y, width and height of the sprite into normalized positions.
 		//This is used for the Rasterizer class.
-		ch.uvX = (float)ch.x / texture.getWidthF();
-		ch.uvY = (float)ch.y / texture.getHeightF();
-		ch.uvWidth = (float)ch.width / texture.getWidthF();
-		ch.uvHeight = (float)ch.height / texture.getHeightF();
+		ch.uvX = (float)ch.x / texture->getWidthF();
+		ch.uvY = (float)ch.y / texture->getHeightF();
+		ch.uvWidth = (float)ch.width / texture->getWidthF();
+		ch.uvHeight = (float)ch.height / texture->getHeightF();
 
 		chars[ch.id] = ch;
 	}
@@ -85,10 +85,10 @@ int BitmapFont::getWidth(const std::string& text) {
 void BitmapFont::drawText(Context& context, std::string text, float x, float y, float scale, Filter filter) {
 	float currentX = x;
 
-	context.m_texture = &texture;
+	context.m_texture = texture;
 
-	Filter tempFilter = texture.filter;
-	texture.filter = filter;
+	Filter tempFilter = texture->filter;
+	texture->filter = filter;
 
 	glm::mat4 mat = glm::translate(glm::mat4(), glm::vec3(x, y, 0.0f));
 	mat = glm::scale(mat, glm::vec3(scale, scale, 1.0f));
@@ -119,5 +119,5 @@ void BitmapFont::drawText(Context& context, std::string text, float x, float y, 
 	}
 
 	context.m_model = glm::mat4();
-	texture.filter = tempFilter;
+	texture->filter = tempFilter;
 }

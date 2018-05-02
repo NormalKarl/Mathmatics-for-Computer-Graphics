@@ -37,7 +37,7 @@ class BitmapFont
 private:
 	BitmapChar chars[256];
 	std::vector<Kerning> kerning[256];
-	Texture texture;
+	Texture* texture;
 
 	unsigned int lineHeight;
 	unsigned int base;

@@ -6,6 +6,8 @@
 #include <GLM/glm.hpp> // This is the main GLM header
 #include <GLM/gtc/matrix_transform.hpp> // This one lets us use matrix transformations
 
+struct SDL_Surface;
+
 /// The MCG namespace provides all the functions to draw a pixel to the screen.
 /// You should not be modifying this code for your assignment, you must use it as-is.
 namespace MCG
@@ -34,6 +36,7 @@ namespace MCG
 	void Cleanup();
 
 	extern bool MouseDown;
+	void DrawSurface(SDL_Surface* surface);
 
 };
 

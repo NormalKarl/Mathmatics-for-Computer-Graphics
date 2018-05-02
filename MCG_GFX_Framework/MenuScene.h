@@ -9,12 +9,21 @@ private:
 	std::string m_text;
 	glm::vec2 m_position;
 	glm::vec2 m_size;
-	bool mouseOver;
+	bool m_mouseOver;
+	int m_data;
 public:
 	MenuButton() {}
-	MenuButton(BitmapFont* font, int x, int y, std::string text);
+	MenuButton(BitmapFont* font, int x, int y, std::string text, int data);
 	void update();
 	void draw(Context& context);
+
+	inline bool isMouseOver() {
+		return m_mouseOver;
+	}
+
+	int getData() {
+		return m_data;
+	}
 };
 
 class MenuScene : public Scene

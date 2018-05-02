@@ -1,5 +1,11 @@
 #include "Surface.h"
 #include "MCG_GFX_Lib.h"
+#include "Texture.h"
+#include <SDL\SDL.h>
+
+
+void GaussianBlur(Texture* texture);
+void Bloom(Texture* texture);
 
 Surface::Surface(const Viewport& _viewport)
 {
@@ -24,9 +30,49 @@ void Surface::clear()
 	MCG::SetBackground(m_clearColour * 255.0f);
 }
 
+
+Texture* Surface::getAsTexture() {
+	Texture* texture = new Texture(m_frameBuffer->width, m_frameBuffer->height);
+
+	for (int x = 0; x < m_viewport.width; x++) {
+		for (int y = 0; y < m_viewport.height; y++) {
+			glm::vec4 dat = m_frameBuffer->get(x, y);
+			texture->setPixelAt(x, y, (unsigned char)(dat.r * 255.0f), (unsigned char)(dat.g * 255.0f), (unsigned char)(dat.b * 255.0f), (unsigned char)(dat.a * 255.0f));
+		}
+	}
+
+
+	return texture;
+}
+
 void Surface::draw()
 {
-	glm::vec4 clearColour = glm::vec4(m_clearColour, 1.0f);
+	/*{
+		Texture* tex = getAsTexture();
+
+		Uint32 rmask, gmask, bmask, amask;
+#if SDL_BYTEORDER == SDL_BIG_ENDIAN
+		int shift = (req_format == STBI_rgb) ? 8 : 0;
+		rmask = 0xff000000 >> shift;
+		gmask = 0x00ff0000 >> shift;
+		bmask = 0x0000ff00 >> shift;
+		amask = 0x000000ff >> shift;
+#else // little endian, like x86
+		rmask = 0x000000ff;
+		gmask = 0x0000ff00;
+		bmask = 0x00ff0000;
+		amask = 0xff000000;
+#endif
+
+		int depth, pitch;
+		depth = 32;
+		pitch = 4 * tex->width;
+		SDL_Surface* surface = SDL_CreateRGBSurfaceFrom(tex->data, tex->width, tex->height, depth, pitch, rmask, gmask, bmask, amask);
+		MCG::DrawSurface(surface);
+		delete tex;
+	}*/
+
+	/*glm::vec4 clearColour = glm::vec4(m_clearColour, 1.0f);
 
 	for (int x = m_viewport.x; x < m_viewport.width; x++)
 	{
@@ -44,7 +90,22 @@ void Surface::draw()
 				MCG::DrawPixel({ x, m_viewport.height - y }, pixelCol * 255.0f);
 			}
 		}
+	}*/
+
+
+	Texture* tex = getAsTexture();
+	Bloom(tex);
+
+	for (int x = m_viewport.x; x < m_viewport.width; x++)
+	{
+		for (int y = m_viewport.y; y < m_viewport.height; y++)
+		{
+			Pixel p = tex->getRawPixel(x, y);
+			MCG::DrawPixel({ x, m_viewport.height - y }, {p.r, p.g, p.b});
+		}
 	}
+
+	delete tex;
 }
 
 void Surface::setColourAt(int _x, int _y, glm::vec4 _colour)
@@ -90,6 +151,72 @@ float Surface::luma(int x, int y) {
 	pixelCol += clearColour * (1.0f - alpha);
 
 	return glm::sqrt(glm::dot(glm::vec3(pixelCol), glm::vec3(0.299f, 0.587f, 0.114f)));
+}
+
+void GaussianBlur(Texture* texture) {
+	Texture lookUp = Texture(*texture);
+	glm::mat3 kernel = glm::mat3(1.0f);
+
+	for (int x = 0; x < texture->width; x++) {
+		for (int y = 0; y < texture->height; y++) {
+			Pixel pixel = lookUp.getRawPixel(x, y);
+			int r = 0, g = 0, b = 0, a = pixel.a;
+			int foundComponents = 0;
+
+			for (int kX = -1; kX < 2; kX++) {
+				for (int kY = -1; kY < 2; kY++) {
+					if (lookUp.inBounds(x + kX, y + kY)) {
+						Pixel pixel = lookUp.getRawPixel(x + kX, y + kY);
+						r += pixel.r;
+						g += pixel.g;
+						b += pixel.b;
+						foundComponents++;
+					}
+				}
+			}
+
+			r /= foundComponents;
+			g /= foundComponents;
+			b /= foundComponents;
+			texture->setPixelAt(x, y, r, g, b, a);
+		}
+	}
+}
+
+void Bloom(Texture* texture) {
+	//Make a copy of the current texture.
+	Texture* bloomTexture = new Texture(*texture);
+
+	for (int x = 0; x < texture->width; x++) {
+		for (int y = 0; y < texture->height; y++) {
+			Pixel tp = texture->getRawPixel(x, y);
+			Pixel bp = bloomTexture->getRawPixel(x, y);
+
+			if (tp.r >= 200 && tp.g >= 200 && tp.b >= 200)
+				texture->setPixelAt(x, y, 0, 0, 0, 0);
+
+			if (bp.r < 200 && bp.g < 200 && bp.b < 200)
+				bloomTexture->setPixelAt(x, y, 0, 0, 0, 0);
+		}
+	}
+
+	GaussianBlur(bloomTexture);
+
+
+	for (int x = 0; x < texture->width; x++) {
+		for (int y = 0; y < texture->height; y++) {
+			Pixel tp = texture->getRawPixel(x, y);
+			Pixel bp = bloomTexture->getRawPixel(x, y);
+
+			int r = (((int)tp.r + (int)bp.r));
+			int g = (((int)tp.g + (int)bp.g));
+			int b = (((int)tp.b + (int)bp.b));
+			int a = (((int)tp.a + (int)bp.a));
+
+			texture->setPixelAt(x, y, r, g, b, a);
+		}
+	}
+
 }
 
 #define EDGE_THRESHOLD_MIN 0.0312f

@@ -9,6 +9,18 @@ class Scene;
 class SceneManager;
 class BitmapFont;
 
+class TickBox {
+	BitmapFont* m_font;
+	std::string m_text;
+	glm::vec2 m_pos;
+	bool m_checked;
+public:
+	TickBox(BitmapFont* font, std::string text, int x, int y);
+	~TickBox();
+	void update();
+	void draw(Context& context);
+};
+
 class SceneManager
 {
 private:
@@ -24,6 +36,9 @@ private:
 
 	glm::vec4 backButtonRegion;
 	bool mouseOnBackButton;
+
+	Texture* uncheckedBox;
+	Texture* checkedBox;
 public:
 	static SceneManager* ActiveSceneManager;
 
@@ -52,6 +67,14 @@ public:
 
 	inline BitmapFont* getFont() {
 		return m_font;
+	}
+
+	inline Texture* getCheckedBoxTexture() {
+		return checkedBox;
+	}
+
+	inline Texture* getUncheckedBoxTexture() {
+		return uncheckedBox;
 	}
 };
 

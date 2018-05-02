@@ -65,7 +65,7 @@ void VertexArray::render(const Context& context)
 			switch (m_primitive)
 			{
 				case Primitive::Line:
-					//Render::DrawTriangle(m_vertices[m_indices[i]], m_vertices[m_indices[i + 1]]);
+					Rasterizer::DrawLine(context, m_vertices[m_indices[i]], m_vertices[m_indices[i + 1]]);
 					i += 2;
 					break;
 				case Primitive::Triangle:
@@ -83,7 +83,7 @@ void VertexArray::render(const Context& context)
 			switch (m_primitive)
 			{
 				case Primitive::Line:
-					//rasterizer->drawLine(m_vertices[i], m_vertices[i + 1]);
+					Rasterizer::DrawLine(context, m_vertices[i], m_vertices[i + 1]);
 					i += 2;
 					break;
 				case Primitive::Triangle:
@@ -114,6 +114,7 @@ Model::Model(std::string name) {
 		//exit(1);
 	}
 
+
 	// Loop over shapes
 	for (size_t s = 0; s < shapes.size(); s++) {
 		// Loop over faces(polygon)
@@ -128,10 +129,19 @@ Model::Model(std::string name) {
 			for (size_t v = 0; v < fv; v++) {
 				// access to vertex
 
+
 				tinyobj::index_t idx = shapes[s].mesh.indices[index_offset + v];
 				tinyobj::real_t vx = attrib.vertices[3 * idx.vertex_index + 0];
 				tinyobj::real_t vy = attrib.vertices[3 * idx.vertex_index + 1];
 				tinyobj::real_t vz = attrib.vertices[3 * idx.vertex_index + 2];
+
+				if (attrib.normals.size() != 0) {
+					tinyobj::real_t nx = attrib.normals[3 * idx.normal_index + 0];
+					tinyobj::real_t ny = attrib.normals[3 * idx.normal_index + 1];
+					tinyobj::real_t nz = attrib.normals[3 * idx.normal_index + 2];
+
+
+				}
 				//tinyobj::real_t nx = attrib.normals[3 * idx.normal_index + 0];
 				//tinyobj::real_t ny = attrib.normals[3 * idx.normal_index + 1];
 				//tinyobj::real_t nz = attrib.normals[3 * idx.normal_index + 2];
@@ -168,7 +178,106 @@ Model::Model(std::string name) {
 	}
 }
 
+void Model::draw(const Context& context) {
+	array.render(context);
+}
+
 //Rasterizer
+
+bool Transform(const Context& context, Vertex& vertex) {
+	float width = context.m_surface->getWidth();
+	float height = context.m_surface->getHeight();
+
+	glm::vec4 t = context.m_projection * ((context.m_view * context.m_world * context.m_model) * glm::vec4(vertex.m_position, 1.0f));
+
+	if (t.w <= 0.0f)
+		return false;
+
+	float tempW = t.w;
+
+	t /= t.w;
+	vertex.m_posExt = { ((t.x + 1.0f) * 0.5f) * width, ((t.y + 1.0f) * 0.5f) * height, (t.z + 1.0f) * 0.5f, tempW };
+
+	return true;
+}
+
+bool Transform(const Context& context, Vertex& v0, Vertex& v1) {
+	return Transform(context, v0) && Transform(context, v1);
+}
+
+bool Transform(const Context& context, Vertex& v0, Vertex& v1, Vertex& v2) {
+	return Transform(context, v0) && Transform(context, v1) && Transform(context, v2);
+}
+
+void LineLow(const Context& context, const Vertex& v0, const Vertex& v1) {
+	float dx = v1.m_position.x - v0.m_position.x;
+	float dy = v1.m_position.y - v0.m_position.y;
+	int yi = 1;
+
+	if (dy < 0.0f) {
+		yi = -1;
+		dy = -dy;
+	}
+
+	float d = 2 * dy - dx;
+	float y = v0.m_position.y;
+
+	for (float x = v0.m_position.x; x <= v1.m_position.x; x++) {
+		context.m_surface->setColourAt(x, y, v0.m_colour);
+
+		if (d > 0.0f) {
+			y = y + yi;
+			d = d - 2 * dx;
+		}
+		d = d + 2 * dy;
+	}
+}
+
+void LineHigh(const Context& context, const Vertex& v0, const Vertex& v1) {
+	float dx = v0.m_position.x - v1.m_position.x;
+	float dy = v1.m_position.y - v0.m_position.y;
+
+	int xi = 1;
+
+	if (dx < 0.0f) {
+		xi = -1;
+		dx = -dx;
+	}
+
+	float d = 2 * dx - dy;
+	float x = v0.m_position.x;
+
+	for (float y = v0.m_position.y; y <= v1.m_position.x; y++) {
+		context.m_surface->setColourAt(x, y, v0.m_colour);
+
+		if (d > 0.0f) {
+			x = x + xi;
+			d = d - 2 * dy;
+		}
+
+		d = d + 2 * dx;
+	}
+}
+
+void Rasterizer::DrawLine(const Context& context, const Vertex& a, const Vertex& b) {
+	Vertex v0 = a, v1 = b;
+
+	if (Transform(context, v0, v1)) {
+		if (glm::abs(v1.m_position.y - v0.m_position.y) < glm::abs(v1.m_position.x - v0.m_position.x)) {
+			if (v0.m_position.x > v1.m_position.x) {
+				LineLow(context, v1, v0);
+			} else {
+				LineLow(context, v0, v1);
+			}
+		} else {
+			if (v0.m_position.y > v1.m_position.y) {
+				LineHigh(context, v1, v0);
+			} else {
+				LineHigh(context, v0, v1);
+			}
+		}
+	}
+}
 
 void CalculateWeights(glm::dvec2 p, glm::dvec2 a, glm::dvec2 b, glm::dvec2 c, float &u, float &v, float &w)
 {
@@ -220,6 +329,8 @@ void FlatBottom(const Context& context, Vertex a, Vertex b, Vertex c) {
 	yStart = glm::clamp(yStart, viewport.y, viewport.height);
 	yEnd = glm::clamp(yEnd, viewport.y, viewport.height);
 
+#pragma omp parallel
+#pragma omp for
 	for (int y = yStart; y < yEnd; y++)
 	{
 		float px0 = invSlope1 * ((float)y + 0.5f - a.m_position.y) + a.m_position.x;
@@ -230,6 +341,8 @@ void FlatBottom(const Context& context, Vertex a, Vertex b, Vertex c) {
 		xStart = glm::clamp(xStart, viewport.x, viewport.width);
 		xEnd = glm::clamp(xEnd, viewport.x, viewport.width);
 
+#pragma omp parallel
+#pragma omp for
 		for (int x = xStart; x < xEnd; x++) {
 			DrawWeightedPixel(context, a, b, c, { x, y });
 		}
@@ -247,6 +360,8 @@ void FlatTop(const Context& context, Vertex a, Vertex b, Vertex c) {
 	yStart = glm::clamp(yStart, viewport.y, viewport.height);
 	yEnd = glm::clamp(yEnd, viewport.y, viewport.height);
 
+#pragma omp parallel
+#pragma omp for
 	for (int y = yStart; y < yEnd; y++)
 	{
 		float px0 = invSlope1 * ((float)y + 0.5f - a.m_position.y) + a.m_position.x;
@@ -257,31 +372,12 @@ void FlatTop(const Context& context, Vertex a, Vertex b, Vertex c) {
 		xStart = glm::clamp(xStart, viewport.x, viewport.width);
 		xEnd = glm::clamp(xEnd, viewport.x, viewport.width);
 
+#pragma omp parallel
+#pragma omp for
 		for (int x = xStart; x < xEnd; x++) {
 			DrawWeightedPixel(context, a, b, c, { x, y });
 		}
 	}
-}
-
-bool Transform(const Context& context, Vertex& v0, Vertex& v1, Vertex& v2) {
-	float width = context.m_surface->getWidth();
-	float height = context.m_surface->getHeight();
-
-	auto transform = [&context, &width, &height](Vertex& v) {
-		glm::vec4 t = context.m_projection * ((context.m_view * context.m_world * context.m_model) * glm::vec4(v.m_position, 1.0f));
-
-		if (t.w <= 0.0f)
-			return false;
-
-		float tempW = t.w;
-
-		t /= t.w;
-		v.m_posExt = { ((t.x + 1.0f) * 0.5f) * width, ((t.y + 1.0f) * 0.5f) * height, (t.z + 1.0f) * 0.5f, tempW };
-
-		return true;
-	};
-
-	return transform(v0) && transform(v1) && transform(v2);
 }
 
 void SortY(Vertex& a, Vertex& b) {

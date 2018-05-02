@@ -1,6 +1,7 @@
 #pragma once
 
 #include <GLM\glm.hpp>
+#include "Texture.h"
 
 template<typename T>
 class Buffer
@@ -105,6 +106,7 @@ public:
 	virtual ~Surface();
 	void clear();
 	void draw();
+	Texture* getAsTexture();
 	glm::vec3 getFlattenedPixel(int x, int y);
 	glm::vec3 performFXAA(int x, int y);
 	float luma(int x, int y);

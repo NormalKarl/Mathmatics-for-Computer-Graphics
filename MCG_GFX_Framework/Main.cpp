@@ -14,11 +14,9 @@
 #include "BitmapFont.h"
 #include "Surface.h"
 #include "MenuScene.h"
+#include "Defs.h"
 
 #include <SDL/SDL.h>
-
-#define SCREEN_WIDTH 1280
-#define SCREEN_HEIGHT 720
 
 int main(int argc, char *argv[])
 {

@@ -265,3 +265,8 @@ int MCG::ShowAndHold()
 	return 0;
 }
 
+void MCG::DrawSurface(SDL_Surface* surface) {
+	SDL_Texture* t = SDL_CreateTextureFromSurface(MCG::_renderer, surface);
+	SDL_RenderCopy(MCG::_renderer, t, NULL, NULL);
+	//SDL_BlitSurface(surface, NULL, SDL_GetWindowSurface(MCG::_window), NULL);
+}

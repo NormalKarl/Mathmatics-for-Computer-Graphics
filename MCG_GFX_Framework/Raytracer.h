@@ -25,7 +25,7 @@ public:
 
 class Triangle : public Geometry {
 public:
-	glm::vec3 a, b, c;
+	glm::vec3 v0, v1, v2;
 	bool intersect(const Ray& ray, glm::vec3& _normal);
 };
 

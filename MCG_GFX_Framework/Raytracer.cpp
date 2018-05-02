@@ -33,8 +33,42 @@ bool Sphere::intersect(const Ray& _ray, glm::vec3& _normal) {
 	return false;
 }
 
+#define EPSILON 0.000001
+
 bool Triangle::intersect(const Ray& ray, glm::vec3& _normal) {
-	return false;
+	glm::vec3 interp;
+	glm::vec3 edge1, edge2, tvec, pvec, qvec;
+
+	float det, inv_det;
+
+	edge1 = v1 - v0;
+	edge2 = v2 - v0;
+
+	pvec = glm::cross(ray.direction, edge2);
+	det = glm::dot(edge1, pvec);
+
+	if (det > -EPSILON && det < EPSILON)
+		return false;
+
+	tvec = ray.origin - v0;
+
+	inv_det = 1.0f / det;
+	interp.y = glm::dot(tvec, pvec) * inv_det;
+
+	if (interp.y < 0.0f || interp.y > 1.0f)
+		return false;
+
+	qvec = glm::cross(tvec, edge1);
+
+	interp.z = glm::dot(ray.direction, qvec);
+
+	if (interp.z < 0.0f || interp.y + interp.z > 1.0f)
+		return false;
+
+	interp.z = glm::dot(edge2, qvec) * inv_det;
+
+
+	return true;
 }
 
 Raytracer::Raytracer(Surface* _surface) : m_surface(_surface)
@@ -73,44 +107,16 @@ Ray Raytracer::createRay(int _pixelX, int _pixelY, float offsetX, float offsetY)
 	return ray;
 }
 
-/*bool intersect(Ray _ray, Triangle triangle) {
-	glm::vec3 a = triangle.m_b.m_position - triangle.m_a.m_position;
-	glm::vec3 b = triangle.m_c.m_position - triangle.m_a.m_position;
-	glm::vec3 cross = glm::cross(a, b);
-	float area = glm::length(cross);
-
-	float rayDirDot = glm::dot(cross, _ray.direction);
-	
-	if (glm::abs(rayDirDot) < 0.000001f)
-		return false;
-
-	float d = glm::dot(cross, triangle.m_a.m_position);
-
-	float t = glm::dot(cross, _ray.origin);
-
-	if (t < 0)
-		return false;
-
-	glm::vec3 p = _ray.origin + t * _ray.direction;
-
-	glm::vec3 c;
-
-	glm::vec3 edge0 = triangle.m_b.m_position - triangle.m_a.m_position;
-	glm::vec3 vp0 = p - triangle.m_a.m_position;
-	c = glm::cross(edge0, vp0);
-	if (glm::dot(cross, c) < 0.0f) return false;
-
-}
-
-bool intersect(Ray _ray, Plane _plane, glm::vec3& normal) {
-	return false;
-}*/
-
 void Raytracer::trace() {
 	Sphere sphere;
 
 	sphere.m_position = { 0.0f, 0.0f, 0.0f };
 	sphere.m_radius = 0.15f;
+
+	Triangle tri;
+	tri.v0 = { 0.0f, 0.0f, 0.0f};
+	tri.v1 = { 0.0f, 1.0f, 0.0f };
+	tri.v2 = { 1.0f, 0.0f, 0.0f };
 
 	//float angle = (((float)(SDL_GetTicks() % 3000)) / 3000.0f) * (M_PI * 2);
 
@@ -136,11 +142,16 @@ void Raytracer::trace() {
 		for (int y = 0; y < m_surface->getHeight(); y++)
 		{
 			Ray ray = createRay(x, y);
-
 			glm::vec3 fragPos;
+
+			if (tri.intersect(ray, fragPos)) {
+				m_surface->setColourAt(x, y, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+			}
+
 
 			if (sphere.intersect(ray, fragPos))
 			{
+				continue;
 				//float mag = glm::sqrt(normal.x * normal.x + normal.y * normal.y + normal.z * normal.z);
 
 				/*int hitRays = 0;

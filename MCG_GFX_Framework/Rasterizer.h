@@ -83,9 +83,12 @@ class Model {
 public:
 	VertexArray array;
 	Model(std::string name);
+
+	void draw(const Context& context);
 };
 
 namespace Rasterizer {
+	void DrawLine(const Context& context, const Vertex& a, const Vertex& b);
 	void DrawTriangle(const Context& context, const Vertex& a, const Vertex& b, const Vertex& c);
 	void DrawQuad(const Context& context, const Vertex& a, const Vertex& b, const Vertex& c, const Vertex& d);
 	void FillRect(Context& context, float x, float y, float width, float height, const glm::uvec4& colour);

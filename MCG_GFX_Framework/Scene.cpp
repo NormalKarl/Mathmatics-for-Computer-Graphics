@@ -7,6 +7,27 @@
 #include "Defs.h"
 #include "MCG_GFX_Lib.h"
 
+
+TickBox::TickBox(BitmapFont* font, std::string text, int x, int y) : m_font(font), m_text(text), m_pos({x, y}) {
+
+}
+
+TickBox::~TickBox() {
+
+}
+
+void TickBox::update() {
+
+}
+
+void TickBox::draw(Context& context) {
+	Rasterizer::DrawImage(context, m_checked ? SceneManager::ActiveSceneManager->getCheckedBoxTexture() : SceneManager::ActiveSceneManager->getUncheckedBoxTexture()
+		, m_pos.x, m_pos.y, 16, 16);
+	//Rasterizer::DrawImage();
+}
+
+//Scene Manager
+
 SceneManager* SceneManager::ActiveSceneManager = NULL;
 
 Scene::Scene()
@@ -35,6 +56,9 @@ SceneManager::SceneManager(Surface* _surface) : m_surface(_surface)
 	backButtonRegion = {0,0, offsetX * 2 + 29.0f + ((m_font->getWidth("Back")) * 0.75f), m_font->getLineHeight() };
 
 	ActiveSceneManager = this;
+
+	uncheckedBox = new Texture("assets/UncheckedBox.png");
+	checkedBox = new Texture("assets/CheckedBox.png");
 }
 
 SceneManager::~SceneManager()
@@ -111,6 +135,6 @@ void SceneManager::draw()
 		float offsetX = offsetY * 2;
 		Rasterizer::FillRect(m_context, 0.0f, 0.0f, backButtonRegion.p, backButtonRegion.q, mouseOnBackButton ? glm::uvec4(30, 48, 72, 255) : glm::uvec4(68, 107, 160, 255));
 		Rasterizer::DrawImage(m_context, backIcon, offsetX, offsetY, 24.0f, 24.0f);
-		m_font->drawText(m_context, "Back", offsetX + 29.0f, 9, 0.75f);
+		m_font->drawText(m_context, "Back", round(offsetX + 29.0f), 9, 0.75f, Filter::Bilinear);
 	}
 };
