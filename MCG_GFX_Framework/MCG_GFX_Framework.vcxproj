@@ -157,6 +157,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="BitmapFont.cpp" />
+    <ClCompile Include="CurvesScene.cpp" />
     <ClCompile Include="Geometry.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="MandlebrotScene.cpp" />
@@ -176,6 +177,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="BitmapFont.h" />
+    <ClInclude Include="CurvesScene.h" />
     <ClInclude Include="Geometry.h" />
     <ClInclude Include="MandlebrotScene.h" />
     <ClInclude Include="MCG_GFX_Lib.h" />

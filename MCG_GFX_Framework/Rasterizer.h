@@ -3,6 +3,7 @@
 #include <GLM/glm.hpp>
 #include <GLM/gtc/matrix_transform.hpp>
 #include <vector>
+#include <map>
 
 #include "Geometry.h"
 
@@ -55,10 +56,11 @@ class VertexArray
 {
 private:
 	Primitive m_primitive;
+	Texture* m_texture;
 	std::vector<Vertex> m_vertices;
 	std::vector<unsigned int> m_indices;
 public:
-	VertexArray(Primitive _primitive = Primitive::Triangle, int _initalVertexSize = 0, int _initalIndiceSize = 0);
+	VertexArray(Primitive _primitive = Primitive::Triangle, Texture* _texture = NULL, int _initalVertexSize = 0, int _initalIndiceSize = 0);
 	~VertexArray();
 	void appendVertex(const Vertex& vertex);
 	void appendVertices(const std::vector<Vertex>& _vertices);
@@ -68,7 +70,7 @@ public:
 
 	Vertex& operator[](int index);
 
-	void render(const Context& context);
+	void render(Context& context);
 
 	inline int getIndiceCount() {
 		return m_indices.size();
@@ -77,11 +79,19 @@ public:
 	inline int getVertexCount() {
 		return m_vertices.size();
 	}
+
+	inline Texture* getTexture() {
+		return m_texture;
+	}
+
+	inline void setTexture(Texture* _texture) {
+		m_texture = _texture;
+	}
 };
 
 class Model {
 public:
-	VertexArray array;
+	std::vector<VertexArray> arrays;
 	Model(std::string name);
 
 	void draw(const Context& context);

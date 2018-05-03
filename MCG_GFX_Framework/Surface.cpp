@@ -3,7 +3,6 @@
 #include "Texture.h"
 #include <SDL\SDL.h>
 
-
 void GaussianBlur(Texture* texture);
 void Bloom(Texture* texture);
 
@@ -72,7 +71,7 @@ void Surface::draw()
 		delete tex;
 	}*/
 
-	/*glm::vec4 clearColour = glm::vec4(m_clearColour, 1.0f);
+	glm::vec4 clearColour = glm::vec4(m_clearColour, 1.0f);
 
 	for (int x = m_viewport.x; x < m_viewport.width; x++)
 	{
@@ -90,10 +89,10 @@ void Surface::draw()
 				MCG::DrawPixel({ x, m_viewport.height - y }, pixelCol * 255.0f);
 			}
 		}
-	}*/
+	}
 
 
-	Texture* tex = getAsTexture();
+	/*Texture* tex = getAsTexture();
 	Bloom(tex);
 
 	for (int x = m_viewport.x; x < m_viewport.width; x++)
@@ -105,7 +104,7 @@ void Surface::draw()
 		}
 	}
 
-	delete tex;
+	delete tex;*/
 }
 
 void Surface::setColourAt(int _x, int _y, glm::vec4 _colour)
@@ -211,7 +210,16 @@ void Bloom(Texture* texture) {
 			int r = (((int)tp.r + (int)bp.r));
 			int g = (((int)tp.g + (int)bp.g));
 			int b = (((int)tp.b + (int)bp.b));
+
 			int a = (((int)tp.a + (int)bp.a));
+
+			float tpA = (float)tp.a / 255.0f;
+			float bpA = (float)bp.a / 255.0f;
+
+			r = ((1.0f - tpA) * (bpA * bp.r) + (tpA * tp.r)) / bpA;
+			g = ((1.0f - tpA) * (bpA * bp.g) + (tpA * tp.g)) / bpA;
+			b = ((1.0f - tpA) * (bpA * bp.b) + (tpA * tp.b)) / bpA;
+			a = ((1.0f - tpA) * bpA) + tpA;
 
 			texture->setPixelAt(x, y, r, g, b, a);
 		}
@@ -225,7 +233,6 @@ void Bloom(Texture* texture) {
 //Implement http://blog.simonrodriguez.fr/articles/30-07-2016_implementing_fxaa.html;
 glm::vec3 Surface::performFXAA(int x, int y) {
 	float lumaCenter = luma(x, y);
-
 	float lumaDown = luma(x, y + 1);
 	float lumaUp = luma(x, y - 1);
 	float lumaLeft = luma(x - 1, y);

@@ -78,6 +78,9 @@
     <ClCompile Include="MenuScene.cpp">
       <Filter>Source Files\Scenes</Filter>
     </ClCompile>
+    <ClCompile Include="CurvesScene.cpp">
+      <Filter>Source Files\Scenes</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Raytracer.h">
@@ -123,6 +126,9 @@
       <Filter>Header Files\Libraries</Filter>
     </ClInclude>
     <ClInclude Include="MenuScene.h">
+      <Filter>Header Files\Scenes</Filter>
+    </ClInclude>
+    <ClInclude Include="CurvesScene.h">
       <Filter>Header Files\Scenes</Filter>
     </ClInclude>
   </ItemGroup>

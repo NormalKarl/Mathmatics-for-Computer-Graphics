@@ -44,7 +44,7 @@ void MenuScene::update() {
 
 		for (Scene* scene : getSceneManager()->getScenes()) {
 			if (scene != this) {
-				buttons.push_back(MenuButton(getFont(), 350, 250 + ((i - 1) * (getFont()->getLineHeight() + 5)), scene->getTitle(), i));
+				buttons.push_back(MenuButton(getFont(), 200, 168 + ((i - 1) * (getFont()->getLineHeight() + 5)), scene->getTitle(), i));
 			}
 
 			i++;

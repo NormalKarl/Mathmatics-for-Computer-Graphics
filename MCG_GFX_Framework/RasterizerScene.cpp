@@ -48,7 +48,7 @@ RasterizerScene::RasterizerScene()
 		}
 	}
 
-	model = new Model("assets/bunny.wobj");
+	model = new Model("assets/WolfModel/Wolf.wavefront");
 
 	context.m_surface = getSurface();
 }
@@ -152,5 +152,5 @@ void RasterizerScene::draw()
 	context.m_texture = NULL;
 	context.m_model = glm::scale(glm::mat4(), glm::vec3(10.0f, 10.0f, 10.0f));
 	//context.m_world = glm::translate(glm::mat4(), glm::vec3(0.0f, -5.0f, 0.0f));
-	model->array.render(context);
+	//model->array.render(context);
 }

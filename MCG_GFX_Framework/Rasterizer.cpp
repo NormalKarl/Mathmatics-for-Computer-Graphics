@@ -10,10 +10,11 @@
 #include <algorithm>
 #include <iostream>
 
-VertexArray::VertexArray(Primitive _primitive, int _initalVertexSize, int _initalIndiceSize)
+VertexArray::VertexArray(Primitive _primitive, Texture* _texture, int _initalVertexSize, int _initalIndiceSize)
 	: m_primitive(_primitive)
 	, m_vertices(std::vector<Vertex>(_initalVertexSize))
 	, m_indices(std::vector<unsigned int>(_initalIndiceSize))
+	, m_texture(_texture)
 {
 }
 
@@ -54,8 +55,10 @@ Vertex& VertexArray::operator[](int index)
 	return m_vertices[index];
 }
 
-void VertexArray::render(const Context& context)
+void VertexArray::render(Context& context)
 {
+	context.m_texture = m_texture;
+
 	if (m_indices.size() != 0)
 	{
 		size_t i = 0;
@@ -114,6 +117,10 @@ Model::Model(std::string name) {
 		//exit(1);
 	}
 
+	for (tinyobj::material_t mat : materials) {
+		arrays.push_back(VertexArray(Primitive::Triangle, new Texture(("assets/WolfModel/" + mat.diffuse_texname).c_str())));
+	}
+
 
 	// Loop over shapes
 	for (size_t s = 0; s < shapes.size(); s++) {
@@ -154,21 +161,22 @@ Model::Model(std::string name) {
 
 				//float val = glm::dot(glm::normalize(glm::vec3(vx, vy, vz)), glm::normalize(glm::vec3(1.0f, 1.0f, 1.0f)));
 				//val = glm::clamp(val, 0.0f, 1.0f);
-				vectors.push_back(glm::vec3(vx, vy, vz));
+
+				arrays[shapes[s].mesh.material_ids[f]].appendVertex({ vx,vy,vz });
 
 				//array.appendVertex({ vx, vy, vz, val, 0.2f, 0.2f, 1.0f });
 				//array.appendVertex({ vx, vy, vz, gray, gray, gray, 1.0f });
 			}
 
-			glm::vec3 normal = glm::cross(vectors[1] - vectors[0], vectors[2] - vectors[0]);
+			//glm::vec3 normal = glm::cross(vectors[1] - vectors[0], vectors[2] - vectors[0]);
 
-			float val = glm::dot(glm::normalize(normal), glm::normalize(glm::vec3(1.0f, 1.0f, 1.0f)));
+			//float val = glm::dot(glm::normalize(normal), glm::normalize(glm::vec3(1.0f, 1.0f, 1.0f)));
 
-			val = glm::clamp(val, 0.0f, 1.0f);
+			//val = glm::clamp(val, 0.0f, 1.0f);
 			
-			for (glm::vec3 v : vectors) {
-				array.appendVertex({ v.x, v.y, v.z, val, val, val, 1.0f });
-			}
+			//for (glm::vec3 v : vectors) {
+				//array.appendVertex({ v.x, v.y, v.z, val, val, val, 1.0f });
+			//}
 
 			index_offset += fv;
 
@@ -179,7 +187,8 @@ Model::Model(std::string name) {
 }
 
 void Model::draw(const Context& context) {
-	array.render(context);
+	//for (Texture* texture : arrays.size()) {
+	//}
 }
 
 //Rasterizer
@@ -223,6 +232,9 @@ void LineLow(const Context& context, const Vertex& v0, const Vertex& v1) {
 	float y = v0.m_position.y;
 
 	for (float x = v0.m_position.x; x <= v1.m_position.x; x++) {
+		if (x < 0 || x > context.m_surface->getWidth() || y < 0 || y > context.m_surface->getHeight())
+			continue;
+
 		context.m_surface->setColourAt(x, y, v0.m_colour);
 
 		if (d > 0.0f) {
@@ -248,6 +260,9 @@ void LineHigh(const Context& context, const Vertex& v0, const Vertex& v1) {
 	float x = v0.m_position.x;
 
 	for (float y = v0.m_position.y; y <= v1.m_position.x; y++) {
+		if (x < 0 || x > context.m_surface->getWidth() || y < 0 || y > context.m_surface->getHeight())
+			continue;
+
 		context.m_surface->setColourAt(x, y, v0.m_colour);
 
 		if (d > 0.0f) {
