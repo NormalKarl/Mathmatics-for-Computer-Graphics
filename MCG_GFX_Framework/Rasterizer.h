@@ -24,10 +24,13 @@ struct Context {
 	glm::mat4 m_world;
 	glm::mat4 m_model;
 
+	bool m_lighting;
+
 	inline Context() {
 		m_surface = NULL;
 		m_texture = NULL;
 		m_projection = m_view = m_world = m_model = glm::mat4(1.0f);
+		m_lighting = false;
 	}
 
 	inline void lookAt(float eyeX, float eyeY, float eyeZ, float centerX, float centerY, float centerZ, float upX, float upY, float upZ)
@@ -94,7 +97,7 @@ public:
 	std::vector<VertexArray> arrays;
 	Model(std::string name);
 
-	void draw(const Context& context);
+	void draw(Context& context);
 };
 
 namespace Rasterizer {

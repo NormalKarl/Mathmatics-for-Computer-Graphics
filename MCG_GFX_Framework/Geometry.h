@@ -22,6 +22,7 @@ struct Vertex
 	};
 
 	glm::vec4 m_colour;
+	glm::vec3 m_normal;
 	glm::vec2 m_textureCoords;
 
 	inline Vertex()
