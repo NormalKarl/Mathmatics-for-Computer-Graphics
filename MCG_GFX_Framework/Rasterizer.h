@@ -23,6 +23,7 @@ struct Context {
 	glm::mat4 m_view;
 	glm::mat4 m_world;
 	glm::mat4 m_model;
+	glm::vec3 m_cameraPosition;
 
 	bool m_lighting;
 
@@ -35,7 +36,8 @@ struct Context {
 
 	inline void lookAt(float eyeX, float eyeY, float eyeZ, float centerX, float centerY, float centerZ, float upX, float upY, float upZ)
 	{
-		m_view = glm::lookAt(glm::vec3(eyeX, eyeY, eyeZ), glm::vec3(centerX, centerY, centerZ), glm::vec3(upX, upY, upZ));
+		m_cameraPosition = glm::vec3(eyeX, eyeY, eyeZ);
+		m_view = glm::lookAt(m_cameraPosition, glm::vec3(centerX, centerY, centerZ), glm::vec3(upX, upY, upZ));
 	}
 
 	inline void ortho(float left, float right, float bottom, float top, float near, float far)

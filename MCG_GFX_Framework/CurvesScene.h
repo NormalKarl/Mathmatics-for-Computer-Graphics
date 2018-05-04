@@ -7,5 +7,6 @@ class CurvesScene : public Scene
 public:
 	CurvesScene();
 	~CurvesScene();
+	void draw();
 };
 

@@ -16,7 +16,7 @@
 #include "PrimitivesScene.h"
 #include "RasterizerScene.h"
 #include "RaytracerScene.h"
-#include "MandlebrotScene.h"
+#include "FractalsScene.h"
 #include "CurvesScene.h"
 
 int main(int argc, char *argv[])
@@ -29,14 +29,14 @@ int main(int argc, char *argv[])
 	RaytracerScene* raytracerScene = new RaytracerScene();
 	RasterizerScene* rasterizerScene = new RasterizerScene();
 	CurvesScene* curvesScene = new CurvesScene();
-	MandlebrotScene* mandlebrotScene = new MandlebrotScene();
+	FractalsScene* fractalsScene = new FractalsScene();
 
 	sceneManager->addScene(menuScene);
 	sceneManager->addScene(primitivesScene);
 	sceneManager->addScene(raytracerScene);
 	sceneManager->addScene(rasterizerScene);
 	sceneManager->addScene(curvesScene);
-	sceneManager->addScene(mandlebrotScene);
+	sceneManager->addScene(fractalsScene);
 	sceneManager->goToScene(menuScene);
 
 	if (!MCG::Init({ SCREEN_WIDTH, SCREEN_HEIGHT }))

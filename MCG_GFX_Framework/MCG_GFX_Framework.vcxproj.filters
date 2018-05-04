@@ -54,9 +54,6 @@
     <ClCompile Include="RaytracerScene.cpp">
       <Filter>Source Files\Scenes</Filter>
     </ClCompile>
-    <ClCompile Include="MandlebrotScene.cpp">
-      <Filter>Source Files\Scenes</Filter>
-    </ClCompile>
     <ClCompile Include="Rasterizer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -83,6 +80,9 @@
     </ClCompile>
     <ClCompile Include="Lighting.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FractalsScene.cpp">
+      <Filter>Source Files\Scenes</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -113,9 +113,6 @@
     <ClInclude Include="Rasterizer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MandlebrotScene.h">
-      <Filter>Header Files\Scenes</Filter>
-    </ClInclude>
     <ClInclude Include="BitmapFont.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -136,6 +133,9 @@
     </ClInclude>
     <ClInclude Include="Lighting.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FractalsScene.h">
+      <Filter>Header Files\Scenes</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

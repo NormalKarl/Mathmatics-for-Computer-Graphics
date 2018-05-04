@@ -151,7 +151,7 @@ void RasterizerScene::draw()
 	Render::DrawTriangle(context, k, l, m);*/
 	
 	context.m_texture = NULL;
-	context.m_model = glm::scale(glm::mat4(), glm::vec3(10.0f, 10.0f, 10.0f));
+	context.m_model = glm::scale(glm::mat4(), glm::vec3(14.0f, 14.0f, 14.0f));
 	context.m_lighting = true;
 	//context.m_world = glm::translate(glm::mat4(), glm::vec3(0.0f, -5.0f, 0.0f));
 	model->draw(context);

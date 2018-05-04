@@ -4,6 +4,7 @@
 #include <string>
 
 #include "Rasterizer.h"
+#include "BitmapFont.h"
 
 class Scene;
 class SceneManager;
@@ -114,5 +115,10 @@ public:
 	inline void setTitle(std::string _title) {
 		m_title = _title;
 	}
+
+	inline int getStartY() {
+		return getFont()->getLineHeight();
+	}
+
 };
 

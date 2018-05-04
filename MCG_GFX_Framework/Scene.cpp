@@ -2,7 +2,6 @@
 
 #include <SDL\SDL.h>
 
-#include "BitmapFont.h"
 #include "Surface.h"
 #include "Defs.h"
 #include "MCG_GFX_Lib.h"

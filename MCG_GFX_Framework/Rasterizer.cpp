@@ -139,7 +139,7 @@ Model::Model(std::string name) {
 		for (size_t f = 0; f < shapes[s].mesh.num_face_vertices.size(); f++) {
 			size_t fv = shapes[s].mesh.num_face_vertices[f];
 
-			std::vector<glm::vec3> vectors;
+			std::vector<Vertex> vectors;
 
 			float gray = (100 + (rand() % 100)) / 255.0f;
 			// Loop over vertices in the face.
@@ -152,6 +152,7 @@ Model::Model(std::string name) {
 				tinyobj::real_t vy = attrib.vertices[3 * idx.vertex_index + 1];
 				tinyobj::real_t vz = attrib.vertices[3 * idx.vertex_index + 2];
 				newVertex.m_position = { vx,vy,vz };
+				//newVertex.m_normal = glm::normalize(newVertex.m_position);
 
 				if (attrib.normals.size() != 0) {
 					tinyobj::real_t nx = attrib.normals[3 * idx.normal_index + 0];
@@ -180,16 +181,22 @@ Model::Model(std::string name) {
 
 				//arrays[shapes[s].mesh.material_ids[f]].appendVertex(newVertex);
 
-				if (shapes[s].mesh.material_ids.size() != 0) {
-					int index = shapes[s].mesh.material_ids[f];
-					arrays[index == -1 ? 0 : index].appendVertex(newVertex);
-				}
+				vectors.push_back(newVertex);
 
 				//array.appendVertex({ vx, vy, vz, val, 0.2f, 0.2f, 1.0f });
 				//array.appendVertex({ vx, vy, vz, gray, gray, gray, 1.0f });
 			}
 
-			//glm::vec3 normal = glm::cross(vectors[1] - vectors[0], vectors[2] - vectors[0]);
+			glm::vec3 normal = glm::cross(vectors[1].m_position - vectors[0].m_position, vectors[2].m_position - vectors[0].m_position);
+
+			for (Vertex& newVertex : vectors) {
+				newVertex.m_normal = glm::normalize(normal);
+
+				if (shapes[s].mesh.material_ids.size() != 0) {
+					int index = shapes[s].mesh.material_ids[f];
+					arrays[index == -1 ? 0 : index].appendVertex(newVertex);
+				}
+			}
 
 			//float val = glm::dot(glm::normalize(normal), glm::normalize(glm::vec3(1.0f, 1.0f, 1.0f)));
 
@@ -259,7 +266,7 @@ void LineLow(const Context& context, const Vertex& v0, const Vertex& v1) {
 	float y = v0.m_position.y;
 
 	for (float x = v0.m_position.x; x <= v1.m_position.x; x++) {
-		if (x < 0 || x > context.m_surface->getWidth() || y < 0 || y > context.m_surface->getHeight())
+		if (x < 0 || x >= context.m_surface->getWidth() || y < 0 || y >= context.m_surface->getHeight())
 			continue;
 
 		context.m_surface->setColourAt(x, y, v0.m_colour);
@@ -287,7 +294,7 @@ void LineHigh(const Context& context, const Vertex& v0, const Vertex& v1) {
 	float x = v0.m_position.x;
 
 	for (float y = v0.m_position.y; y <= v1.m_position.x; y++) {
-		if (x < 0 || x > context.m_surface->getWidth() || y < 0 || y > context.m_surface->getHeight())
+		if (x < 0 || x >= context.m_surface->getWidth() || y < 0 || y >= context.m_surface->getHeight())
 			continue;
 
 		context.m_surface->setColourAt(x, y, v0.m_colour);
@@ -305,6 +312,10 @@ void Rasterizer::DrawLine(const Context& context, const Vertex& a, const Vertex&
 	Vertex v0 = a, v1 = b;
 
 	if (Transform(context, v0, v1)) {
+
+		v1.m_position.x += 1.0f;
+		v1.m_position.y += 1.0f;
+
 		if (glm::abs(v1.m_position.y - v0.m_position.y) < glm::abs(v1.m_position.x - v0.m_position.x)) {
 			if (v0.m_position.x > v1.m_position.x) {
 				LineLow(context, v1, v0);
@@ -348,12 +359,11 @@ void DrawWeightedPixel(const Context& context, Vertex& a, Vertex& b, Vertex& c, 
 
 	//printf("%f\n",newPosition.z);
 
-	if (context.m_texture != NULL) {
+	if (context.m_texture != NULL)
 		newColour = context.m_texture->sample(newTexCoords);
-	}
 
-	if(context.m_lighting)
-		Lighting::Directional(glm::vec3(), glm::normalize(glm::vec3(1.0f, 1.0f, 1.0f)), surfaceNormal, newColour);
+	if (context.m_lighting)
+		Lighting::Directional(context.m_cameraPosition, glm::normalize(glm::vec3(1.0f, 0.5f, 1.0f)), surfaceNormal, newColour);
 
 	float d = context.m_surface->getDepthAt(pixel.x, pixel.y);
 
@@ -374,8 +384,8 @@ void FlatBottom(const Context& context, Vertex a, Vertex b, Vertex c, glm::vec3 
 	yStart = glm::clamp(yStart, viewport.y, viewport.height);
 	yEnd = glm::clamp(yEnd, viewport.y, viewport.height);
 
-#pragma omp parallel
-#pragma omp for
+	#pragma omp parallel
+	#pragma omp for
 	for (int y = yStart; y < yEnd; y++)
 	{
 		float px0 = invSlope1 * ((float)y + 0.5f - a.m_position.y) + a.m_position.x;
@@ -386,8 +396,8 @@ void FlatBottom(const Context& context, Vertex a, Vertex b, Vertex c, glm::vec3 
 		xStart = glm::clamp(xStart, viewport.x, viewport.width);
 		xEnd = glm::clamp(xEnd, viewport.x, viewport.width);
 
-#pragma omp parallel
-#pragma omp for
+		#pragma omp parallel
+		#pragma omp for
 		for (int x = xStart; x < xEnd; x++) {
 			DrawWeightedPixel(context, a, b, c, { x, y }, surfaceNormal);
 		}
@@ -405,8 +415,8 @@ void FlatTop(const Context& context, Vertex a, Vertex b, Vertex c, glm::vec3 sur
 	yStart = glm::clamp(yStart, viewport.y, viewport.height);
 	yEnd = glm::clamp(yEnd, viewport.y, viewport.height);
 
-#pragma omp parallel
-#pragma omp for
+	#pragma omp parallel
+	#pragma omp for
 	for (int y = yStart; y < yEnd; y++)
 	{
 		float px0 = invSlope1 * ((float)y + 0.5f - a.m_position.y) + a.m_position.x;
@@ -417,8 +427,8 @@ void FlatTop(const Context& context, Vertex a, Vertex b, Vertex c, glm::vec3 sur
 		xStart = glm::clamp(xStart, viewport.x, viewport.width);
 		xEnd = glm::clamp(xEnd, viewport.x, viewport.width);
 
-#pragma omp parallel
-#pragma omp for
+		#pragma omp parallel
+		#pragma omp for
 		for (int x = xStart; x < xEnd; x++) {
 			DrawWeightedPixel(context, a, b, c, { x, y }, surfaceNormal);
 		}
@@ -434,9 +444,12 @@ void SortY(Vertex& a, Vertex& b) {
 }
 
 void Rasterizer::DrawTriangle(const Context& context, const Vertex& a, const Vertex& b, const Vertex& c) {
-	Vertex v0 = a, v1 = b, v2 = c;
+	//glm::vec3 surfaceNormal = glm::normalize(glm::cross(b.m_position - a.m_position, c.m_position - a.m_position));
+	//glm::vec3 surfaceNormal = glm::mat3(glm::inverse(glm::transpose(context.m_world * context.m_model))) * glm::normalize(glm::cross(b.m_position - a.m_position, c.m_position - a.m_position));
+	glm::vec3 surfaceNormal = glm::normalize(glm::mat3(glm::transpose(context.m_world * context.m_model)) * glm::normalize(glm::cross(b.m_position - a.m_position, c.m_position - a.m_position)));
 
-	glm::vec3 surfaceNormal = glm::cross(b.m_position - a.m_position, c.m_position - a.m_position);
+	//DrawLine(context, { a.m_position.x, a.m_position.y , a.m_position.z }, { a.m_position.x + surfaceNormal.x, a.m_position.y + surfaceNormal.y , a.m_position.z + surfaceNormal.z });
+	Vertex v0 = a, v1 = b, v2 = c;
 
 	if (Transform(context, v0, v1, v2)) {
 		SortY(v0, v1);
