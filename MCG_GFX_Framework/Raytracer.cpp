@@ -14,9 +14,9 @@ bool Sphere::intersect(const Ray& _ray, glm::vec3& _normal) {
 
 	float dot = glm::dot(pos, _ray.direction);
 
-	glm::vec3 distance = m_position - _ray.origin - (dot * _ray.direction);
+	glm::vec3 distance = pos - (dot * _ray.direction);
 
-	float mag = glm::sqrt(distance.x * distance.x + distance.y * distance.y);
+	float mag = glm::sqrt(distance.x * distance.x + distance.y * distance.y + distance.z * distance.z);
 
 	if (mag <= m_radius)
 	{
@@ -65,9 +65,9 @@ bool Triangle::intersect(const Ray& ray, glm::vec3& _normal) {
 	if (interp.z < 0.0f || interp.y + interp.z > 1.0f)
 		return false;
 
-	interp.z = glm::dot(edge2, qvec) * inv_det;
+	interp.x = glm::dot(edge2, qvec) * inv_det;
 
-
+	_normal = interp;
 	return true;
 }
 
@@ -101,7 +101,9 @@ Ray Raytracer::createRay(int _pixelX, int _pixelY, float offsetX, float offsetY)
 	float x = xNDC * glm::tan(glm::radians(fov) / 2.0f);
 	float y = yNDC * glm::tan(glm::radians(fov) / 2.0f);
 	
-	ray.direction = glm::vec3(x, y, 1.0f) - glm::vec3(xNDC, yNDC, 0.0f);
+	//ray.direction = glm::vec3(x, y, 1.0f) - glm::vec3(xNDC, yNDC, 0.0f);
+	
+	ray.direction = glm::vec3(0.0f, 0.0f, 1.0f);
 	ray.origin = glm::vec3(xNDC, yNDC, 0.0f);
 
 	return ray;
@@ -114,44 +116,40 @@ void Raytracer::trace() {
 	sphere.m_radius = 0.15f;
 
 	Triangle tri;
-	tri.v0 = { 0.0f, 0.0f, 0.0f};
-	tri.v1 = { 0.0f, 1.0f, 0.0f };
-	tri.v2 = { 1.0f, 0.0f, 0.0f };
+	tri.v0 = { 0.0f, 0.0f, 5.0f};
+	tri.v1 = { 0.0f, 1.0f, 5.0f };
+	tri.v2 = { 1.0f, 0.0f, 5.0f };
 
-	//float angle = (((float)(SDL_GetTicks() % 3000)) / 3000.0f) * (M_PI * 2);
-
-	//m_viewInv = glm::inverse(glm::lookAt(glm::vec3(cos(angle) * 2.0f, 1.0f, sin(angle) * 2.0f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f)));
+	float angle2 = M_PI * 1.75f;
 
 	static float angle = 0.0f;
-	angle++;
-	//m_viewInv = glm::rotate(glm::mat4(), glm::radians(angle), glm::vec3(0.0f, 1.0f, 0.0f));
-	m_viewInv = glm::lookAt(glm::vec3(glm::cos(glm::radians(angle)) * 3.0f, 0.2f, glm::sin(glm::radians(angle)) * 3.0f), glm::vec3(0.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+	angle += 0.5f;
 
-	//m_viewInv = glm::translate(glm::mat4(), glm::vec3((glm::cos(glm::radians(angle) * 5.0f)), 0.0f, (glm::sin(glm::radians(angle)) * 5.0f)));
-	//m_viewInv = glm::rotate(m_viewInv, glm::radians(angle), glm::vec3(0.0f, 1.0f, 0.0f));
-	//m_viewInv = glm::translate(m_viewInv, glm::vec3(2.5f, 0.0f, 0.0f));
-	//m_projectionInv = glm::perspective(glm::radians(45.0f), 4.0f / 3.0f, 0.01f, 1000.0f); 
-	//m_viewInv = glm::mat4();
-	sphere.m_position = m_viewInv * glm::vec4(sphere.m_position, 1.0f);
-
-	//cameraDir = glm::vec3(cos(angle), 0.0f, sin(angle));
-	float angle2 = M_PI * 1.75f;
+	glm::vec3 v = glm::vec3(0.0f);
+	glm::mat4 mat = glm::translate(glm::mat4(), v);
+	glm::mat4 rotMat = glm::rotate(glm::mat4(), glm::radians(25.0f), glm::vec3(0.0f, 1.0f, 0.0f));
 
 	for (int x = 0; x < m_surface->getWidth(); x++)
 	{
 		for (int y = 0; y < m_surface->getHeight(); y++)
 		{
 			Ray ray = createRay(x, y);
+			ray.origin = glm::vec3(mat * glm::vec4(ray.origin, 1.0f));
+			ray.direction = glm::vec3(rotMat * glm::vec4(ray.direction, 1.0f));
+
 			glm::vec3 fragPos;
 
-			if (tri.intersect(ray, fragPos)) {
-				m_surface->setColourAt(x, y, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
-			}
+			/*if (tri.intersect(ray, fragPos)) {
+				if (fragPos.x > 0.0f) {
+					m_surface->setColourAt(x, y, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+				}
+
+				//printf("%f\n", fragPos.x);
+			}*/
 
 
 			if (sphere.intersect(ray, fragPos))
 			{
-				continue;
 				//float mag = glm::sqrt(normal.x * normal.x + normal.y * normal.y + normal.z * normal.z);
 
 				/*int hitRays = 0;
@@ -164,7 +162,7 @@ void Raytracer::trace() {
 				}
 
 				float alpha = (float)hitRays / 256.0f;*/
-				float alpha = 1.0f;
+				/*float alpha = 1.0f;
 
 				glm::vec3 lightPos = m_viewInv * glm::vec4(cos(angle2) * 1.0f, 0.0f, sin(angle2) * 1.0f, 1.0f);
 
@@ -184,16 +182,17 @@ void Raytracer::trace() {
 				glm::vec3 diffuseCol = lightCol * diff;
 
 
-				glm::vec3 viewDir = glm::normalize(glm::vec3(glm::cos(glm::radians(angle)) * 3.0f, 0.2f, glm::sin(glm::radians(angle)) * 3.0f) - fragPos);
+				glm::vec3 viewDir = glm::normalize(glm::vec3(glm::cos(glm::radians(1.0f)) * 3.0f, 0.2f, glm::sin(glm::radians(1.0f)) * 3.0f) - fragPos);
 				glm::vec3 reflectDir = reflect(lightDir, norm);
 
 				float specularStrength = 0.5;
 				float spec = glm::pow(glm::max(glm::dot(viewDir, reflectDir), 0.0f), 16.0f);
 				glm::vec3 specular = specularStrength * spec * lightCol;
 
-				glm::vec3 col = (ambientCol + diffuseCol + specular) * objectColour;
+				glm::vec3 col = (ambientCol + diffuseCol + specular) * objectColour;*/
 
-				m_surface->setColourAt(x, y, glm::vec4(col, alpha));
+				//m_surface->setColourAt(x, y, glm::vec4(col, alpha));
+				m_surface->setColourAt(x, y, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
 				//m_surface->setColourAt(x, y, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
 			}
 		}
