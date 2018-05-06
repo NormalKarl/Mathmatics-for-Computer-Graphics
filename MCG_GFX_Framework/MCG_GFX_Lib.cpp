@@ -6,6 +6,7 @@
 #include "MCG_GFX_Lib.h"
 
 bool MCG::MouseDown = false;
+bool MCG::MouseClicked = false;
 
 
 namespace MCG
@@ -98,6 +99,13 @@ void MCG::DrawPixel( glm::ivec2 position, glm::ivec3 colour )
 
 bool MCG::ProcessFrame()
 {
+
+	if (MCG::MouseClicked && MCG::MouseDown) {
+		MCG::MouseClicked = false;
+	}
+
+
+
 	// This tells the renderer to actually show its contents to the screen
 	// This is specific to the SDL drawing commands. When we start with OpenGL we will need to use a different command here
 	// This is to do with something called 'double buffering', where we have an off-screen buffer that we draw to and then swap once we finish (this function is the 'swap')
@@ -137,10 +145,12 @@ bool MCG::ProcessFrame()
 			// https://wiki.libsdl.org/SDL_Event
 			// and also: https://wiki.libsdl.org/SDL_EventType
 
-
+			break;
 		case SDL_MOUSEBUTTONDOWN:
 		{
 			if (incomingEvent.button.button == SDL_BUTTON_LEFT) {
+
+				MCG::MouseClicked = true;
 				MCG::MouseDown = true;
 			}
 			break;
@@ -149,6 +159,7 @@ bool MCG::ProcessFrame()
 		{
 			if (incomingEvent.button.button == SDL_BUTTON_LEFT) {
 				MCG::MouseDown = false;
+				MCG::MouseClicked = false;
 			}
 			break;
 		}

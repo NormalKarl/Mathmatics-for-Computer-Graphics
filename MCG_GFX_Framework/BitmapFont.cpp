@@ -82,7 +82,7 @@ int BitmapFont::getWidth(const std::string& text) {
 	return currentX;
 }
 
-void BitmapFont::drawText(Context& context, std::string text, float x, float y, float scale, Filter filter) {
+void BitmapFont::drawText(Context& context, std::string text, float x, float y, float scale, Filter filter, glm::vec4 col) {
 	float currentX = x;
 
 	context.m_texture = texture;
@@ -109,10 +109,10 @@ void BitmapFont::drawText(Context& context, std::string text, float x, float y, 
 			}
 		}
 
-		Vertex vertices[] = { { charX, charY, 0, bc.uvX, bc.uvY },
-							 { charX + bc.width, charY, 0, bc.uvX + bc.uvWidth, bc.uvY },
-							 { charX + bc.width, charY + bc.height, 0, bc.uvX + bc.uvWidth, bc.uvY + bc.uvHeight },
-							 { charX, charY + bc.height, 0, bc.uvX, bc.uvY + bc.uvHeight } };
+		Vertex vertices[] = { { charX, charY, 0, col.r, col.g, col.b, col.a, bc.uvX, bc.uvY },
+							 { charX + bc.width, charY, 0, col.r, col.g, col.b, col.a, bc.uvX + bc.uvWidth, bc.uvY },
+							 { charX + bc.width, charY + bc.height, 0, col.r, col.g, col.b, col.a, bc.uvX + bc.uvWidth, bc.uvY + bc.uvHeight },
+							 { charX, charY + bc.height, 0, col.r, col.g, col.b, col.a, bc.uvX, bc.uvY + bc.uvHeight } };
 
 		currentX += bc.xadvance;
 		Rasterizer::DrawQuad(context, vertices[0], vertices[1], vertices[2], vertices[3]);

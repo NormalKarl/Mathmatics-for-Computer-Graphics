@@ -30,16 +30,22 @@ void Surface::clear()
 }
 
 
+void Surface::writeToTexture(Texture* texture) {
+	for (int x = 0; x < m_viewport.width; x++) {
+		for (int y = 0; y < m_viewport.height; y++) {
+			if (texture->inBounds(x, y)) {
+				glm::vec4 dat = m_frameBuffer->get(x, y);
+				texture->setPixelAt(x, y, (unsigned char)(dat.r * 255.0f), (unsigned char)(dat.g * 255.0f), (unsigned char)(dat.b * 255.0f), (unsigned char)(dat.a * 255.0f));
+			}
+		}
+	}
+}
+
+
 Texture* Surface::getAsTexture() {
 	Texture* texture = new Texture(m_frameBuffer->width, m_frameBuffer->height);
 
-	for (int x = 0; x < m_viewport.width; x++) {
-		for (int y = 0; y < m_viewport.height; y++) {
-			glm::vec4 dat = m_frameBuffer->get(x, y);
-			texture->setPixelAt(x, y, (unsigned char)(dat.r * 255.0f), (unsigned char)(dat.g * 255.0f), (unsigned char)(dat.b * 255.0f), (unsigned char)(dat.a * 255.0f));
-		}
-	}
-
+	writeToTexture(texture);
 
 	return texture;
 }
@@ -114,15 +120,17 @@ void Surface::setColourAt(int _x, int _y, glm::vec4 _colour)
 		return;
 
 	glm::vec4 currentColour = getColourAt(_x, _y);
-	glm::vec4 newColour = glm::vec4();
+	glm::vec4 newColour = _colour;
 
 	//newColour = ((1.0f - _colour.a) * (currentColour.a * currentColour) + (_colour.a * _colour)) / currentColour.a;
 
-	newColour.a = ((1.0f - _colour.a) * currentColour.a) + _colour.a;
+	if (currentColour.a != 0.0f) {
+		newColour.a = ((1.0f - _colour.a) * currentColour.a) + _colour.a;
+		newColour.r = ((1.0f - _colour.a) * (currentColour.a * currentColour.r) + (_colour.a * _colour.r)) / currentColour.a;
+		newColour.g = ((1.0f - _colour.a) * (currentColour.a * currentColour.g) + (_colour.a * _colour.g)) / currentColour.a;
+		newColour.b = ((1.0f - _colour.a) * (currentColour.a * currentColour.b) + (_colour.a * _colour.b)) / currentColour.a;
+	}
 
-	newColour.r = ((1.0f - _colour.a) * (currentColour.a * currentColour.r) + (_colour.a * _colour.r)) / currentColour.a;
-	newColour.g = ((1.0f - _colour.a) * (currentColour.a * currentColour.g) + (_colour.a * _colour.g)) / currentColour.a;
-	newColour.b = ((1.0f - _colour.a) * (currentColour.a * currentColour.b) + (_colour.a * _colour.b)) / currentColour.a;
 	m_frameBuffer->set(_x, _y, newColour);
 	m_frameFlagBuffer->set(_x, _y, true);
 }

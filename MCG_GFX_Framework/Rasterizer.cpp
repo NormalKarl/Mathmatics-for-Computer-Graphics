@@ -2,7 +2,6 @@
 #include <GLM/gtc/matrix_transform.hpp>
 #include "MCG_GFX_Lib.h"
 #include "stb_image.h"
-#include "tiny_obj_loader.h"
 #include "Surface.h"
 #include "Texture.h"
 #include "Lighting.h"
@@ -11,219 +10,6 @@
 #include <algorithm>
 #include <iostream>
 
-VertexArray::VertexArray(Primitive _primitive, Texture* _texture, int _initalVertexSize, int _initalIndiceSize)
-	: m_primitive(_primitive)
-	, m_vertices(std::vector<Vertex>(_initalVertexSize))
-	, m_indices(std::vector<unsigned int>(_initalIndiceSize))
-	, m_texture(_texture)
-{
-}
-
-VertexArray::~VertexArray()
-{
-}
-
-void VertexArray::appendVertex(const Vertex& vertex)
-{
-	m_vertices.push_back(vertex);
-}
-
-void VertexArray::appendVertices(const std::vector<Vertex>& _vertices)
-{
-	m_vertices.insert(m_vertices.end(), _vertices.begin(), _vertices.end());
-}
-
-void VertexArray::appendIndice(unsigned int index)
-{
-	m_indices.push_back(index);
-}
-
-void VertexArray::appendIndices(std::vector<unsigned int> _indices)
-{
-	m_indices.insert(m_indices.end(), _indices.begin(), _indices.end());
-}
-
-void VertexArray::offsetIndices(unsigned int _offset, std::vector<unsigned int> _indices) {
-	for (size_t i = 0; i < _indices.size(); i++) {
-		_indices[i] = _offset + _indices[i];
-	}
-
-	appendIndices(_indices);
-}
-
-Vertex& VertexArray::operator[](int index)
-{
-	return m_vertices[index];
-}
-
-void VertexArray::render(Context& context)
-{
-	context.m_texture = m_texture;
-
-	if (m_indices.size() != 0)
-	{
-		size_t i = 0;
-
-		while (i < m_indices.size())
-		{
-			switch (m_primitive)
-			{
-				case Primitive::Line:
-					Rasterizer::DrawLine(context, m_vertices[m_indices[i]], m_vertices[m_indices[i + 1]]);
-					i += 2;
-					break;
-				case Primitive::Triangle:
-					Rasterizer::DrawTriangle(context, m_vertices[m_indices[i]], m_vertices[m_indices[i + 1]], m_vertices[m_indices[i + 2]]);
-					i += 3;
-					break;
-			}
-		}
-	}
-	else {
-		size_t i = 0;
-
-		while (i < m_vertices.size())
-		{
-			switch (m_primitive)
-			{
-				case Primitive::Line:
-					Rasterizer::DrawLine(context, m_vertices[i], m_vertices[i + 1]);
-					i += 2;
-					break;
-				case Primitive::Triangle:
-					Rasterizer::DrawTriangle(context, m_vertices[i], m_vertices[i + 1], m_vertices[i + 2]);
-					i += 3;
-					break;
-			}
-		}
-	}
-}
-
-//Model Code
-
-Model::Model(std::string name) {
-	std::string inputfile = name;
-	tinyobj::attrib_t attrib;
-	std::vector<tinyobj::shape_t> shapes;
-	std::vector<tinyobj::material_t> materials;
-
-	std::string err;
-	bool ret = tinyobj::LoadObj(&attrib, &shapes, &materials, &err, inputfile.c_str());
-
-	if (!err.empty()) { // `err` may contain warning message.
-		std::cout << err << std::endl;
-	}
-
-	if (!ret) {
-		//exit(1);
-	}
-
-	if (materials.size() != 0) {
-		for (tinyobj::material_t mat : materials) {
-			Texture* texture = NULL;
-
-			if (!mat.diffuse_texname.empty()) {
-				texture = new Texture(("assets/WolfModel/" + mat.diffuse_texname).c_str());
-			}
-
-			arrays.push_back(VertexArray(Primitive::Triangle, texture));
-		}
-	} else {
-		arrays.push_back(VertexArray(Primitive::Triangle, NULL));
-	}
-
-	// Loop over shapes
-	for (size_t s = 0; s < shapes.size(); s++) {
-		// Loop over faces(polygon)
-		size_t index_offset = 0;
-		for (size_t f = 0; f < shapes[s].mesh.num_face_vertices.size(); f++) {
-			size_t fv = shapes[s].mesh.num_face_vertices[f];
-
-			std::vector<Vertex> vectors;
-
-			float gray = (100 + (rand() % 100)) / 255.0f;
-			// Loop over vertices in the face.
-			for (size_t v = 0; v < fv; v++) {
-				// access to vertex
-				Vertex newVertex;
-
-				tinyobj::index_t idx = shapes[s].mesh.indices[index_offset + v];
-				tinyobj::real_t vx = attrib.vertices[3 * idx.vertex_index + 0];
-				tinyobj::real_t vy = attrib.vertices[3 * idx.vertex_index + 1];
-				tinyobj::real_t vz = attrib.vertices[3 * idx.vertex_index + 2];
-				newVertex.m_position = { vx,vy,vz };
-				//newVertex.m_normal = glm::normalize(newVertex.m_position);
-
-				if (attrib.normals.size() != 0) {
-					tinyobj::real_t nx = attrib.normals[3 * idx.normal_index + 0];
-					tinyobj::real_t ny = attrib.normals[3 * idx.normal_index + 1];
-					tinyobj::real_t nz = attrib.normals[3 * idx.normal_index + 2];
-
-				}
-
-				if (attrib.texcoords.size() != 0) {
-					tinyobj::real_t tx = attrib.texcoords[2 * idx.texcoord_index + 0];
-					tinyobj::real_t ty = attrib.texcoords[2 * idx.texcoord_index + 1];
-					newVertex.m_textureCoords = { tx,ty };
-				}
-				//tinyobj::real_t nx = attrib.normals[3 * idx.normal_index + 0];
-				//tinyobj::real_t ny = attrib.normals[3 * idx.normal_index + 1];
-				//tinyobj::real_t nz = attrib.normals[3 * idx.normal_index + 2];
-				//tinyobj::real_t tx = attrib.texcoords[2 * idx.texcoord_index + 0];
-				//tinyobj::real_t ty = attrib.texcoords[2 * idx.texcoord_index + 1];
-				// Optional: vertex colors
-				// tinyobj::real_t red = attrib.colors[3*idx.vertex_index+0];
-				// tinyobj::real_t green = attrib.colors[3*idx.vertex_index+1];
-				// tinyobj::real_t blue = attrib.colors[3*idx.vertex_index+2];
-
-				//float val = glm::dot(glm::normalize(glm::vec3(vx, vy, vz)), glm::normalize(glm::vec3(1.0f, 1.0f, 1.0f)));
-				//val = glm::clamp(val, 0.0f, 1.0f);
-
-				//arrays[shapes[s].mesh.material_ids[f]].appendVertex(newVertex);
-
-				vectors.push_back(newVertex);
-
-				//array.appendVertex({ vx, vy, vz, val, 0.2f, 0.2f, 1.0f });
-				//array.appendVertex({ vx, vy, vz, gray, gray, gray, 1.0f });
-			}
-
-			glm::vec3 normal = glm::cross(vectors[1].m_position - vectors[0].m_position, vectors[2].m_position - vectors[0].m_position);
-
-			for (Vertex& newVertex : vectors) {
-				newVertex.m_normal = glm::normalize(normal);
-
-				if (shapes[s].mesh.material_ids.size() != 0) {
-					int index = shapes[s].mesh.material_ids[f];
-					arrays[index == -1 ? 0 : index].appendVertex(newVertex);
-				}
-			}
-
-			//float val = glm::dot(glm::normalize(normal), glm::normalize(glm::vec3(1.0f, 1.0f, 1.0f)));
-
-			//val = glm::clamp(val, 0.0f, 1.0f);
-			
-			//for (glm::vec3 v : vectors) {
-				//array.appendVertex({ v.x, v.y, v.z, val, val, val, 1.0f });
-			//}
-
-			index_offset += fv;
-
-			// per-face material
-			/*if (shapes[s].mesh.material_ids.size() != 0) {
-				shapes[s].mesh.material_ids[f];
-			}
-			else {
-				shapes[s].pus
-			}*/
-		}
-	}
-}
-
-void Model::draw(Context& context) {
-	for (VertexArray& array : arrays) {
-		array.render(context);
-	}
-}
 
 //Rasterizer
 
@@ -293,7 +79,7 @@ void LineHigh(const Context& context, const Vertex& v0, const Vertex& v1) {
 	float d = 2 * dx - dy;
 	float x = v0.m_position.x;
 
-	for (float y = v0.m_position.y; y <= v1.m_position.x; y++) {
+	for (float y = v0.m_position.y; y <= v1.m_position.y; y++) {
 		if (x < 0 || x >= context.m_surface->getWidth() || y < 0 || y >= context.m_surface->getHeight())
 			continue;
 
@@ -308,13 +94,27 @@ void LineHigh(const Context& context, const Vertex& v0, const Vertex& v1) {
 	}
 }
 
+void Rasterizer::DrawPoint(const Context& context, const Vertex& a) {
+	Vertex v0 = a;
+
+	if (Transform(context, v0)) {
+		glm::ivec2 pixel = { round(v0.m_position.x), round(v0.m_position.y) };
+		float d = context.m_surface->getDepthAt(pixel.x, pixel.y);
+
+		if (v0.m_position.z <= d) {
+			context.m_surface->setDepthAt(pixel.x, pixel.y, v0.m_position.z);
+			context.m_surface->setColourAt(pixel.x, pixel.y, a.m_colour);
+		}
+	}
+}
+
 void Rasterizer::DrawLine(const Context& context, const Vertex& a, const Vertex& b) {
 	Vertex v0 = a, v1 = b;
 
 	if (Transform(context, v0, v1)) {
 
-		v1.m_position.x += 1.0f;
-		v1.m_position.y += 1.0f;
+		//v1.m_position.x += 1.0f;
+		//v1.m_position.y += 1.0f;
 
 		if (glm::abs(v1.m_position.y - v0.m_position.y) < glm::abs(v1.m_position.x - v0.m_position.x)) {
 			if (v0.m_position.x > v1.m_position.x) {
@@ -353,23 +153,22 @@ void DrawWeightedPixel(const Context& context, Vertex& a, Vertex& b, Vertex& c, 
 	glm::vec4 newPosition = w0 * a.m_posExt + w1 * b.m_posExt + w2 * c.m_posExt;
 	glm::vec4 newColour = w0 * a.m_colour + w1 * b.m_colour + w2 * c.m_colour;
 	glm::vec2 newTexCoords = (w0 * a.m_textureCoords) + (w1 * b.m_textureCoords) + (w2 * c.m_textureCoords);
-
-	//float diff = newPosition.w;
-	//newColour = glm::vec4(diff, diff, diff, 1.0f);
-
-	//printf("%f\n",newPosition.z);
+	glm::vec4 texColour = glm::vec4(1.0f);
+	glm::vec4 finalColour = glm::vec4(1.0f);
 
 	if (context.m_texture != NULL)
-		newColour = context.m_texture->sample(newTexCoords);
+		texColour = context.m_texture->sample(newTexCoords);
+
+	finalColour = texColour * newColour;
 
 	if (context.m_lighting)
-		Lighting::Directional(context.m_cameraPosition, glm::normalize(glm::vec3(1.0f, 0.5f, 1.0f)), surfaceNormal, newColour);
+		Lighting::Directional(context.m_cameraPosition, glm::normalize(glm::vec3(1.0f, 0.5f, 1.0f)), surfaceNormal, finalColour);
 
 	float d = context.m_surface->getDepthAt(pixel.x, pixel.y);
 
 	if (newPosition.z <= d) {
 		context.m_surface->setDepthAt(pixel.x, pixel.y, newPosition.z);
-		context.m_surface->setColourAt(pixel.x, pixel.y, newColour);
+		context.m_surface->setColourAt(pixel.x, pixel.y, finalColour);
 	}
 }
 
@@ -446,12 +245,13 @@ void SortY(Vertex& a, Vertex& b) {
 void Rasterizer::DrawTriangle(const Context& context, const Vertex& a, const Vertex& b, const Vertex& c) {
 	//glm::vec3 surfaceNormal = glm::normalize(glm::cross(b.m_position - a.m_position, c.m_position - a.m_position));
 	//glm::vec3 surfaceNormal = glm::mat3(glm::inverse(glm::transpose(context.m_world * context.m_model))) * glm::normalize(glm::cross(b.m_position - a.m_position, c.m_position - a.m_position));
-	glm::vec3 surfaceNormal = glm::normalize(glm::mat3(glm::transpose(context.m_world * context.m_model)) * glm::normalize(glm::cross(b.m_position - a.m_position, c.m_position - a.m_position)));
+	glm::vec3 surfaceNormal = glm::mat3(glm::transpose(context.m_world * context.m_model)) * glm::cross(glm::normalize(b.m_position - a.m_position), glm::normalize(c.m_position - a.m_position));
 
 	//DrawLine(context, { a.m_position.x, a.m_position.y , a.m_position.z }, { a.m_position.x + surfaceNormal.x, a.m_position.y + surfaceNormal.y , a.m_position.z + surfaceNormal.z });
 	Vertex v0 = a, v1 = b, v2 = c;
 
 	if (Transform(context, v0, v1, v2)) {
+		//Sort the vertices from highest to lowest in the y axis.
 		SortY(v0, v1);
 		SortY(v1, v2);
 		SortY(v0, v1);
@@ -509,6 +309,10 @@ void Rasterizer::FillRect(Context& context, float x, float y, float width, float
 		{ x + width, y, 0.0f, colour.r, colour.g, colour.b, colour.a },
 		{ x + width, y + height, 0.0f, colour.r, colour.g, colour.b, colour.a },
 		{ x, y + height, 0.0f, colour.r, colour.g, colour.b, colour.a });
+}
+
+void Rasterizer::DrawImage(Context& context, Texture* texture, float x, float y) {
+	DrawImage(context, texture, x, y, texture->getWidth(), texture->getHeight());
 }
 
 void Rasterizer::DrawImage(Context& context, Texture* texture, float x, float y, float width, float height, float tx, float ty, float tw, float th) {

@@ -6,30 +6,34 @@
 
 PrimitivesScene::PrimitivesScene() : Scene()
 {
+	/* The position on this may seem a bit random but initally I drew them directly to a 600x480 screen 
+	however now its changed to 480p which is different and so I just use a matrix in the render function
+	to align all these values to the center. */
+
 	setTitle("Primitives");
-	m_renderer.m_surface = getSurface();
-	m_renderer.ortho(0.0f, (float)getSurface()->getWidth(), (float)getSurface()->getHeight(), 0.0f, -1.0f, 1.0f);
 
-	m_triangle = VertexArray(Primitive::Triangle);
-	m_square = VertexArray(Primitive::Triangle);
-	m_circle = VertexArray(Primitive::Triangle);
-	m_polygon = VertexArray(Primitive::Triangle);
-	m_lines = VertexArray(Primitive::Line);
-
-	//Triangle
-	m_triangle.appendVertices({ { 125.0f, 100.0f, 0, 0,0,0,1 },{ 175.0f, 175.0f, 0, 0,0,0,1 },{ 75.0f, 175.0f, 0, 0,0,0,1 } });
-	m_triangle.appendIndices({ 0, 1, 2 });
-
-	//Rectangle
-	m_square.appendVertices({ { 275.0f, 100.0f , 0, 0,0,0,1 },{ 350.0f, 100.0f , 0, 0,0,0,1 },{ 350.0f, 175.0f , 0, 0,0,0,1 },{ 275.0f, 175.0f , 0, 0,0,0,1 } });
-	m_square.appendIndices({ 0,1,2,2,3,0 });
-
-	float angleStep = (float)((PI * 2) / 25);
-	float angle = 0;
-	float radius = 85.0f / 2;
-
-	//Circle
+	//Create triangle
 	{
+		m_triangle = VertexArray(Primitive::Triangle);
+		m_triangle.appendVertices({ { 125.0f, 100.0f, 0, 0,0,0,1 },{ 175.0f, 175.0f, 0, 0,0,0,1 },{ 75.0f, 175.0f, 0, 0,0,0,1 } });
+		m_triangle.appendIndices({ 0, 1, 2 });
+	}
+
+	//Create square
+	{
+		m_square = VertexArray(Primitive::Triangle);
+		m_square.appendVertices({ { 275.0f, 100.0f , 0, 0,0,0,1 },{ 350.0f, 100.0f , 0, 0,0,0,1 },{ 350.0f, 175.0f , 0, 0,0,0,1 },{ 275.0f, 175.0f , 0, 0,0,0,1 } });
+		m_square.appendIndices({ 0,1,2,2,3,0 });
+	}
+
+	//Create circle
+
+	{
+		m_circle = VertexArray(Primitive::Triangle);
+		float angleStep = (float)((PI * 2) / 25);
+		float angle = 0;
+		float radius = 85.0f / 2;
+
 		int vertexCount = 1;
 		m_circle.appendVertex({ 500.0f, 140.0f, 0, 0,0,0,1 });
 
@@ -49,27 +53,28 @@ PrimitivesScene::PrimitivesScene() : Scene()
 
 	//Create polygon
 	{
+		m_polygon = VertexArray(Primitive::Triangle);
 		m_polygon.appendVertices({ { 175.0f, 300.0f, 0, 0,0,0,1 },{ 225.0f, 350.0f, 0, 0,0,0,1 },{ 275.0f, 300.0f, 0, 0,0,0,1 },{ 275.0f, 400.0f, 0, 0,0,0,1 },{ 175.0f, 400.0f, 0, 0,0,0,1 } });
 		m_polygon.appendIndices({ 0, 1, 4, 1, 2, 3, 1, 3, 4 });
 	}
 
 	//Create lines
 	{
-		m_lines.appendVertices({ {400.0f, 300.0f, 0, 0,0,0,1 },{ 450.0f, 350.0f, 0, 0,0,0,1 } });
+		m_lines = VertexArray(Primitive::Line);
+
+		for (int x = 0; x <= 100; x += 20) {
+			m_lines.appendVertices({ { 375.0f + x, 300.0f, 0, 0,0,0,1 },{ 375.0f + x, 400.0f, 0, 0, 0, 0, 1 } });
+			m_lines.appendVertices({ { 375.0f, 300.0f + x, 0, 0,0,0,1 },{ 475.0f, 300.0f + x, 0, 0, 0, 0, 1 } });
+		}
 	}
 
 }
 
-PrimitivesScene::~PrimitivesScene()
-{
-
-}
-
 void PrimitivesScene::draw() {
-	m_renderer.m_model = glm::translate(glm::mat4(), glm::vec3((float)(SCREEN_WIDTH - 600) / 2, (float)(SCREEN_HEIGHT - 480) / 2, 0.0f));
-	m_triangle.render(m_renderer);
-	m_square.render(m_renderer);
-	m_circle.render(m_renderer);
-	m_polygon.render(m_renderer);
-	m_lines.render(m_renderer);
+	getContext().m_model = glm::translate(glm::mat4(), glm::vec3((float)(SCREEN_WIDTH - 650) / 2, (float)(SCREEN_HEIGHT - 480) / 2, 0.0f));
+	m_triangle.render(getContext());
+	m_square.render(getContext());
+	m_circle.render(getContext());
+	m_polygon.render(getContext());
+	m_lines.render(getContext());
 }

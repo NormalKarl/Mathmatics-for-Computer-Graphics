@@ -14,6 +14,7 @@ std::vector<Vertex> vertices;
 
 RasterizerScene::RasterizerScene()
 {
+	m_context.m_surface = getContext().m_surface;
 	setTitle("Rasterizer");
 	m_img = new Texture("tex2.png");
 
@@ -50,8 +51,6 @@ RasterizerScene::RasterizerScene()
 
 	//model = new Model("assets/WolfModel/Wolf.wavefront");
 	model = new Model("assets/bunny.wobj");
-
-	context.m_surface = getSurface();
 }
 
 
@@ -90,7 +89,7 @@ void RasterizerScene::draw()
 		SDL_GetMouseState(&lastMouseX, &lastMouseY);
 	}
 
-	float aspect = (float)getSurface()->getViewport().width / (float)getSurface()->getViewport().height;
+	float aspect = (float)getContext().getWidth() / (float)m_context.getHeight();
 
 	//dist = (1.0f - glm::abs(glm::cos(angleY))) * 5.0f;
 
@@ -102,9 +101,9 @@ void RasterizerScene::draw()
 
 	Uint32 ticks = 0;
 
-	context.perspective(glm::radians(75.0f), aspect, 1.0f, 2048.0f);
-	context.lookAt(glm::cos(angle) * dist, 1.0f + (glm::cos(angleY) * 5.0f), glm::sin(angle) * dist, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
-	context.m_model = glm::translate(glm::scale(glm::mat4(), glm::vec3(0.1f, 0.1f, 0.1f)), glm::vec3(-16.0f, 0.0f, -16.0f));
+	m_context.perspective(glm::radians(75.0f), aspect, 1.0f, 2048.0f);
+	m_context.lookAt(glm::cos(angle) * dist, 1.0f + (glm::cos(angleY) * 5.0f), glm::sin(angle) * dist, 0.0f, 1.0f, 0.0f, 0.0f, 1.0f, 0.0f);
+	m_context.m_model = glm::translate(glm::scale(glm::mat4(), glm::vec3(0.1f, 0.1f, 0.1f)), glm::vec3(-16.0f, 0.0f, -16.0f));
 
 	/*for (int i = 0; i < vertices.size() / 3; i++)
 	{
@@ -150,10 +149,10 @@ void RasterizerScene::draw()
 	Render::DrawTriangle(context, h, i, j);
 	Render::DrawTriangle(context, k, l, m);*/
 	
-	context.m_texture = NULL;
-	context.m_model = glm::scale(glm::mat4(), glm::vec3(14.0f, 14.0f, 14.0f));
-	context.m_lighting = true;
+	m_context.m_texture = NULL;
+	m_context.m_model = glm::scale(glm::mat4(), glm::vec3(14.0f, 14.0f, 14.0f));
+	m_context.m_lighting = true;
 	//context.m_world = glm::translate(glm::mat4(), glm::vec3(0.0f, -5.0f, 0.0f));
-	model->draw(context);
-	context.m_lighting = false;
+	model->draw(m_context);
+	m_context.m_lighting = false;
 }

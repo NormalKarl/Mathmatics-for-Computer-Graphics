@@ -55,6 +55,6 @@ public:
 
 	int getWidth(const std::string& text);
 
-	void drawText(Context& context, std::string text, float x, float y, float scale = 1.0f, Filter filter = Filter::Point);
+	void drawText(Context& context, std::string text, float x, float y, float scale = 1.0f, Filter filter = Filter::Point, glm::vec4 col = glm::vec4(1.0f));
 };
 

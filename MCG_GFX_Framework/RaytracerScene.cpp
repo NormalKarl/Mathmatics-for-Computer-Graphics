@@ -4,7 +4,7 @@
 RaytracerScene::RaytracerScene()
 {
 	setTitle("Raytracer");
-	m_tracer = new Raytracer(getSurface());
+	m_tracer = new Raytracer(getContext().m_surface);
 }
 
 

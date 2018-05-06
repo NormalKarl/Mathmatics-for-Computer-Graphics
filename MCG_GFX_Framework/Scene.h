@@ -22,24 +22,28 @@ public:
 	void draw(Context& context);
 };
 
+struct SharedAssets {
+	BitmapFont* openSansFont;
+	Texture* forwardIcon;
+	Texture* backIcon;
+	Texture* uncheckedBox;
+	Texture* checkedBox;
+	Texture* holdIcon;
+
+	SharedAssets();
+	~SharedAssets();
+};
+
 class SceneManager
 {
 private:
 	int m_sceneIndex;
 	std::vector<Scene*> m_scenes;
-	Surface* m_surface;
 	Context m_context;
-
-	std::vector<Texture*> icons;
-	BitmapFont* m_font;
-
-	Texture* backIcon;
+	SharedAssets* sharedAssets;
 
 	glm::vec4 backButtonRegion;
 	bool mouseOnBackButton;
-
-	Texture* uncheckedBox;
-	Texture* checkedBox;
 public:
 	static SceneManager* ActiveSceneManager;
 
@@ -57,25 +61,12 @@ public:
 		return m_scenes;
 	}
 
-	inline Surface* getSurface()
-	{
-		return m_surface;
-	}
-
 	inline Context& getContext() {
 		return m_context;
 	}
 
-	inline BitmapFont* getFont() {
-		return m_font;
-	}
-
-	inline Texture* getCheckedBoxTexture() {
-		return checkedBox;
-	}
-
-	inline Texture* getUncheckedBoxTexture() {
-		return uncheckedBox;
+	inline SharedAssets& getSharedAssets() {
+		return *sharedAssets;
 	}
 };
 
@@ -95,17 +86,12 @@ public:
 		return SceneManager::ActiveSceneManager;
 	}
 
-	inline Surface* getSurface()
-	{
-		return SceneManager::ActiveSceneManager->getSurface();
-	}
-
 	inline Context& getContext() {
 		return SceneManager::ActiveSceneManager->getContext();
 	}
 
-	inline BitmapFont* getFont() {
-		return SceneManager::ActiveSceneManager->getFont();
+	inline SharedAssets& getSharedAssets() {
+		return SceneManager::ActiveSceneManager->getSharedAssets();
 	}
 
 	inline std::string getTitle() {
@@ -117,7 +103,7 @@ public:
 	}
 
 	inline int getStartY() {
-		return getFont()->getLineHeight();
+		return getSharedAssets().openSansFont->getLineHeight();
 	}
 
 };

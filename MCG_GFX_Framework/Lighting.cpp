@@ -9,7 +9,7 @@ void Lighting::Directional(glm::vec3 eyeDirection, glm::vec3 lightDir, glm::vec3
 	//printf("%f, %f, %f\n", lightPos.x, lightPos.y, lightPos.z);
 
 	eyeDirection = glm::normalize(eyeDirection);
-	//vertexNormal = glm::normalize(vertexNormal);
+	vertexNormal = glm::normalize(vertexNormal);
 	//vertexNormal *= 10.0f;
 	lightDir = glm::normalize(lightDir);
 

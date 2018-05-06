@@ -5,7 +5,8 @@
 #include <vector>
 #include <map>
 
-#include "Geometry.h"
+#include "Surface.h"
+#include "Vertex.h"
 
 class Texture;
 class Surface;
@@ -27,10 +28,15 @@ struct Context {
 
 	bool m_lighting;
 
-	inline Context() {
-		m_surface = NULL;
+	inline Context(Surface* _surface = NULL) {
+		m_surface = _surface;
 		m_texture = NULL;
 		m_projection = m_view = m_world = m_model = glm::mat4(1.0f);
+
+		if (_surface != NULL) {
+			ortho(0, _surface->getWidth(), _surface->getHeight(), 0, 0.0f, 1.0f);
+		}
+
 		m_lighting = false;
 	}
 
@@ -55,58 +61,23 @@ struct Context {
 		m_world = glm::mat4();
 		m_model = glm::mat4();
 	}
-};
 
-class VertexArray
-{
-private:
-	Primitive m_primitive;
-	Texture* m_texture;
-	std::vector<Vertex> m_vertices;
-	std::vector<unsigned int> m_indices;
-public:
-	VertexArray(Primitive _primitive = Primitive::Triangle, Texture* _texture = NULL, int _initalVertexSize = 0, int _initalIndiceSize = 0);
-	~VertexArray();
-	void appendVertex(const Vertex& vertex);
-	void appendVertices(const std::vector<Vertex>& _vertices);
-	void appendIndice(unsigned int index);
-	void appendIndices(std::vector<unsigned int> _indices);
-	void offsetIndices(unsigned int _offset, std::vector<unsigned int> _indices);
-
-	Vertex& operator[](int index);
-
-	void render(Context& context);
-
-	inline int getIndiceCount() {
-		return m_indices.size();
+	inline int getWidth() {
+		return m_surface->getWidth();
 	}
 
-	inline int getVertexCount() {
-		return m_vertices.size();
+	inline int getHeight() {
+		return m_surface->getHeight();
 	}
-
-	inline Texture* getTexture() {
-		return m_texture;
-	}
-
-	inline void setTexture(Texture* _texture) {
-		m_texture = _texture;
-	}
-};
-
-class Model {
-public:
-	std::vector<VertexArray> arrays;
-	Model(std::string name);
-
-	void draw(Context& context);
 };
 
 namespace Rasterizer {
+	void DrawPoint(const Context& context, const Vertex& a);
 	void DrawLine(const Context& context, const Vertex& a, const Vertex& b);
 	void DrawTriangle(const Context& context, const Vertex& a, const Vertex& b, const Vertex& c);
 	void DrawQuad(const Context& context, const Vertex& a, const Vertex& b, const Vertex& c, const Vertex& d);
 	void FillRect(Context& context, float x, float y, float width, float height, const glm::uvec4& colour);
 	void FillRect(Context& context, float x, float y, float width, float height, const glm::vec4& colour);
+	void DrawImage(Context& context, Texture* texture, float x, float y);
 	void DrawImage(Context& context, Texture* texture, float x, float y, float width, float height, float tx = 0.0f, float ty = 0.0f, float tw = 1.0f, float th = 1.0f);
 }

@@ -85,7 +85,7 @@ public:
 };
 
 /*
-Surface is a target for the Raytracer, Rasterizer aswell as the UI components and anything else. 
+Surface is a target for the Raytracer, Rasterizer aswell as the UI components and almost everything else.
 Surfaces are uncompressed image data with each pixel containing 16 bytes per pixel (Component Count * Float Size).
 */
 class Surface
@@ -111,6 +111,8 @@ public:
 	glm::vec3 performFXAA(int x, int y);
 	float luma(int x, int y);
 
+	void writeToTexture(Texture* texture);
+
 	inline int getWidth()
 	{
 		return m_viewport.width;
@@ -130,13 +132,6 @@ public:
 	{
 		m_depthBuffer->set(_x, _y, _depth);
 	}
-
-	/*inline void setColourAt(int _x, int _y, glm::vec4 _colour)
-	{
-		//m_frameBuffer->Set(_x, _y, _colour);
-		addColourAt(_x, _y, _colour);
-		m_frameFlagBuffer->Set(_x, _y, true);
-	}*/
 
 	void setColourAt(int _x, int _y, glm::vec4 _colour);
 

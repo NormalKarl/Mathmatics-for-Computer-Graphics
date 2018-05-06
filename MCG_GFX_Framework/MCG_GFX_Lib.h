@@ -36,6 +36,7 @@ namespace MCG
 	void Cleanup();
 
 	extern bool MouseDown;
+	extern bool MouseClicked;
 	void DrawSurface(SDL_Surface* surface);
 
 };

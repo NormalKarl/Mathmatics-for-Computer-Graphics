@@ -7,6 +7,25 @@
 #include "MCG_GFX_Lib.h"
 
 
+SharedAssets::SharedAssets() {
+	openSansFont = new BitmapFont("opensans.fnt", { "opensans_0.png" });
+	backIcon = new Texture("assets/BackIcon.png");
+	forwardIcon = new Texture("assets/forwardIcon.png");
+	uncheckedBox = new Texture("assets/UncheckedBox.png");
+	checkedBox = new Texture("assets/CheckedBox.png");
+	holdIcon = new Texture("assets/HoldIcon.png");
+}
+
+SharedAssets::~SharedAssets() {
+	delete openSansFont;
+	delete backIcon;
+	delete forwardIcon;
+	delete uncheckedBox;
+	delete checkedBox;
+	delete holdIcon;
+}
+
+
 TickBox::TickBox(BitmapFont* font, std::string text, int x, int y) : m_font(font), m_text(text), m_pos({x, y}) {
 
 }
@@ -20,7 +39,7 @@ void TickBox::update() {
 }
 
 void TickBox::draw(Context& context) {
-	Rasterizer::DrawImage(context, m_checked ? SceneManager::ActiveSceneManager->getCheckedBoxTexture() : SceneManager::ActiveSceneManager->getUncheckedBoxTexture()
+	Rasterizer::DrawImage(context, m_checked ? SceneManager::ActiveSceneManager->getSharedAssets().checkedBox : SceneManager::ActiveSceneManager->getSharedAssets().uncheckedBox
 		, m_pos.x, m_pos.y, 16, 16);
 	//Rasterizer::DrawImage();
 }
@@ -38,31 +57,25 @@ Scene::~Scene()
 {
 }
 
-SceneManager::SceneManager(Surface* _surface) : m_surface(_surface)
+SceneManager::SceneManager(Surface* _surface)
 {
-
-	m_font = OPEN_SANS_FONT_INIT;
+	sharedAssets = new SharedAssets();
+	m_context = Context(_surface);
+	m_context.ortho(0, m_context.getWidth(), m_context.getHeight(), 0, 0, 1);
 	m_sceneIndex = -1;
-	m_context.m_surface = _surface;
-	m_context.ortho(0, m_surface->getViewport().width, m_surface->getViewport().height, 0, 0, 1);
-	//m_renderer.setCulling(Rasterizer::Culling::Backface, Rasterizer::WindingOrder::Clockwise);
 
-	icons.push_back(new Texture("icon1.png"));
-	backIcon = BACK_ICON_INIT;
-
-	float offsetY = (m_font->getLineHeight() - 24.0f) / 2.0f;
+	float offsetY = (sharedAssets->openSansFont->getLineHeight() - 24.0f) / 2.0f;
 	float offsetX = offsetY * 2;
-	backButtonRegion = {0,0, offsetX * 2 + 29.0f + ((m_font->getWidth("Back")) * 0.75f), m_font->getLineHeight() };
+	backButtonRegion = {0,0, offsetX * 2 + 29.0f + ((sharedAssets->openSansFont->getWidth("Back")) * 0.75f), sharedAssets->openSansFont->getLineHeight() };
 
 	ActiveSceneManager = this;
 
-	uncheckedBox = new Texture("assets/UncheckedBox.png");
-	checkedBox = new Texture("assets/CheckedBox.png");
+
 }
 
 SceneManager::~SceneManager()
 {
-
+	delete sharedAssets;
 }
 
 void SceneManager::addScene(Scene* scene)
@@ -121,19 +134,24 @@ void SceneManager::update()
 
 void SceneManager::draw()
 {
+
 	if (m_sceneIndex != -1)
 		m_scenes[m_sceneIndex]->draw();
 
+	//Reset the most commonly used matrices inside the context.
+	m_context.m_view = glm::mat4();
+	m_context.m_world = glm::mat4();
+	m_context.m_model = glm::mat4();
 
-	Rasterizer::FillRect(m_context, 0.0f, 0.0f, m_surface->getWidth(), m_font->getLineHeight(), glm::uvec4(53, 83, 125, 255));
+	Rasterizer::FillRect(m_context, 0.0f, 0.0f, m_context.getWidth(), sharedAssets->openSansFont->getLineHeight(), glm::uvec4(53, 83, 125, 255));
 
-	m_font->drawText(m_context, m_scenes[m_sceneIndex]->getTitle(), (m_surface->getWidth() - m_font->getWidth(m_scenes[m_sceneIndex]->getTitle())) / 2, 6, 1.0f);
+	sharedAssets->openSansFont->drawText(m_context, m_scenes[m_sceneIndex]->getTitle(), (m_context.getWidth() - sharedAssets->openSansFont->getWidth(m_scenes[m_sceneIndex]->getTitle())) / 2, 6, 1.0f);
 
 	if (m_sceneIndex != 0) {
-		float offsetY = (m_font->getLineHeight() - 24.0f) / 2.0f;
+		float offsetY = (sharedAssets->openSansFont->getLineHeight() - 24.0f) / 2.0f;
 		float offsetX = offsetY * 2;
 		Rasterizer::FillRect(m_context, 0.0f, 0.0f, backButtonRegion.p, backButtonRegion.q, mouseOnBackButton ? glm::uvec4(30, 48, 72, 255) : glm::uvec4(68, 107, 160, 255));
-		Rasterizer::DrawImage(m_context, backIcon, offsetX, offsetY, 24.0f, 24.0f);
-		m_font->drawText(m_context, "Back", round(offsetX + 29.0f), 9, 0.75f, Filter::Bilinear);
+		Rasterizer::DrawImage(m_context, sharedAssets->backIcon, offsetX, offsetY, 24.0f, 24.0f);
+		sharedAssets->openSansFont->drawText(m_context, "Back", round(offsetX + 29.0f), 9, 0.75f, Filter::Bilinear);
 	}
 };

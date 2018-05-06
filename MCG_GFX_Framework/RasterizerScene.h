@@ -8,7 +8,7 @@ class Model;
 class RasterizerScene : public Scene
 {
 private:
-	Context context;
+	Context m_context;
 	Texture* m_img;
 	Model* model;
 public:

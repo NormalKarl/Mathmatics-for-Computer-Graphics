@@ -1,6 +1,8 @@
 #pragma once
 
 #include <GLM\glm.hpp>
+#include "Rasterizer.h"
+#include "Texture.h"
 
 /*
 Vertex
@@ -14,56 +16,47 @@ Circle (Can be used to make Octagon, Hexagon, Pentagon etc.)
 
 class Texture;
 
-struct Vertex
+class VertexArray
 {
-	union {
-		glm::vec3 m_position;
-		glm::vec4 m_posExt;
-	};
+private:
+	Primitive m_primitive;
+	Texture* m_texture;
+	std::vector<Vertex> m_vertices;
+	std::vector<unsigned int> m_indices;
+public:
+	VertexArray(Primitive _primitive = Primitive::Triangle, Texture* _texture = NULL, int _initalVertexSize = 0, int _initalIndiceSize = 0);
+	~VertexArray();
+	void appendVertex(const Vertex& vertex);
+	void appendVertices(const std::vector<Vertex>& _vertices);
+	void appendIndice(unsigned int index);
+	void appendIndices(std::vector<unsigned int> _indices);
+	void offsetIndices(unsigned int _offset, std::vector<unsigned int> _indices);
 
-	glm::vec4 m_colour;
-	glm::vec3 m_normal;
-	glm::vec2 m_textureCoords;
+	Vertex& operator[](int index);
 
-	inline Vertex()
-	{
-		m_position = { 0.0f, 0.0f, 0.0f };
-		m_colour = { 1.0f, 1.0f, 1.0f, 1.0f };
-		m_textureCoords = { 0.0f, 0.0f };
+	void render(Context& context);
+
+	inline int getIndiceCount() {
+		return m_indices.size();
 	}
 
-	inline Vertex(float x, float y)
-	{
-		m_position = { x, y, 0.0f };
-		m_colour = { 1.0f, 1.0f, 1.0f, 1.0f };
-		m_textureCoords = { 0.0f, 0.0f };
+	inline int getVertexCount() {
+		return m_vertices.size();
 	}
 
-	inline Vertex(float x, float y, float z)
-	{
-		m_position = { x, y, z };
-		m_colour = { 1.0f, 1.0f, 1.0f, 1.0f };
-		m_textureCoords = { 0.0f, 0.0f };
+	inline Texture* getTexture() {
+		return m_texture;
 	}
 
-	inline Vertex(float x, float y, float z, float r, float g, float b, float a)
-	{
-		m_position = { x, y, z };
-		m_colour = { r, g, b, a };
-		m_textureCoords = { 0.0f, 0.0f };
+	inline void setTexture(Texture* _texture) {
+		m_texture = _texture;
 	}
+};
 
-	inline Vertex(float x, float y, float z, float u, float v)
-	{
-		m_position = { x, y, z };
-		m_colour = { 1.0f, 1.0f, 1.0f, 1.0f };
-		m_textureCoords = { u, v };
-	}
+class Model {
+public:
+	std::vector<VertexArray> arrays;
+	Model(std::string name);
 
-	inline Vertex(float x, float y, float z, float r, float g, float b, float a, float u, float v)
-	{
-		m_position = { x, y, z };
-		m_colour = { r, g, b, a };
-		m_textureCoords = { u, v };
-	}
+	void draw(Context& context);
 };

@@ -9,6 +9,8 @@
 
 #include <cstdio>
 
+#include "Lighting.h"
+
 bool Sphere::intersect(const Ray& _ray, glm::vec3& _normal) {
 	glm::vec3 pos = m_position - _ray.origin;
 
@@ -123,7 +125,7 @@ void Raytracer::trace() {
 	float angle2 = M_PI * 1.75f;
 
 	static float angle = 0.0f;
-	angle += 0.5f;
+	angle += 0.2f;
 
 	glm::vec3 v = glm::vec3(0.0f);
 	glm::mat4 mat = glm::translate(glm::mat4(), v);
@@ -134,66 +136,25 @@ void Raytracer::trace() {
 		for (int y = 0; y < m_surface->getHeight(); y++)
 		{
 			Ray ray = createRay(x, y);
-			ray.origin = glm::vec3(mat * glm::vec4(ray.origin, 1.0f));
-			ray.direction = glm::vec3(rotMat * glm::vec4(ray.direction, 1.0f));
+			//ray.origin = glm::vec3(mat * glm::vec4(ray.origin, 1.0f));
+			//ray.direction = glm::vec3(rotMat * glm::vec4(ray.direction, 1.0f));
 
 			glm::vec3 fragPos;
 
-			/*if (tri.intersect(ray, fragPos)) {
+			if (tri.intersect(ray, fragPos)) {
 				if (fragPos.x > 0.0f) {
 					m_surface->setColourAt(x, y, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
 				}
 
 				//printf("%f\n", fragPos.x);
-			}*/
+			}
 
 
 			if (sphere.intersect(ray, fragPos))
 			{
-				//float mag = glm::sqrt(normal.x * normal.x + normal.y * normal.y + normal.z * normal.z);
-
-				/*int hitRays = 0;
-
-				for (int ox = 0; ox < 16; ox++) {
-					for (int oy = 0; oy < 16; oy++) {
-						if (intersect(createRay(x, y, ((float)ox / 16.0f), ((float)oy / 16.0f)), sphere, glm::vec3()))
-							hitRays++;
-					}
-				}
-
-				float alpha = (float)hitRays / 256.0f;*/
-				/*float alpha = 1.0f;
-
-				glm::vec3 lightPos = m_viewInv * glm::vec4(cos(angle2) * 1.0f, 0.0f, sin(angle2) * 1.0f, 1.0f);
-
-				//printf("%f, %f, %f\n", lightPos.x, lightPos.y, lightPos.z);
-
-				glm::vec3 objectColour = glm::vec3(0.5f, 0.0f, 0.0f);
-
-				glm::vec3 norm = glm::normalize(fragPos);
-				glm::vec3 lightDir = glm::normalize(lightPos);
-
-
-				float diff = glm::max(glm::dot(norm, lightDir), 0.0f);
-
-				glm::vec3 lightCol = glm::vec3(1.0f);
-
-				glm::vec3 ambientCol = lightCol * 0.1f;
-				glm::vec3 diffuseCol = lightCol * diff;
-
-
-				glm::vec3 viewDir = glm::normalize(glm::vec3(glm::cos(glm::radians(1.0f)) * 3.0f, 0.2f, glm::sin(glm::radians(1.0f)) * 3.0f) - fragPos);
-				glm::vec3 reflectDir = reflect(lightDir, norm);
-
-				float specularStrength = 0.5;
-				float spec = glm::pow(glm::max(glm::dot(viewDir, reflectDir), 0.0f), 16.0f);
-				glm::vec3 specular = specularStrength * spec * lightCol;
-
-				glm::vec3 col = (ambientCol + diffuseCol + specular) * objectColour;*/
-
-				//m_surface->setColourAt(x, y, glm::vec4(col, alpha));
-				m_surface->setColourAt(x, y, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
-				//m_surface->setColourAt(x, y, glm::vec4(1.0f, 0.0f, 0.0f, 1.0f));
+				glm::vec4 col = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
+				Lighting::Directional(glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(cos(angle), 1.0f, sin(angle)), fragPos - sphere.m_position, col);
+				m_surface->setColourAt(x, y, col);
 			}
 		}
 	}
