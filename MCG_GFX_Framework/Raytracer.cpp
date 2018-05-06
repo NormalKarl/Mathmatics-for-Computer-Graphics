@@ -153,7 +153,7 @@ void Raytracer::trace() {
 			if (sphere.intersect(ray, fragPos))
 			{
 				glm::vec4 col = glm::vec4(1.0f, 1.0f, 1.0f, 1.0f);
-				Lighting::Directional(glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(cos(angle), 1.0f, sin(angle)), fragPos - sphere.m_position, col);
+				Lighting::Directional(glm::vec3(0.0f, 0.0f, 1.0f), glm::vec3(cos(angle), 1.0f, sin(angle)), fragPos - sphere.m_position, fragPos, col);
 				m_surface->setColourAt(x, y, col);
 			}
 		}

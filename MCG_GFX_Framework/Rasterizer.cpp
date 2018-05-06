@@ -10,7 +10,6 @@
 #include <algorithm>
 #include <iostream>
 
-
 //Rasterizer
 
 bool Transform(const Context& context, Vertex& vertex) {
@@ -162,7 +161,7 @@ void DrawWeightedPixel(const Context& context, Vertex& a, Vertex& b, Vertex& c, 
 	finalColour = texColour * newColour;
 
 	if (context.m_lighting)
-		Lighting::Directional(context.m_cameraPosition, glm::normalize(glm::vec3(1.0f, 0.5f, 1.0f)), surfaceNormal, finalColour);
+		Lighting::Directional(context.m_cameraPosition, glm::normalize(glm::vec3(1.0f, 0.5f, 1.0f)), surfaceNormal, newPosition, finalColour);
 
 	float d = context.m_surface->getDepthAt(pixel.x, pixel.y);
 

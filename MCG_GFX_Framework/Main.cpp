@@ -7,7 +7,6 @@
 
 #include "MCG_GFX_Lib.h"
 
-#include "Rasterizer.h"
 #include "Surface.h"
 #include "Defs.h"
 
@@ -23,7 +22,6 @@ int main(int argc, char *argv[])
 {
 	Surface* surface = new Surface({ 0, 0, SCREEN_WIDTH, SCREEN_HEIGHT });
 	SceneManager* sceneManager = new SceneManager(surface);
-
 	MenuScene* menuScene = new MenuScene();
 	PrimitivesScene* primitivesScene = new PrimitivesScene();
 	RaytracerScene* raytracerScene = new RaytracerScene();
@@ -53,5 +51,12 @@ int main(int argc, char *argv[])
 		surface->draw();
 	}
 
+	delete primitivesScene;
+	delete raytracerScene;
+	delete rasterizerScene;
+	delete curvesScene;
+	delete fractalsScene;
+	delete sceneManager;
+	delete surface;
 	return 0;
 }
