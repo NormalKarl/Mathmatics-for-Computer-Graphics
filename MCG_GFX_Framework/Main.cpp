@@ -40,7 +40,6 @@ int main(int argc, char *argv[])
 	if (!MCG::Init({ SCREEN_WIDTH, SCREEN_HEIGHT }))
 		return -1;
 
-	//surface->setClearColour((unsigned char)246, 114, 128);
 	surface->setClearColour((unsigned char)255, 255, 255);
 	
 	while (MCG::ProcessFrame())

@@ -8,12 +8,15 @@
 
 
 SharedAssets::SharedAssets() {
-	openSansFont = new BitmapFont("opensans.fnt", { "opensans_0.png" });
-	backIcon = new Texture("assets/BackIcon.png");
-	forwardIcon = new Texture("assets/forwardIcon.png");
-	uncheckedBox = new Texture("assets/UncheckedBox.png");
-	checkedBox = new Texture("assets/CheckedBox.png");
-	holdIcon = new Texture("assets/HoldIcon.png");
+	openSansFont = new BitmapFont("resources/textures/opensans.fnt", { "resources/textures/opensans_0.png" });
+	backIcon = new Texture("resources/textures/BackIcon.png");
+	forwardIcon = new Texture("resources/textures/forwardIcon.png");
+	uncheckedBox = new Texture("resources/textures/UncheckedBox.png");
+	checkedBox = new Texture("resources/textures/CheckedBox.png");
+	holdIcon = new Texture("resources/textures/HoldIcon.png");
+	staticIcon = new Texture("resources/textures/StaticIcon.png");
+	axisBackground = new Texture("resources/textures/AxisBackground.png");
+	menuBackground = new Texture("resources/textures/MainMenu.png", Filter::Point);
 }
 
 SharedAssets::~SharedAssets() {
@@ -23,10 +26,12 @@ SharedAssets::~SharedAssets() {
 	delete uncheckedBox;
 	delete checkedBox;
 	delete holdIcon;
+	delete staticIcon;
+	delete axisBackground;
+	delete menuBackground;
 }
 
-
-TickBox::TickBox(BitmapFont* font, std::string text, int x, int y) : m_font(font), m_text(text), m_pos({x, y}) {
+TickBox::TickBox(BitmapFont* font, std::string text, int x, int y) : m_font(font), m_text(text), m_pos({x, y}), m_checked(false) {
 
 }
 
@@ -35,13 +40,27 @@ TickBox::~TickBox() {
 }
 
 void TickBox::update() {
+	Texture* checkBox = SceneManager::ActiveSceneManager->getSharedAssets().checkedBox;
 
+	int mouseX, mouseY;
+	SDL_GetMouseState(&mouseX, &mouseY);
+
+	if (MCG::MouseClicked)
+	{
+		if (mouseX >= m_pos.x && mouseY >= m_pos.y
+			&& mouseX < m_pos.x + checkBox->getWidth()
+			&& mouseY < m_pos.y + checkBox->getHeight())
+		{
+			m_checked = !m_checked;
+		}
+	}
 }
 
 void TickBox::draw(Context& context) {
-	Rasterizer::DrawImage(context, m_checked ? SceneManager::ActiveSceneManager->getSharedAssets().checkedBox : SceneManager::ActiveSceneManager->getSharedAssets().uncheckedBox
-		, m_pos.x, m_pos.y, 16, 16);
-	//Rasterizer::DrawImage();
+	Texture* checkBox = SceneManager::ActiveSceneManager->getSharedAssets().checkedBox;
+	Texture* uncheckedBox = SceneManager::ActiveSceneManager->getSharedAssets().uncheckedBox;
+	Rasterizer::DrawImage(context, m_checked ? checkBox : uncheckedBox, m_pos.x, m_pos.y, 16, 16);
+	m_font->drawText(context, m_text, m_pos.x + 20, m_pos.y + 2, 0.65f, Filter::Bilinear, glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
 }
 
 //Scene Manager
@@ -70,6 +89,8 @@ SceneManager::SceneManager(Surface* _surface)
 
 	ActiveSceneManager = this;
 
+
+	tickboxBlur = new TickBox(sharedAssets->openSansFont, "Gaussian Blur", 10, _surface->getHeight() - 50);
 
 }
 
@@ -116,6 +137,11 @@ void SceneManager::update()
 	if (m_sceneIndex != -1)
 		m_scenes[m_sceneIndex]->update();
 
+
+	tickboxBlur->update();
+
+	m_context.m_surface->setBlurEnabled(tickboxBlur->isChecked());
+
 	int mouseX = 0, mouseY = 0;
 	mouseOnBackButton = false;
 	SDL_GetMouseState(&mouseX, &mouseY);
@@ -134,7 +160,6 @@ void SceneManager::update()
 
 void SceneManager::draw()
 {
-
 	if (m_sceneIndex != -1)
 		m_scenes[m_sceneIndex]->draw();
 
@@ -154,4 +179,6 @@ void SceneManager::draw()
 		Rasterizer::DrawImage(m_context, sharedAssets->backIcon, offsetX, offsetY, 24.0f, 24.0f);
 		sharedAssets->openSansFont->drawText(m_context, "Back", round(offsetX + 29.0f), 9, 0.75f, Filter::Bilinear);
 	}
+
+	tickboxBlur->draw(m_context);
 };

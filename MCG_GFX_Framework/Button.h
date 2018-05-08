@@ -6,6 +6,7 @@
 #include "BitmapFont.h"
 #include "MCG_GFX_Lib.h"
 
+//Simple class that allows for a button containing either an icon or text.
 class Button {
 private:
 	Texture * m_icon;

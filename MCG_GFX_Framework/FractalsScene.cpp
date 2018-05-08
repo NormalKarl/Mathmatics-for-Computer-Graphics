@@ -79,10 +79,14 @@ void SeripinskiHalf(Context& context, glm::vec2 a, glm::vec2 b, glm::vec2 c, int
 }
 
 void GenerateSeripinski(FractalEntry* fractal) {
-	Surface surf = Surface(Viewport(0, 0, fractal->m_texture->width, fractal->m_texture->height));
+	Surface surf = Surface(Viewport(0, 0, fractal->m_texture->getWidth(), fractal->m_texture->getHeight()));
 	Context cont = Context(&surf);
 
-	SeripinskiHalf(cont, { (float)fractal->m_texture->width * 0.5f, 0 }, {0,(float)fractal->m_texture->height}, { (float)fractal->m_texture->width,(float)fractal->m_texture->height }, 1);
+	SeripinskiHalf(cont,
+		{ (float)fractal->m_texture->getWidth() * 0.5f, 0 },
+		{ 0,(float)fractal->m_texture->getHeight() },
+		{ (float)fractal->m_texture->getWidth(),(float)fractal->m_texture->getHeight() }
+		, 1);
 
 	surf.writeToTexture(fractal->m_texture);
 }
@@ -137,11 +141,7 @@ void FractalsScene::update() {
 		if (m_next.isClicked())
 			m_fractalIndex++;
 
-		if (m_fractalIndex < 0)
-			m_fractalIndex = m_fractals.size();
-
-		if (m_fractalIndex >= m_fractals.size())
-			m_fractalIndex = 0;
+		m_fractalIndex %= m_fractals.size();
 
 		//Update text so it is always in the center.
 		m_fractalTitlePos = { (m_context.getWidth() - getSharedAssets().openSansFont->getWidth(m_fractals[m_fractalIndex]->m_name)) / 2

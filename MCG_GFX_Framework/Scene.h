@@ -20,6 +20,10 @@ public:
 	~TickBox();
 	void update();
 	void draw(Context& context);
+
+	inline bool isChecked() {
+		return m_checked;
+	}
 };
 
 struct SharedAssets {
@@ -29,6 +33,9 @@ struct SharedAssets {
 	Texture* uncheckedBox;
 	Texture* checkedBox;
 	Texture* holdIcon;
+	Texture* staticIcon;
+	Texture* axisBackground;
+	Texture* menuBackground;
 
 	SharedAssets();
 	~SharedAssets();
@@ -44,6 +51,8 @@ private:
 
 	glm::vec4 backButtonRegion;
 	bool mouseOnBackButton;
+
+	TickBox* tickboxBlur;
 public:
 	static SceneManager* ActiveSceneManager;
 

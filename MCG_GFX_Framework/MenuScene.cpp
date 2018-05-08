@@ -8,12 +8,10 @@
 MenuScene::MenuScene()
 {
 	setTitle("Menu");
-	m_backgroundTexture = MAIN_MENU_BG_INIT;
 }
 
 MenuScene::~MenuScene()
 {
-	delete m_backgroundTexture;
 }
 
 void MenuScene::update() {
@@ -39,7 +37,8 @@ void MenuScene::update() {
 }
 
 void MenuScene::draw() {
-	Rasterizer::DrawImage(getContext(), m_backgroundTexture, 0, 0, m_backgroundTexture->getWidth(), m_backgroundTexture->getHeight());
+	Rasterizer::DrawImage(getContext(), getSharedAssets().menuBackground, 0, 0
+		, getSharedAssets().menuBackground->getWidth(), getSharedAssets().menuBackground->getHeight());
 
 	for (Button& button : buttons)
 		button.draw(getContext());

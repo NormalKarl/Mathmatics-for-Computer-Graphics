@@ -93,127 +93,103 @@ void VertexArray::render(Context& context)
 
 //Model Code
 
-Model::Model(std::string name) {
-	std::string inputfile = name;
+VertexArray Model::LoadOBJ(std::string path) {
+	VertexArray va;
 	tinyobj::attrib_t attrib;
 	std::vector<tinyobj::shape_t> shapes;
 	std::vector<tinyobj::material_t> materials;
-
 	std::string err;
-	bool ret = tinyobj::LoadObj(&attrib, &shapes, &materials, &err, inputfile.c_str());
+
+	bool ret = tinyobj::LoadObj(&attrib, &shapes, &materials, &err, path.c_str());
 
 	if (!err.empty()) { // `err` may contain warning message.
 		std::cout << err << std::endl;
 	}
 
-	if (!ret) {
-		//exit(1);
-	}
+	for (int s = 0; s < shapes.size(); s++) {
+		int index_offset = 0;
 
-	if (materials.size() != 0) {
-		for (tinyobj::material_t mat : materials) {
-			Texture* texture = NULL;
+		for (int f = 0; f < shapes[s].mesh.num_face_vertices.size(); f++) {
+			int fv = shapes[s].mesh.num_face_vertices[f];
 
-			if (!mat.diffuse_texname.empty()) {
-				texture = new Texture(("assets/WolfModel/" + mat.diffuse_texname).c_str());
-			}
-
-			arrays.push_back(VertexArray(Primitive::Triangle, texture));
-		}
-	}
-	else {
-		arrays.push_back(VertexArray(Primitive::Triangle, NULL));
-	}
-
-	// Loop over shapes
-	for (size_t s = 0; s < shapes.size(); s++) {
-		// Loop over faces(polygon)
-		size_t index_offset = 0;
-		for (size_t f = 0; f < shapes[s].mesh.num_face_vertices.size(); f++) {
-			size_t fv = shapes[s].mesh.num_face_vertices[f];
-
-			std::vector<Vertex> vectors;
-
-			float gray = (100 + (rand() % 100)) / 255.0f;
-			// Loop over vertices in the face.
 			for (size_t v = 0; v < fv; v++) {
-				// access to vertex
 				Vertex newVertex;
 
 				tinyobj::index_t idx = shapes[s].mesh.indices[index_offset + v];
-				tinyobj::real_t vx = attrib.vertices[3 * idx.vertex_index + 0];
-				tinyobj::real_t vy = attrib.vertices[3 * idx.vertex_index + 1];
-				tinyobj::real_t vz = attrib.vertices[3 * idx.vertex_index + 2];
+				float vx = attrib.vertices[3 * idx.vertex_index + 0];
+				float vy = attrib.vertices[3 * idx.vertex_index + 1];
+				float vz = attrib.vertices[3 * idx.vertex_index + 2];
 				newVertex.m_position = { vx,vy,vz };
-				//newVertex.m_normal = glm::normalize(newVertex.m_position);
 
-				if (attrib.normals.size() != 0) {
-					tinyobj::real_t nx = attrib.normals[3 * idx.normal_index + 0];
-					tinyobj::real_t ny = attrib.normals[3 * idx.normal_index + 1];
-					tinyobj::real_t nz = attrib.normals[3 * idx.normal_index + 2];
-
+				if (attrib.colors.size() != 0) {
+					float red = attrib.colors[3 * idx.vertex_index + 0];
+					float green = attrib.colors[3 * idx.vertex_index + 1];
+					float blue = attrib.colors[3 * idx.vertex_index + 2];
+					newVertex.m_colour = { red, green, blue, 1.0f };
 				}
 
 				if (attrib.texcoords.size() != 0) {
-					tinyobj::real_t tx = attrib.texcoords[2 * idx.texcoord_index + 0];
-					tinyobj::real_t ty = attrib.texcoords[2 * idx.texcoord_index + 1];
+					float tx = attrib.texcoords[2 * idx.texcoord_index + 0];
+					float ty = attrib.texcoords[2 * idx.texcoord_index + 1];
 					newVertex.m_textureCoords = { tx,ty };
 				}
-				//tinyobj::real_t nx = attrib.normals[3 * idx.normal_index + 0];
-				//tinyobj::real_t ny = attrib.normals[3 * idx.normal_index + 1];
-				//tinyobj::real_t nz = attrib.normals[3 * idx.normal_index + 2];
-				//tinyobj::real_t tx = attrib.texcoords[2 * idx.texcoord_index + 0];
-				//tinyobj::real_t ty = attrib.texcoords[2 * idx.texcoord_index + 1];
-				// Optional: vertex colors
-				// tinyobj::real_t red = attrib.colors[3*idx.vertex_index+0];
-				// tinyobj::real_t green = attrib.colors[3*idx.vertex_index+1];
-				// tinyobj::real_t blue = attrib.colors[3*idx.vertex_index+2];
 
-				//float val = glm::dot(glm::normalize(glm::vec3(vx, vy, vz)), glm::normalize(glm::vec3(1.0f, 1.0f, 1.0f)));
-				//val = glm::clamp(val, 0.0f, 1.0f);
-
-				//arrays[shapes[s].mesh.material_ids[f]].appendVertex(newVertex);
-
-				vectors.push_back(newVertex);
-
-				//array.appendVertex({ vx, vy, vz, val, 0.2f, 0.2f, 1.0f });
-				//array.appendVertex({ vx, vy, vz, gray, gray, gray, 1.0f });
+				va.appendVertex(newVertex);
 			}
-
-			glm::vec3 normal = glm::cross(vectors[1].m_position - vectors[0].m_position, vectors[2].m_position - vectors[0].m_position);
-
-			for (Vertex& newVertex : vectors) {
-				newVertex.m_normal = glm::normalize(normal);
-
-				if (shapes[s].mesh.material_ids.size() != 0) {
-					int index = shapes[s].mesh.material_ids[f];
-					arrays[index == -1 ? 0 : index].appendVertex(newVertex);
-				}
-			}
-
-			//float val = glm::dot(glm::normalize(normal), glm::normalize(glm::vec3(1.0f, 1.0f, 1.0f)));
-
-			//val = glm::clamp(val, 0.0f, 1.0f);
-
-			//for (glm::vec3 v : vectors) {
-			//array.appendVertex({ v.x, v.y, v.z, val, val, val, 1.0f });
-			//}
 
 			index_offset += fv;
-
-			// per-face material
-			/*if (shapes[s].mesh.material_ids.size() != 0) {
-			shapes[s].mesh.material_ids[f];
-			}
-			else {
-			shapes[s].pus
-			}*/
 		}
 	}
+
+	return va;
 }
 
-void Model::draw(Context& context) {
-	for (VertexArray& array : arrays) {
-		array.render(context);
-	}
+VertexArray Model::CreateBox(Texture* texture) {
+	VertexArray va = VertexArray(Primitive::Triangle, texture);
+
+	va.appendVertices({
+		{ -0.5f, -0.5f, -0.5f, 0.0f, 0.0f },
+		{ 0.5f, -0.5f, -0.5f, 1.0f, 0.0f },
+		{ 0.5f, 0.5f, -0.5f, 1.0f, 1.0f },
+		{ 0.5f, 0.5f, -0.5f, 1.0f, 1.0f },
+		{ -0.5f, 0.5f, -0.5f, 0.0f, 1.0f },
+		{ -0.5f, -0.5f, -0.5f, 0.0f, 0.0f },
+
+		{ -0.5f, -0.5f, 0.5f, 0.0f, 0.0f },
+		{ 0.5f, -0.5f, 0.5f, 1.0f, 0.0f },
+		{ 0.5f, 0.5f, 0.5f, 1.0f, 1.0f },
+		{ 0.5f, 0.5f, 0.5f, 1.0f, 1.0f },
+		{ -0.5f, 0.5f, 0.5f, 0.0f, 1.0f },
+		{ -0.5f, -0.5f, 0.5f, 0.0f, 0.0f },
+
+		{ -0.5f, 0.5f, 0.5f, 1.0f, 0.0f },
+		{ -0.5f, 0.5f, -0.5f, 1.0f, 1.0f },
+		{ -0.5f, -0.5f, -0.5f, 0.0f, 1.0f },
+		{ -0.5f, -0.5f, -0.5f, 0.0f, 1.0f },
+		{ -0.5f, -0.5f, 0.5f, 0.0f, 0.0f },
+		{ -0.5f, 0.5f, 0.5f, 1.0f, 0.0f },
+
+		{ 0.5f, 0.5f, 0.5f, 1.0f, 0.0f },
+		{ 0.5f, 0.5f, -0.5f, 1.0f, 1.0f },
+		{ 0.5f, -0.5f, -0.5f, 0.0f, 1.0f },
+		{ 0.5f, -0.5f, -0.5f, 0.0f, 1.0f },
+		{ 0.5f, -0.5f, 0.5f, 0.0f, 0.0f },
+		{ 0.5f, 0.5f, 0.5f, 1.0f, 0.0f },
+
+		{ -0.5f, -0.5f, -0.5f, 0.0f, 1.0f },
+		{ 0.5f, -0.5f, -0.5f, 1.0f, 1.0f },
+		{ 0.5f, -0.5f, 0.5f, 1.0f, 0.0f },
+		{ 0.5f, -0.5f, 0.5f, 1.0f, 0.0f },
+		{ -0.5f, -0.5f, 0.5f, 0.0f, 0.0f },
+		{ -0.5f, -0.5f, -0.5f, 0.0f, 1.0f },
+
+		{ -0.5f, 0.5f, -0.5f, 0.0f, 1.0f },
+		{ 0.5f, 0.5f, -0.5f, 1.0f, 1.0f },
+		{ 0.5f, 0.5f, 0.5f, 1.0f, 0.0f },
+		{ 0.5f, 0.5f, 0.5f, 1.0f, 0.0f },
+		{ -0.5f, 0.5f, 0.5f, 0.0f, 0.0f },
+		{ -0.5f, 0.5f, -0.5f, 0.0f, 1.0f }
+	});
+
+	return va;
 }

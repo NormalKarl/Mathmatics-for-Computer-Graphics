@@ -1,4 +1,5 @@
-#pragma once
+#ifndef _RASTERIZER_H_
+#define _RASTERIZER_H_
 
 #include <GLM/glm.hpp>
 #include <GLM/gtc/matrix_transform.hpp>
@@ -9,14 +10,12 @@
 #include "Vertex.h"
 
 class Texture;
-class Surface;
 
-enum class Primitive {
-	Point,
-	Line,
-	Triangle
-};
-
+/*
+Context is a struct simmilar in nature to the OpenGL context which is used by the Rasterizer
+below. The rasterizer can use this to project the vertices as well as performing lighting or
+look up texture data.
+*/
 struct Context {
 	Surface* m_surface;
 	Texture* m_texture;
@@ -25,59 +24,31 @@ struct Context {
 	glm::mat4 m_world;
 	glm::mat4 m_model;
 	glm::vec3 m_cameraPosition;
-
 	bool m_lighting;
 
-	inline Context(Surface* _surface = NULL) {
-		m_surface = _surface;
-		m_texture = NULL;
-		m_projection = m_view = m_world = m_model = glm::mat4(1.0f);
-
-		if (_surface != NULL) {
-			ortho(0, _surface->getWidth(), _surface->getHeight(), 0, 0.0f, 1.0f);
-		}
-
-		m_lighting = false;
-	}
-
-	inline void lookAt(float eyeX, float eyeY, float eyeZ, float centerX, float centerY, float centerZ, float upX, float upY, float upZ)
-	{
-		m_cameraPosition = glm::vec3(eyeX, eyeY, eyeZ);
-		m_view = glm::lookAt(m_cameraPosition, glm::vec3(centerX, centerY, centerZ), glm::vec3(upX, upY, upZ));
-	}
-
-	inline void ortho(float left, float right, float bottom, float top, float near, float far)
-	{
-		m_projection = glm::ortho(left, right, bottom, top, near, far);
-	}
-
-	inline void perspective(float fovy, float aspect, float near, float far)
-	{
-		m_projection = glm::perspective(fovy, aspect, near, far);
-	}
-
-	inline void reset() {
-		m_texture = NULL;
-		m_world = glm::mat4();
-		m_model = glm::mat4();
-	}
-
-	inline int getWidth() {
-		return m_surface->getWidth();
-	}
-
-	inline int getHeight() {
-		return m_surface->getHeight();
-	}
+	Context(Surface* _surface = NULL);
+	void lookAt(float _eyeX, float _eyeY, float _eyeZ, float _centerX, float _centerY, float _centerZ, float _upX, float _upY, float _upZ);
+	void ortho(float _left, float _right, float _bottom, float _top, float _near, float _far);
+	void perspective(float _fovy, float _aspect, float _near, float _far);
+	void reset();
+	inline int getWidth() { return m_surface->getWidth(); }
+	inline int getHeight() { return m_surface->getHeight(); }
 };
 
+/*
+The Rasterizer namespace hold all the functions needed for rendering in both 3d and 2d
+DrawPoint, DrawLine and DrawTriangle are the basic functions and all the other functions are
+helpful uses of them.
+*/
 namespace Rasterizer {
-	void DrawPoint(const Context& context, const Vertex& a);
-	void DrawLine(const Context& context, const Vertex& a, const Vertex& b);
-	void DrawTriangle(const Context& context, const Vertex& a, const Vertex& b, const Vertex& c);
-	void DrawQuad(const Context& context, const Vertex& a, const Vertex& b, const Vertex& c, const Vertex& d);
-	void FillRect(Context& context, float x, float y, float width, float height, const glm::uvec4& colour);
-	void FillRect(Context& context, float x, float y, float width, float height, const glm::vec4& colour);
-	void DrawImage(Context& context, Texture* texture, float x, float y);
-	void DrawImage(Context& context, Texture* texture, float x, float y, float width, float height, float tx = 0.0f, float ty = 0.0f, float tw = 1.0f, float th = 1.0f);
+	void DrawPoint(const Context& _context, const Vertex& _a);
+	void DrawLine(const Context& _context, const Vertex& _a, const Vertex& _b);
+	void DrawTriangle(const Context& _context, const Vertex& _a, const Vertex& _b, const Vertex& _c);
+	void DrawQuad(const Context& _context, const Vertex& _a, const Vertex& _b, const Vertex& _c, const Vertex& _d);
+	void FillRect(Context& _context, float _x, float _y, float _width, float _height, const glm::uvec4& _colour);
+	void FillRect(Context& _context, float _x, float _y, float _width, float _height, const glm::vec4& _colour);
+	void DrawImage(Context& _context, Texture* _texture, float _x, float _y);
+	void DrawImage(Context& _context, Texture* _texture, float _x, float _y, float _width, float _height, float _tx = 0.0f, float _ty = 0.0f, float _tw = 1.0f, float _th = 1.0f);
 }
+
+#endif

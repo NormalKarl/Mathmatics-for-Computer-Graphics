@@ -24,7 +24,7 @@ void Button::update()
 }
 
 void Button::draw(Context& context) {
-	Rasterizer::FillRect(context, m_position.x, m_position.y, m_size.x, m_size.y, m_mouseOver ? glm::uvec4(76, 175, 80, 255) : glm::uvec4(80, 183, 87, 255));
+	Rasterizer::FillRect(context, m_position.x, m_position.y, m_size.x, m_size.y, m_mouseOver ? glm::uvec4(58, 154, 62, 255) : glm::uvec4(80, 183, 87, 255));
 
 	if (m_icon != nullptr) {
 		Rasterizer::DrawImage(context, m_icon, m_position.x + 4, m_position.y + 4);

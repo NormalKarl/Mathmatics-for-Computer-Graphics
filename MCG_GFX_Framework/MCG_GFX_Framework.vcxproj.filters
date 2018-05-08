@@ -154,7 +154,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="OldCode.txt" />
     <Text Include="Defs.h">
       <Filter>Header Files</Filter>
     </Text>

@@ -49,12 +49,9 @@ public:
 	BitmapFont(const char* file, std::vector<const char*> pagePaths);
 	~BitmapFont();
 
-	inline int getLineHeight() {
-		return lineHeight;
-	}
-
+	inline int getLineHeight() { return lineHeight; }
 	int getWidth(const std::string& text);
-
+	void drawText(Context& context, std::string text, float x, float y, glm::vec4 col);
 	void drawText(Context& context, std::string text, float x, float y, float scale = 1.0f, Filter filter = Filter::Point, glm::vec4 col = glm::vec4(1.0f));
 };
 

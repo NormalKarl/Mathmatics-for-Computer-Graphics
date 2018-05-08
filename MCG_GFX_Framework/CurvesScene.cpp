@@ -13,16 +13,25 @@ CurvesScene::CurvesScene()
 	float centerX = SCREEN_WIDTH / 2;
 	float centerY = SCREEN_HEIGHT / 2;
 
-	bA = { centerX - 100, centerY - 100 };
-	bB = { centerX, centerY - 100 };
-	bC = { centerX, centerY + 100 };
-	bD = { centerX + 100, centerY + 100 };
+	pointA = { centerX - 100, centerY - 100 };
+	pointB = { centerX, centerY - 100 };
+	pointC = { centerX, centerY + 100 };
+	pointD = { centerX + 100, centerY + 100 };
 	focusedPoint = NULL;
+
+	//This is just some arbritary placement for the buttons.
+	float h = getContext().getHeight() - getSharedAssets().openSansFont->getLineHeight() * 2;
+	m_titlePos = glm::vec2((SCREEN_WIDTH - getSharedAssets().openSansFont->getWidth("Bezier Curve")) / 2, h);
+
+	//Arbritary Positioning
+	m_prev = Button(getSharedAssets().backIcon, (int)(getContext().getWidth() * 0.30f), h, 0);
+	m_next = Button(getSharedAssets().forwardIcon, (int)(getContext().getWidth() * 0.675f), h, 0);
+	m_titlePos = glm::vec2((SCREEN_WIDTH - getSharedAssets().openSansFont->getWidth("Bezier Curve")) / 2, h + 6);
+	m_exampleNo = 0;
 }
 
-CurvesScene::~CurvesScene()
-{
-
+float Linear(float t, float b, float c, float d) {
+	return b + ((c - b) * t);
 }
 
 float EaseInQuad(float t, float b, float c, float d) {
@@ -30,12 +39,11 @@ float EaseInQuad(float t, float b, float c, float d) {
 };
 
 float EaseInOutQuad(float t, float b, float c, float d) {
-if ((t /= d / 2) < 1) return c / 2 * t*t + b;
-return -c / 2 * ((--t)*(t - 2) - 1) + b;
+	if ((t /= d / 2) < 1) return c / 2 * t*t + b;
+	return -c / 2 * ((--t)*(t - 2) - 1) + b;
 };
 
 glm::vec2 point(float t, glm::vec2 a, glm::vec2 b, glm::vec2 c, glm::vec2 d) {
-
 	t = glm::clamp(t, 0.0f, 1.0f);
 
 	glm::vec2 na = powf((1.0f - t), 3) * a;
@@ -54,55 +62,92 @@ void CurvesScene::update() {
 
 	SDL_GetMouseState(&mouseX, &mouseY);
 
-	if (MCG::MouseDown) {
-		if (inBounds(bA, mouseX, mouseY)) {
-			focusedPoint = &bA;
-		} else if (inBounds(bB, mouseX, mouseY)) {
-			focusedPoint = &bB;
-		} else if (inBounds(bC, mouseX, mouseY)) {
-			focusedPoint = &bC;
-		} else if (inBounds(bD, mouseX, mouseY)) {
-			focusedPoint = &bD;
+	m_prev.update();
+	m_next.update();
+
+	m_titlePos.x = (SCREEN_WIDTH - getSharedAssets().openSansFont->getWidth("Bezier Curve")) / 2;
+
+	if (m_prev.isMouseOver() || m_next.isMouseOver()) {
+		if (m_prev.isClicked()) {
+			m_exampleNo--;
 		}
+		else if (m_next.isClicked()) {
+			m_exampleNo++;
+		}
+
+		m_exampleNo %= 3;
+		printf("%i\n", m_exampleNo);
 	}
 	else {
-		focusedPoint = NULL;
-	}
+		//Code to check for points
+		if (MCG::MouseDown) {
+			if (inBounds(pointB, mouseX, mouseY)) {
+				focusedPoint = &pointB;
+			}
+			else if (inBounds(pointC, mouseX, mouseY)) {
+				focusedPoint = &pointC;
+			}
+		}
+		else {
+			focusedPoint = NULL;
+		}
 
-	if (focusedPoint != NULL) {
-		focusedPoint->x = mouseX;
-		focusedPoint->y = mouseY;
+		if (focusedPoint != NULL) {
+			focusedPoint->x = mouseX;
+			focusedPoint->y = mouseY;
+		}
 	}
 }
 
 void CurvesScene::draw() {
 	Context& context = getContext();
 
-	Vertex lastPoint = { 0,0, 0, 0.0f, 0.0f, 0.0f, 1.0f };
+	Rasterizer::DrawImage(getContext(), getSharedAssets().axisBackground
+		, ((context.getWidth() - getSharedAssets().axisBackground->getWidth()) / 2)
+		, ((context.getHeight() - getSharedAssets().axisBackground->getHeight()) / 2));
 
-	for (float x = 0; x < 1.0f; x += 0.001f) {
-		glm::vec2 p = point(x, bA, bB, bC, bD);
+	m_prev.draw(context);
+	m_next.draw(context);
 
-		//p.y = bA.y + ((bD.y - bA.y) - (p.y - bA.y));
+	std::string title;
 
-		//Vertex nextPoint = { (float) x, glm::round(EaseInOutQuad(x, 0, 200, 200)), 0, 0.0f, 0.0f, 0.0f, 1.0f };
-		Vertex nextPoint = { p.x, p.y, 0, 0.0f, 0.0f, 0.0f, 1.0f };
+	switch (m_exampleNo) {
+	case 0:
+		title = "Bezier Curve";
+		for (float x = 0; x <= 1.0f; x += 0.001f) {
+			glm::vec2 p = point(x, pointA, pointB, pointC, pointD);
+			Rasterizer::DrawPoint(context, { p.x, p.y, 0, 0.0f, 0.0f, 0.0f, 1.0f });
+		}
 
-		Rasterizer::DrawPoint(context, nextPoint);
-		Rasterizer::DrawLine(context, lastPoint, nextPoint);
+		Rasterizer::DrawLine(getContext(), { pointA.x, pointA.y, 0.0f, 0.7f, 0.7f, 0.7f, 1.0f }, { pointB.x, pointB.y, 0.0f, 0.7f, 0.7f, 0.7f, 1.0f });
+		Rasterizer::DrawLine(getContext(), { pointC.x, pointC.y, 0.0f, 0.7f, 0.7f, 0.7f, 1.0f }, { pointD.x, pointD.y, 0.0f, 0.7f, 0.7f, 0.7f, 1.0f });
 
-		lastPoint = nextPoint;
+		Rasterizer::DrawImage(getContext(), getSharedAssets().holdIcon, pointB.x - 6, pointB.y - 6);
+		Rasterizer::DrawImage(getContext(), getSharedAssets().holdIcon, pointC.x - 6, pointC.y - 6);
+
+		break;
+	case 1:
+		title = "Ease In Quad";
+
+		for (float x = 0; x <= 1.0f; x += 0.001f) {
+			Rasterizer::DrawPoint(context, { pointA.x + (x * 200.0f), pointA.y + (EaseInQuad(x, 0, 200, 1.0f)), 0, 0.0f, 0.0f, 0.0f, 1.0f });
+		}
+
+		break;
+	case 2:
+		title = "Ease In Out Quad";
+
+		for (float x = 0; x <= 1.0f; x += 0.001f) {
+			Rasterizer::DrawPoint(context, { pointA.x + (x * 200.0f), pointA.y + (EaseInOutQuad(x, 0, 200, 1.0f)), 0, 0.0f, 0.0f, 0.0f, 1.0f });
+		}
+
+		break;
 	}
 
-	Rasterizer::DrawLine(getContext(), { bA.x, bA.y, 0.0f, 0.7f, 0.7f, 0.7f, 1.0f }, { bB.x, bB.y, 0.0f, 0.7f, 0.7f, 0.7f, 1.0f });
-	Rasterizer::DrawLine(getContext(), { bC.x, bC.y, 0.0f, 0.7f, 0.7f, 0.7f, 1.0f }, { bD.x, bD.y, 0.0f, 0.7f, 0.7f, 0.7f, 1.0f });
+	Rasterizer::DrawImage(getContext(), getSharedAssets().staticIcon, pointA.x - 6, pointA.y - 6);
+	Rasterizer::DrawImage(getContext(), getSharedAssets().staticIcon, pointD.x - 6, pointD.y - 6);
 
-	Rasterizer::DrawImage(getContext(), getSharedAssets().holdIcon, bA.x - 6, bA.y - 6);
-	Rasterizer::DrawImage(getContext(), getSharedAssets().holdIcon, bB.x - 6, bB.y - 6);
-	Rasterizer::DrawImage(getContext(), getSharedAssets().holdIcon, bC.x - 6, bC.y - 6);
-	Rasterizer::DrawImage(getContext(), getSharedAssets().holdIcon, bD.x - 6, bD.y - 6);
+	m_titlePos.x = (SCREEN_WIDTH - getSharedAssets().openSansFont->getWidth(title)) / 2;
+	getSharedAssets().openSansFont->drawText(getContext(), title, m_titlePos.x, m_titlePos.y, glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
 
-	getSharedAssets().openSansFont->drawText(getContext(), "Bezier Curve"
-		, (SCREEN_WIDTH - getSharedAssets().openSansFont->getWidth("Bezier Curve")) / 2, 400
-		, 1.0f, Filter::Point, glm::vec4(0.0f, 0.0f, 0.0f, 1.0f));
 }

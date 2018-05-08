@@ -82,13 +82,17 @@ int BitmapFont::getWidth(const std::string& text) {
 	return currentX;
 }
 
+void BitmapFont::drawText(Context& context, std::string text, float x, float y, glm::vec4 col) {
+	drawText(context, text, x, y, 1.0f, Filter::Point, col);
+}
+
 void BitmapFont::drawText(Context& context, std::string text, float x, float y, float scale, Filter filter, glm::vec4 col) {
 	float currentX = x;
 
 	context.m_texture = texture;
 
-	Filter tempFilter = texture->filter;
-	texture->filter = filter;
+	Filter tempFilter = texture->getFilter();
+	texture->setFilter(filter);
 
 	glm::mat4 mat = glm::translate(glm::mat4(), glm::vec3(x, y, 0.0f));
 	mat = glm::scale(mat, glm::vec3(scale, scale, 1.0f));
@@ -119,5 +123,5 @@ void BitmapFont::drawText(Context& context, std::string text, float x, float y, 
 	}
 
 	context.m_model = glm::mat4();
-	texture->filter = tempFilter;
+	texture->setFilter(tempFilter);
 }

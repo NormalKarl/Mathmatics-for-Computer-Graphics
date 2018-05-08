@@ -10,6 +10,42 @@
 #include <algorithm>
 #include <iostream>
 
+Context::Context(Surface* _surface)
+{
+	m_surface = _surface;
+	m_texture = NULL;
+	m_projection = m_view = m_world = m_model = glm::mat4(1.0f);
+
+	if (_surface != NULL)
+	{
+		ortho(0, (float)_surface->getWidth(), (float)_surface->getHeight(), 0, 0.0f, 1.0f);
+	}
+
+	m_lighting = false;
+}
+
+void Context::lookAt(float eyeX, float eyeY, float eyeZ, float centerX, float centerY, float centerZ, float upX, float upY, float upZ)
+{
+	m_cameraPosition = glm::vec3(eyeX, eyeY, eyeZ);
+	m_view = glm::lookAt(m_cameraPosition, glm::vec3(centerX, centerY, centerZ), glm::vec3(upX, upY, upZ));
+}
+
+void Context::ortho(float left, float right, float bottom, float top, float near, float far)
+{
+	m_projection = glm::ortho(left, right, bottom, top, near, far);
+}
+
+void Context::perspective(float fovy, float aspect, float near, float far)
+{
+	m_projection = glm::perspective(fovy, aspect, near, far);
+}
+
+void Context::reset() {
+	m_texture = NULL;
+	m_world = glm::mat4();
+	m_model = glm::mat4();
+}
+
 //Rasterizer
 
 bool Transform(const Context& context, Vertex& vertex) {
@@ -40,6 +76,7 @@ bool Transform(const Context& context, Vertex& v0, Vertex& v1, Vertex& v2) {
 void LineLow(const Context& context, const Vertex& v0, const Vertex& v1) {
 	float dx = v1.m_position.x - v0.m_position.x;
 	float dy = v1.m_position.y - v0.m_position.y;
+
 	int yi = 1;
 
 	if (dy < 0.0f) {
@@ -60,12 +97,13 @@ void LineLow(const Context& context, const Vertex& v0, const Vertex& v1) {
 			y = y + yi;
 			d = d - 2 * dx;
 		}
+
 		d = d + 2 * dy;
 	}
 }
 
 void LineHigh(const Context& context, const Vertex& v0, const Vertex& v1) {
-	float dx = v0.m_position.x - v1.m_position.x;
+	float dx = v1.m_position.x - v0.m_position.x;
 	float dy = v1.m_position.y - v0.m_position.y;
 
 	int xi = 1;
@@ -111,10 +149,6 @@ void Rasterizer::DrawLine(const Context& context, const Vertex& a, const Vertex&
 	Vertex v0 = a, v1 = b;
 
 	if (Transform(context, v0, v1)) {
-
-		//v1.m_position.x += 1.0f;
-		//v1.m_position.y += 1.0f;
-
 		if (glm::abs(v1.m_position.y - v0.m_position.y) < glm::abs(v1.m_position.x - v0.m_position.x)) {
 			if (v0.m_position.x > v1.m_position.x) {
 				LineLow(context, v1, v0);
@@ -179,8 +213,8 @@ void FlatBottom(const Context& context, Vertex a, Vertex b, Vertex c, glm::vec3 
 	int yEnd = (int)glm::ceil(c.m_position.y - 0.5f);
 
 	Viewport& viewport = context.m_surface->getViewport();
-	yStart = glm::clamp(yStart, viewport.y, viewport.height);
-	yEnd = glm::clamp(yEnd, viewport.y, viewport.height);
+	yStart = glm::clamp(yStart, viewport.m_y, viewport.m_height);
+	yEnd = glm::clamp(yEnd, viewport.m_y, viewport.m_height);
 
 	#pragma omp parallel
 	#pragma omp for
@@ -191,8 +225,8 @@ void FlatBottom(const Context& context, Vertex a, Vertex b, Vertex c, glm::vec3 
 
 		int xStart = (int)glm::ceil(px0 - 0.5f);
 		int xEnd = (int)glm::ceil(px1 - 0.5f);
-		xStart = glm::clamp(xStart, viewport.x, viewport.width);
-		xEnd = glm::clamp(xEnd, viewport.x, viewport.width);
+		xStart = glm::clamp(xStart, viewport.m_x, viewport.m_width);
+		xEnd = glm::clamp(xEnd, viewport.m_x, viewport.m_width);
 
 		#pragma omp parallel
 		#pragma omp for
@@ -210,8 +244,8 @@ void FlatTop(const Context& context, Vertex a, Vertex b, Vertex c, glm::vec3 sur
 	int yEnd = (int)glm::ceil(c.m_position.y - 0.5f);
 
 	Viewport& viewport = context.m_surface->getViewport();
-	yStart = glm::clamp(yStart, viewport.y, viewport.height);
-	yEnd = glm::clamp(yEnd, viewport.y, viewport.height);
+	yStart = glm::clamp(yStart, viewport.m_y, viewport.m_height);
+	yEnd = glm::clamp(yEnd, viewport.m_y, viewport.m_height);
 
 	#pragma omp parallel
 	#pragma omp for
@@ -222,8 +256,8 @@ void FlatTop(const Context& context, Vertex a, Vertex b, Vertex c, glm::vec3 sur
 
 		int xStart = (int)glm::ceil(px0 - 0.5f);
 		int xEnd = (int)glm::ceil(px1 - 0.5f);
-		xStart = glm::clamp(xStart, viewport.x, viewport.width);
-		xEnd = glm::clamp(xEnd, viewport.x, viewport.width);
+		xStart = glm::clamp(xStart, viewport.m_x, viewport.m_width);
+		xEnd = glm::clamp(xEnd, viewport.m_x, viewport.m_width);
 
 		#pragma omp parallel
 		#pragma omp for
@@ -242,9 +276,7 @@ void SortY(Vertex& a, Vertex& b) {
 }
 
 void Rasterizer::DrawTriangle(const Context& context, const Vertex& a, const Vertex& b, const Vertex& c) {
-	//glm::vec3 surfaceNormal = glm::normalize(glm::cross(b.m_position - a.m_position, c.m_position - a.m_position));
-	//glm::vec3 surfaceNormal = glm::mat3(glm::inverse(glm::transpose(context.m_world * context.m_model))) * glm::normalize(glm::cross(b.m_position - a.m_position, c.m_position - a.m_position));
-	glm::vec3 surfaceNormal = glm::mat3(glm::transpose(context.m_world * context.m_model)) * glm::cross(glm::normalize(b.m_position - a.m_position), glm::normalize(c.m_position - a.m_position));
+	glm::vec3 surfaceNormal = glm::mat3(glm::transpose(context.m_world * context.m_model)) * glm::cross(b.m_position - a.m_position, c.m_position - a.m_position);
 
 	//DrawLine(context, { a.m_position.x, a.m_position.y , a.m_position.z }, { a.m_position.x + surfaceNormal.x, a.m_position.y + surfaceNormal.y , a.m_position.z + surfaceNormal.z });
 	Vertex v0 = a, v1 = b, v2 = c;
